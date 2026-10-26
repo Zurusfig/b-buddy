@@ -1,0 +1,399 @@
+date,merchant,amount,category,payment_method
+2026-04-01,MK Restaurants,153,food,promptpay
+2026-04-01,ร้านถ่ายเอกสาร,30,education,cash
+2026-04-02,SHOPEE TH,380,shopping,promptpay
+2026-04-02,รถไฟฟ้า BTS,58,transport,rabbit_card
+2026-04-03,Netflix,169,subscriptions,credit_card
+2026-04-03,วินมอเตอร์ไซค์,22,transport,cash
+2026-04-04,Lineman,94,food,credit_card
+2026-04-04,MK,144,food,promptpay
+2026-04-05,Lineman,66,food,truemoney
+2026-04-05,MRT,34,transport,credit_card
+2026-04-05,เซเว่น อีเลฟเว่น,33,food,cash
+2026-04-05,โรงอาหารมหาวิทยาลัย,21,food,cash
+2026-04-06,MK Restaurants,217,food,promptpay
+2026-04-06,Uniqlo,313,shopping,credit_card
+2026-04-07,MK Restaurants,168,food,credit_card
+2026-04-07,MRT,33,transport,credit_card
+2026-04-07,MRT,38,transport,credit_card
+2026-04-07,ข้าวมันไก่ป้าแดง,28,food,cash
+2026-04-07,ร้านข้าวมันไก่,24,food,cash
+2026-04-08,GRAB TAXI,90,transport,credit_card
+2026-04-08,Lazada,262,shopping,credit_card
+2026-04-08,MRT,19,transport,credit_card
+2026-04-08,Spotify,69,subscriptions,credit_card
+2026-04-08,วินมอเตอร์ไซค์,40,transport,cash
+2026-04-08,โรงอาหารมหาวิทยาลัย,18,food,cash
+2026-04-10,Major Cineplex,260,entertainment,credit_card
+2026-04-10,Major Cineplex,179,entertainment,credit_card
+2026-04-12,iCloud+,35,subscriptions,credit_card
+2026-04-13,Lineman,56,food,credit_card
+2026-04-13,MK,163,food,credit_card
+2026-04-13,โรงอาหารมหาวิทยาลัย,21,food,cash
+2026-04-13,โรงอาหารมหาวิทยาลัย,28,food,cash
+2026-04-15,MRT,29,transport,credit_card
+2026-04-15,วินมอเตอร์ไซค์,28,transport,cash
+2026-04-17,BTS,38,transport,rabbit_card
+2026-04-17,ร้านตัดผม,103,other,cash
+2026-04-17,โรงอาหารมหาวิทยาลัย,27,food,cash
+2026-04-18,MRT,38,transport,credit_card
+2026-04-18,ข้าวมันไก่ป้าแดง,32,food,promptpay
+2026-04-18,โรงอาหารมหาวิทยาลัย,28,food,cash
+2026-04-19,Grab,135,transport,credit_card
+2026-04-19,GrabFood,61,food,credit_card
+2026-04-19,โรงอาหารมหาวิทยาลัย,22,food,cash
+2026-04-20,MK,205,food,credit_card
+2026-04-22,วินมอเตอร์ไซค์,18,transport,cash
+2026-04-22,เซเว่น อีเลฟเว่น,62,food,cash
+2026-04-22,เอ็มเค สุกี้,225,food,credit_card
+2026-04-23,Grab Food,51,food,credit_card
+2026-04-23,MK,234,food,credit_card
+2026-04-23,MK Restaurants,160,food,promptpay
+2026-04-23,โรงอาหารมหาวิทยาลัย,28,food,cash
+2026-04-24,SF Cinema,234,entertainment,credit_card
+2026-04-25,7-Eleven,58,food,cash
+2026-04-25,BTS,48,transport,rabbit_card
+2026-04-26,7-Eleven,55,food,cash
+2026-04-26,MK,162,food,credit_card
+2026-04-26,MK Restaurants,213,food,promptpay
+2026-04-26,MRT,24,transport,credit_card
+2026-04-27,ร้านข้าวมันไก่,33,food,promptpay
+2026-04-28,Boots,190,other,cash
+2026-04-28,Lineman,48,food,truemoney
+2026-04-28,ร้านถ่ายเอกสาร,50,education,cash
+2026-04-29,Grab Food,83,food,credit_card
+2026-04-30,MK Restaurants,135,food,credit_card
+2026-04-30,เซเว่น อีเลฟเว่น,44,food,cash
+2026-05-01,Grab,85,transport,credit_card
+2026-05-01,MRT,18,transport,credit_card
+2026-05-03,Netflix,169,subscriptions,credit_card
+2026-05-04,ข้าวมันไก่ป้าแดง,38,food,cash
+2026-05-07,วินมอเตอร์ไซค์,32,transport,cash
+2026-05-08,MK,256,food,promptpay
+2026-05-08,Spotify,69,subscriptions,credit_card
+2026-05-08,ข้าวมันไก่ป้าแดง,33,food,cash
+2026-05-09,MK Restaurants,256,food,credit_card
+2026-05-09,โรงอาหารมหาวิทยาลัย,31,food,cash
+2026-05-10,GRAB TAXI,130,transport,credit_card
+2026-05-10,วินมอเตอร์ไซค์,36,transport,cash
+2026-05-11,GRAB TAXI,145,transport,credit_card
+2026-05-11,Major Cineplex,194,entertainment,credit_card
+2026-05-11,เซเว่น อีเลฟเว่น,30,food,truemoney
+2026-05-12,MK,272,food,promptpay
+2026-05-12,MK,168,food,promptpay
+2026-05-12,iCloud+,35,subscriptions,credit_card
+2026-05-13,Boots,98,other,cash
+2026-05-13,GrabFood,65,food,credit_card
+2026-05-13,โรงอาหารมหาวิทยาลัย,29,food,cash
+2026-05-14,ร้านซ่อมมือถือ MBK,4900,other,promptpay
+2026-05-14,วัตสัน,114,other,cash
+2026-05-14,เอ็มเค สุกี้,238,food,credit_card
+2026-05-15,BTS,47,transport,rabbit_card
+2026-05-15,GRAB FOOD,98,food,credit_card
+2026-05-15,Grab,115,transport,credit_card
+2026-05-15,MK Restaurants,172,food,promptpay
+2026-05-16,วินมอเตอร์ไซค์,37,transport,cash
+2026-05-17,LINE MAN,54,food,truemoney
+2026-05-17,วินมอเตอร์ไซค์,36,transport,cash
+2026-05-19,7-Eleven,35,food,cash
+2026-05-20,7-11,58,food,truemoney
+2026-05-20,LINE MAN,69,food,credit_card
+2026-05-20,MK,153,food,promptpay
+2026-05-20,Uniqlo,483,shopping,credit_card
+2026-05-20,วินมอเตอร์ไซค์,36,transport,cash
+2026-05-20,เซเว่น อีเลฟเว่น,34,food,cash
+2026-05-21,STEAM PURCHASE,295,entertainment,credit_card
+2026-05-22,7-11,31,food,cash
+2026-05-22,Grab,156,transport,credit_card
+2026-05-22,Grab Food,108,food,credit_card
+2026-05-22,Lineman,96,food,truemoney
+2026-05-22,SHOPEE TH,167,shopping,credit_card
+2026-05-23,SF CINEMA,216,entertainment,credit_card
+2026-05-24,GRAB FOOD,72,food,credit_card
+2026-05-24,GRAB FOOD,58,food,credit_card
+2026-05-24,GRAB TAXI,144,transport,credit_card
+2026-05-24,Grab Food,95,food,credit_card
+2026-05-24,ร้านถ่ายเอกสาร,77,education,cash
+2026-05-25,MK,152,food,promptpay
+2026-05-26,BTS Skytrain,31,transport,rabbit_card
+2026-05-26,โรงอาหารมหาวิทยาลัย,26,food,cash
+2026-05-27,7-11,32,food,cash
+2026-05-27,7-Eleven,64,food,truemoney
+2026-05-27,ร้านถ่ายเอกสาร,36,education,cash
+2026-05-27,เซเว่น อีเลฟเว่น,27,food,cash
+2026-05-28,Grab Food,71,food,credit_card
+2026-05-29,GrabFood,102,food,credit_card
+2026-05-29,MK,206,food,credit_card
+2026-05-29,วินมอเตอร์ไซค์,19,transport,cash
+2026-05-30,7-11,66,food,truemoney
+2026-05-30,Uniqlo,302,shopping,credit_card
+2026-05-31,Lineman,121,food,truemoney
+2026-05-31,MRT,30,transport,credit_card
+2026-05-31,โรงอาหารมหาวิทยาลัย,34,food,cash
+2026-06-01,MK,305,food,promptpay
+2026-06-03,BTS,26,transport,rabbit_card
+2026-06-03,Netflix,169,subscriptions,credit_card
+2026-06-03,SF Cinema,194,entertainment,credit_card
+2026-06-03,ข้าวมันไก่ป้าแดง,48,food,cash
+2026-06-04,MRT,25,transport,credit_card
+2026-06-04,MRT,25,transport,credit_card
+2026-06-04,โรงอาหารมหาวิทยาลัย,30,food,cash
+2026-06-05,ร้านข้าวมันไก่,38,food,promptpay
+2026-06-06,MRT,24,transport,credit_card
+2026-06-06,SHOPEE TH,437,shopping,promptpay
+2026-06-06,Shopee,381,shopping,promptpay
+2026-06-07,MRT,20,transport,credit_card
+2026-06-08,Spotify,69,subscriptions,credit_card
+2026-06-08,เซเว่น อีเลฟเว่น,39,food,cash
+2026-06-09,GRAB TAXI,149,transport,credit_card
+2026-06-09,Grab,150,transport,credit_card
+2026-06-09,ข้าวมันไก่ป้าแดง,56,food,promptpay
+2026-06-09,ร้านข้าวมันไก่,48,food,cash
+2026-06-10,MK,284,food,credit_card
+2026-06-10,MRT,31,transport,credit_card
+2026-06-10,ซีเอ็ดบุ๊คเซ็นเตอร์,295,education,credit_card
+2026-06-11,GRAB TAXI,121,transport,credit_card
+2026-06-11,MK,295,food,promptpay
+2026-06-11,ข้าวมันไก่ป้าแดง,36,food,promptpay
+2026-06-12,7-11,22,food,cash
+2026-06-12,MK,301,food,credit_card
+2026-06-12,iCloud+,35,subscriptions,credit_card
+2026-06-12,ข้าวมันไก่ป้าแดง,39,food,promptpay
+2026-06-13,ร้านข้าวมันไก่,37,food,promptpay
+2026-06-13,เอ็มเค สุกี้,341,food,promptpay
+2026-06-14,GRAB TAXI,130,transport,credit_card
+2026-06-14,ข้าวมันไก่ป้าแดง,50,food,promptpay
+2026-06-14,โรงอาหารมหาวิทยาลัย,46,food,cash
+2026-06-15,Boots,138,other,credit_card
+2026-06-15,Grab Food,128,food,credit_card
+2026-06-16,LINE MAN,152,food,credit_card
+2026-06-16,ข้าวมันไก่ป้าแดง,44,food,cash
+2026-06-18,MK Restaurants,258,food,promptpay
+2026-06-18,Major Cineplex,214,entertainment,credit_card
+2026-06-19,BTS Skytrain,48,transport,rabbit_card
+2026-06-19,MRT,20,transport,credit_card
+2026-06-20,7-Eleven,40,food,cash
+2026-06-20,MRT,34,transport,credit_card
+2026-06-20,วินมอเตอร์ไซค์,33,transport,cash
+2026-06-21,Uniqlo,485,shopping,credit_card
+2026-06-22,GrabFood,98,food,credit_card
+2026-06-22,LINE MAN,100,food,credit_card
+2026-06-23,BTS,52,transport,rabbit_card
+2026-06-23,SE-ED Book,253,education,credit_card
+2026-06-23,Watsons,236,other,credit_card
+2026-06-23,เซเว่น อีเลฟเว่น,42,food,truemoney
+2026-06-23,โรงอาหารมหาวิทยาลัย,40,food,cash
+2026-06-24,GRAB TAXI,89,transport,credit_card
+2026-06-25,7-11,66,food,cash
+2026-06-25,Grab Food,86,food,credit_card
+2026-06-25,MK Restaurants,235,food,credit_card
+2026-06-26,โรงอาหารมหาวิทยาลัย,45,food,cash
+2026-06-27,ข้าวมันไก่ป้าแดง,44,food,cash
+2026-06-27,โรงอาหารมหาวิทยาลัย,47,food,cash
+2026-06-28,7-11,51,food,truemoney
+2026-06-29,7-Eleven,63,food,truemoney
+2026-06-30,GRAB FOOD,94,food,credit_card
+2026-06-30,Major Cineplex,247,entertainment,credit_card
+2026-06-30,ร้านข้าวมันไก่,52,food,cash
+2026-07-01,7-11,30,food,truemoney
+2026-07-01,GRAB TAXI,149,transport,credit_card
+2026-07-01,ร้านตัดผม,150,other,cash
+2026-07-02,MRT,45,transport,credit_card
+2026-07-02,Uniqlo,369,shopping,credit_card
+2026-07-03,BTS Skytrain,35,transport,rabbit_card
+2026-07-03,LINE MAN,121,food,credit_card
+2026-07-03,Netflix,169,subscriptions,credit_card
+2026-07-03,เอ็มเค สุกี้,252,food,credit_card
+2026-07-03,โรงอาหารมหาวิทยาลัย,39,food,cash
+2026-07-04,7-11,46,food,truemoney
+2026-07-04,Lazada,690,shopping,credit_card
+2026-07-05,Major Cineplex,219,entertainment,credit_card
+2026-07-07,ข้าวมันไก่ป้าแดง,55,food,cash
+2026-07-07,วินมอเตอร์ไซค์,29,transport,cash
+2026-07-08,Grab Food,121,food,credit_card
+2026-07-08,Spotify,69,subscriptions,credit_card
+2026-07-08,วินมอเตอร์ไซค์,30,transport,cash
+2026-07-09,Shopee,1290,shopping,credit_card
+2026-07-10,GRAB FOOD,157,food,credit_card
+2026-07-10,LINE MAN,137,food,truemoney
+2026-07-10,Lineman,149,food,truemoney
+2026-07-11,GRAB FOOD,171,food,credit_card
+2026-07-11,ร้านถ่ายเอกสาร,25,education,cash
+2026-07-12,Grab,97,transport,credit_card
+2026-07-12,iCloud+,35,subscriptions,credit_card
+2026-07-13,วินมอเตอร์ไซค์,18,transport,cash
+2026-07-14,GRAB FOOD,132,food,credit_card
+2026-07-14,Grab,155,transport,credit_card
+2026-07-14,ร้านข้าวมันไก่,48,food,promptpay
+2026-07-14,ร้านข้าวมันไก่,53,food,promptpay
+2026-07-15,ข้าวมันไก่ป้าแดง,49,food,promptpay
+2026-07-15,รถไฟฟ้า BTS,62,transport,rabbit_card
+2026-07-15,เอ็มเค สุกี้,227,food,promptpay
+2026-07-15,โรงอาหารมหาวิทยาลัย,47,food,cash
+2026-07-16,ข้าวมันไก่ป้าแดง,53,food,cash
+2026-07-17,NETFLIX.COM,169,subscriptions,truemoney
+2026-07-18,SHOPEE TH,459,shopping,credit_card
+2026-07-18,ข้าวมันไก่ป้าแดง,42,food,promptpay
+2026-07-19,Grab Food,76,food,credit_card
+2026-07-19,วินมอเตอร์ไซค์,22,transport,cash
+2026-07-20,7-Eleven,73,food,truemoney
+2026-07-20,MRT,22,transport,credit_card
+2026-07-20,วินมอเตอร์ไซค์,39,transport,cash
+2026-07-21,GrabFood,167,food,credit_card
+2026-07-21,MK,321,food,promptpay
+2026-07-21,ข้าวมันไก่ป้าแดง,44,food,promptpay
+2026-07-21,รถไฟฟ้า BTS,21,transport,rabbit_card
+2026-07-21,วินมอเตอร์ไซค์,33,transport,cash
+2026-07-21,โรงอาหารมหาวิทยาลัย,31,food,cash
+2026-07-22,Lazada,217,shopping,credit_card
+2026-07-22,วินมอเตอร์ไซค์,29,transport,cash
+2026-07-23,ร้านข้าวมันไก่,44,food,promptpay
+2026-07-24,SF CINEMA,221,entertainment,credit_card
+2026-07-24,เซเว่น อีเลฟเว่น,24,food,truemoney
+2026-07-26,ร้านถ่ายเอกสาร,32,education,cash
+2026-07-27,STEAM PURCHASE,234,entertainment,credit_card
+2026-07-28,7-Eleven,71,food,truemoney
+2026-07-28,GRAB FOOD,111,food,credit_card
+2026-07-28,Lineman,111,food,credit_card
+2026-07-28,MK Restaurants,338,food,credit_card
+2026-07-28,เอ็มเค สุกี้,347,food,promptpay
+2026-07-28,โรงอาหารมหาวิทยาลัย,43,food,cash
+2026-07-29,Uniqlo,450,shopping,credit_card
+2026-07-30,7-11,63,food,truemoney
+2026-07-30,7-Eleven,68,food,truemoney
+2026-07-30,วินมอเตอร์ไซค์,15,transport,cash
+2026-07-31,7-11,89,food,truemoney
+2026-07-31,วัตสัน,245,other,credit_card
+2026-08-01,Major Cineplex,201,entertainment,credit_card
+2026-08-01,ซีเอ็ดบุ๊คเซ็นเตอร์,333,education,credit_card
+2026-08-02,LAZADA,389,shopping,credit_card
+2026-08-02,โรงอาหารมหาวิทยาลัย,50,food,cash
+2026-08-03,MK,285,food,credit_card
+2026-08-03,Netflix,169,subscriptions,credit_card
+2026-08-03,Steam,227,entertainment,credit_card
+2026-08-03,ร้านข้าวมันไก่,46,food,cash
+2026-08-04,GrabFood,156,food,credit_card
+2026-08-04,Uniqlo,378,shopping,credit_card
+2026-08-04,ข้าวมันไก่ป้าแดง,66,food,promptpay
+2026-08-05,Shopee (refund),-459,shopping,credit_card
+2026-08-05,รถไฟฟ้า BTS,49,transport,rabbit_card
+2026-08-06,GRAB TAXI,104,transport,credit_card
+2026-08-06,Grab Food,174,food,credit_card
+2026-08-07,Uniqlo,396,shopping,credit_card
+2026-08-08,Spotify,69,subscriptions,credit_card
+2026-08-09,GRAB FOOD,129,food,credit_card
+2026-08-09,LINE MAN,89,food,truemoney
+2026-08-09,โรงอาหารมหาวิทยาลัย,36,food,cash
+2026-08-11,ร้านข้าวมันไก่,56,food,promptpay
+2026-08-11,โรงอาหารมหาวิทยาลัย,37,food,cash
+2026-08-12,BTS Skytrain,55,transport,rabbit_card
+2026-08-12,iCloud+,35,subscriptions,credit_card
+2026-08-12,วินมอเตอร์ไซค์,25,transport,cash
+2026-08-12,โรงอาหารมหาวิทยาลัย,39,food,cash
+2026-08-13,7-Eleven,56,food,cash
+2026-08-13,BTS,50,transport,rabbit_card
+2026-08-13,GRAB FOOD,178,food,credit_card
+2026-08-13,Major Cineplex,182,entertainment,credit_card
+2026-08-15,Lineman,130,food,credit_card
+2026-08-15,ร้านตัดผม,127,other,cash
+2026-08-15,เซเว่น อีเลฟเว่น,33,food,truemoney
+2026-08-15,เอ็มเค สุกี้,406,food,credit_card
+2026-08-16,BTS Skytrain,45,transport,rabbit_card
+2026-08-16,GrabFood,100,food,credit_card
+2026-08-16,ข้าวมันไก่ป้าแดง,49,food,cash
+2026-08-16,ข้าวมันไก่ป้าแดง,59,food,cash
+2026-08-17,MK,285,food,promptpay
+2026-08-17,NETFLIX.COM,169,subscriptions,truemoney
+2026-08-18,GRAB FOOD,116,food,credit_card
+2026-08-19,Grab,157,transport,credit_card
+2026-08-19,Watsons,207,other,credit_card
+2026-08-19,ข้าวมันไก่ป้าแดง,67,food,promptpay
+2026-08-19,ข้าวมันไก่ป้าแดง,67,food,promptpay
+2026-08-20,MRT,44,transport,credit_card
+2026-08-21,LINE MAN,164,food,truemoney
+2026-08-22,BTS,27,transport,rabbit_card
+2026-08-22,GrabFood,208,food,credit_card
+2026-08-22,MRT,35,transport,credit_card
+2026-08-22,โรงอาหารมหาวิทยาลัย,47,food,cash
+2026-08-23,Grab,83,transport,credit_card
+2026-08-23,ข้าวมันไก่ป้าแดง,54,food,cash
+2026-08-24,LINE MAN,160,food,truemoney
+2026-08-24,MRT,19,transport,credit_card
+2026-08-25,ซีเอ็ดบุ๊คเซ็นเตอร์,234,education,credit_card
+2026-08-26,Grab Food,96,food,credit_card
+2026-08-26,วินมอเตอร์ไซค์,38,transport,cash
+2026-08-27,LINE MAN,157,food,truemoney
+2026-08-27,โรงอาหารมหาวิทยาลัย,49,food,cash
+2026-08-28,BTS Skytrain,39,transport,rabbit_card
+2026-08-28,Lineman,93,food,truemoney
+2026-08-28,วินมอเตอร์ไซค์,18,transport,cash
+2026-08-29,GRAB TAXI,159,transport,credit_card
+2026-08-29,โรงอาหารมหาวิทยาลัย,49,food,cash
+2026-08-30,เซเว่น อีเลฟเว่น,97,food,truemoney
+2026-08-31,MK,367,food,promptpay
+2026-09-01,โรงอาหารมหาวิทยาลัย,40,food,cash
+2026-09-02,7-11,66,food,truemoney
+2026-09-02,Lazada,274,shopping,credit_card
+2026-09-02,Lineman,114,food,truemoney
+2026-09-02,MRT,44,transport,credit_card
+2026-09-02,เซเว่น อีเลฟเว่น,85,food,cash
+2026-09-03,LINE MAN,143,food,credit_card
+2026-09-03,Netflix,169,subscriptions,credit_card
+2026-09-03,ซีเอ็ดบุ๊คเซ็นเตอร์,343,education,credit_card
+2026-09-03,โรงอาหารมหาวิทยาลัย,31,food,cash
+2026-09-04,Shopee,379,shopping,credit_card
+2026-09-05,MK Restaurants,330,food,promptpay
+2026-09-05,ร้านข้าวมันไก่,41,food,cash
+2026-09-05,เอ็มเค สุกี้,225,food,promptpay
+2026-09-05,โรงอาหารมหาวิทยาลัย,33,food,cash
+2026-09-06,GRAB TAXI,124,transport,credit_card
+2026-09-08,7-11,51,food,truemoney
+2026-09-08,Major Cineplex,238,entertainment,credit_card
+2026-09-08,Spotify,69,subscriptions,credit_card
+2026-09-09,BTS Skytrain,22,transport,rabbit_card
+2026-09-09,Uniqlo,310,shopping,credit_card
+2026-09-10,Grab,77,transport,credit_card
+2026-09-10,MK,310,food,promptpay
+2026-09-10,Steam,282,entertainment,credit_card
+2026-09-10,วินมอเตอร์ไซค์,32,transport,cash
+2026-09-11,LINE MAN,108,food,truemoney
+2026-09-11,MK Restaurants,234,food,credit_card
+2026-09-11,เอ็มเค สุกี้,330,food,credit_card
+2026-09-12,Grab,109,transport,credit_card
+2026-09-12,LINE MAN,154,food,credit_card
+2026-09-12,iCloud+,35,subscriptions,credit_card
+2026-09-12,ร้านตัดผม,140,other,cash
+2026-09-13,ข้าวมันไก่ป้าแดง,43,food,cash
+2026-09-13,ร้านตัดผม,133,other,cash
+2026-09-15,วินมอเตอร์ไซค์,26,transport,cash
+2026-09-15,วินมอเตอร์ไซค์,39,transport,cash
+2026-09-15,เซเว่น อีเลฟเว่น,80,food,truemoney
+2026-09-15,โรงอาหารมหาวิทยาลัย,32,food,cash
+2026-09-17,7-Eleven,63,food,truemoney
+2026-09-17,BTS Skytrain,20,transport,rabbit_card
+2026-09-17,Grab Food,160,food,credit_card
+2026-09-17,MK,213,food,credit_card
+2026-09-17,NETFLIX.COM,169,subscriptions,truemoney
+2026-09-17,STEAM PURCHASE,146,entertainment,credit_card
+2026-09-17,เอ็มเค สุกี้,209,food,promptpay
+2026-09-21,7-11,48,food,cash
+2026-09-21,LINE MAN,94,food,credit_card
+2026-09-21,MK,333,food,credit_card
+2026-09-21,ซีเอ็ดบุ๊คเซ็นเตอร์,332,education,credit_card
+2026-09-22,7-11,29,food,cash
+2026-09-22,MK Restaurants,280,food,promptpay
+2026-09-22,วินมอเตอร์ไซค์,28,transport,cash
+2026-09-23,ร้านข้าวมันไก่,55,food,promptpay
+2026-09-23,วินมอเตอร์ไซค์,32,transport,cash
+2026-09-24,MRT,43,transport,credit_card
+2026-09-25,MK,232,food,credit_card
+2026-09-25,MRT,36,transport,credit_card
+2026-09-26,ข้าวมันไก่ป้าแดง,51,food,promptpay
+2026-09-27,7-11,36,food,truemoney
+2026-09-27,MRT,27,transport,credit_card
+2026-09-28,Lineman,132,food,credit_card
+2026-09-28,โรงอาหารมหาวิทยาลัย,29,food,cash
+2026-09-30,LINE MAN,100,food,credit_card
+2026-09-30,MRT,45,transport,credit_card
+2026-09-30,วินมอเตอร์ไซค์,28,transport,cash
+2026-09-30,เซเว่น อีเลฟเว่น,86,food,cash

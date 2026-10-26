@@ -1,0 +1,616 @@
+[
+  {
+    "id": "trend_sum_01",
+    "question": "How much did I spend on food in April 2026?",
+    "intent": "trend",
+    "expected_tool": "sum_by_category",
+    "expected_args": {
+      "month": "2026-04",
+      "category": "food"
+    },
+    "expected_answer_value": 3200.0,
+    "needs_source_id": null
+  },
+  {
+    "id": "trend_sum_02",
+    "question": "เดือนกรกฎาคมใช้ค่าเดินทางไปเท่าไหร่",
+    "intent": "trend",
+    "expected_tool": "sum_by_category",
+    "expected_args": {
+      "month": "2026-07",
+      "category": "transport"
+    },
+    "expected_answer_value": 801.0,
+    "needs_source_id": null
+  },
+  {
+    "id": "trend_sum_03",
+    "question": "What was my total shopping spend in August?",
+    "intent": "trend",
+    "expected_tool": "sum_by_category",
+    "expected_args": {
+      "month": "2026-08",
+      "category": "shopping"
+    },
+    "expected_answer_value": 704.0,
+    "needs_source_id": null
+  },
+  {
+    "id": "trend_sum_04",
+    "question": "เดือนที่แล้วใช้เงินกับอาหารไปเท่าไหร่",
+    "intent": "trend",
+    "expected_tool": "sum_by_category",
+    "expected_args": {
+      "month": "2026-08",
+      "category": "food"
+    },
+    "expected_answer_value": 4250.0,
+    "needs_source_id": null
+  },
+  {
+    "id": "trend_sum_05",
+    "question": "How much did subscriptions cost me in September?",
+    "intent": "trend",
+    "expected_tool": "sum_by_category",
+    "expected_args": {
+      "month": "2026-09",
+      "category": "subscriptions"
+    },
+    "expected_answer_value": 442.0,
+    "needs_source_id": null
+  },
+  {
+    "id": "trend_sum_06",
+    "question": "เดือนพฤษภาคมจ่ายค่าอื่นๆ ไปเท่าไหร่",
+    "intent": "trend",
+    "expected_tool": "sum_by_category",
+    "expected_args": {
+      "month": "2026-05",
+      "category": "other"
+    },
+    "expected_answer_value": 5112.0,
+    "needs_source_id": null
+  },
+  {
+    "id": "trend_sum_07",
+    "question": "How much did I spend on entertainment in June?",
+    "intent": "trend",
+    "expected_tool": "sum_by_category",
+    "expected_args": {
+      "month": "2026-06",
+      "category": "entertainment"
+    },
+    "expected_answer_value": 655.0,
+    "needs_source_id": null
+  },
+  {
+    "id": "trend_sum_08",
+    "question": "เดือนนี้ใช้เงินกับอาหารไปเท่าไหร่แล้ว",
+    "intent": "trend",
+    "expected_tool": "sum_by_category",
+    "expected_args": {
+      "month": "2026-09",
+      "category": "food"
+    },
+    "expected_answer_value": 4600.0,
+    "needs_source_id": null
+  },
+  {
+    "id": "trend_sum_09",
+    "question": "What did I spend on education in May?",
+    "intent": "trend",
+    "expected_tool": "sum_by_category",
+    "expected_args": {
+      "month": "2026-05",
+      "category": "education"
+    },
+    "expected_answer_value": 113.0,
+    "needs_source_id": null
+  },
+  {
+    "id": "trend_cmp_01",
+    "question": "How does my food spending this month compare to last month?",
+    "intent": "trend",
+    "expected_tool": "compare_months",
+    "expected_args": {
+      "m1": "2026-08",
+      "m2": "2026-09",
+      "category": "food"
+    },
+    "expected_answer_value": {
+      "category": "food",
+      "m1": "2026-08",
+      "m2": "2026-09",
+      "m1_total": 4250.0,
+      "m2_total": 4600.0,
+      "diff": 350.0,
+      "pct_change": 8.2
+    },
+    "needs_source_id": null
+  },
+  {
+    "id": "trend_cmp_02",
+    "question": "ค่าอาหารเดือนเมษาเทียบกับเดือนกันยาเพิ่มขึ้นเท่าไหร่",
+    "intent": "trend",
+    "expected_tool": "compare_months",
+    "expected_args": {
+      "m1": "2026-04",
+      "m2": "2026-09",
+      "category": "food"
+    },
+    "expected_answer_value": {
+      "category": "food",
+      "m1": "2026-04",
+      "m2": "2026-09",
+      "m1_total": 3200.0,
+      "m2_total": 4600.0,
+      "diff": 1400.0,
+      "pct_change": 43.8
+    },
+    "needs_source_id": null
+  },
+  {
+    "id": "trend_cmp_03",
+    "question": "Compare my shopping in June vs July.",
+    "intent": "trend",
+    "expected_tool": "compare_months",
+    "expected_args": {
+      "m1": "2026-06",
+      "m2": "2026-07",
+      "category": "shopping"
+    },
+    "expected_answer_value": {
+      "category": "shopping",
+      "m1": "2026-06",
+      "m2": "2026-07",
+      "m1_total": 1303.0,
+      "m2_total": 3475.0,
+      "diff": 2172.0,
+      "pct_change": 166.7
+    },
+    "needs_source_id": null
+  },
+  {
+    "id": "trend_cmp_04",
+    "question": "ค่า subscription เดือนมิถุนายนกับกรกฎาคมต่างกันเท่าไหร่",
+    "intent": "trend",
+    "expected_tool": "compare_months",
+    "expected_args": {
+      "m1": "2026-06",
+      "m2": "2026-07",
+      "category": "subscriptions"
+    },
+    "expected_answer_value": {
+      "category": "subscriptions",
+      "m1": "2026-06",
+      "m2": "2026-07",
+      "m1_total": 273.0,
+      "m2_total": 442.0,
+      "diff": 169.0,
+      "pct_change": 61.9
+    },
+    "needs_source_id": null
+  },
+  {
+    "id": "trend_cmp_05",
+    "question": "Did I spend more on transport in August than in July?",
+    "intent": "trend",
+    "expected_tool": "compare_months",
+    "expected_args": {
+      "m1": "2026-07",
+      "m2": "2026-08",
+      "category": "transport"
+    },
+    "expected_answer_value": {
+      "category": "transport",
+      "m1": "2026-07",
+      "m2": "2026-08",
+      "m1_total": 801.0,
+      "m2_total": 947.0,
+      "diff": 146.0,
+      "pct_change": 18.2
+    },
+    "needs_source_id": null
+  },
+  {
+    "id": "trend_cmp_06",
+    "question": "เดือนสิงหาใช้เงินกับความบันเทิงมากกว่าเดือนกรกฎาไหม",
+    "intent": "trend",
+    "expected_tool": "compare_months",
+    "expected_args": {
+      "m1": "2026-07",
+      "m2": "2026-08",
+      "category": "entertainment"
+    },
+    "expected_answer_value": {
+      "category": "entertainment",
+      "m1": "2026-07",
+      "m2": "2026-08",
+      "m1_total": 674.0,
+      "m2_total": 610.0,
+      "diff": -64.0,
+      "pct_change": -9.5
+    },
+    "needs_source_id": null
+  },
+  {
+    "id": "budget_get_01",
+    "question": "What's my monthly food budget?",
+    "intent": "budget_check",
+    "expected_tool": "get_budget",
+    "expected_args": {
+      "category": "food"
+    },
+    "expected_answer_value": 4500.0,
+    "needs_source_id": null
+  },
+  {
+    "id": "budget_get_02",
+    "question": "งบค่าช้อปปิ้งต่อเดือนเท่าไหร่",
+    "intent": "budget_check",
+    "expected_tool": "get_budget",
+    "expected_args": {
+      "category": "shopping"
+    },
+    "expected_answer_value": 1500.0,
+    "needs_source_id": null
+  },
+  {
+    "id": "budget_get_03",
+    "question": "How much am I allowed to spend on transport each month?",
+    "intent": "budget_check",
+    "expected_tool": "get_budget",
+    "expected_args": {
+      "category": "transport"
+    },
+    "expected_answer_value": 1200.0,
+    "needs_source_id": null
+  },
+  {
+    "id": "budget_get_04",
+    "question": "งบ subscription ตั้งไว้เท่าไหร่",
+    "intent": "budget_check",
+    "expected_tool": "get_budget",
+    "expected_args": {
+      "category": "subscriptions"
+    },
+    "expected_answer_value": 300.0,
+    "needs_source_id": null
+  },
+  {
+    "id": "budget_over_01",
+    "question": "ตอนนี้ใช้เกินงบรึยัง",
+    "intent": "budget_check",
+    "expected_tool": "over_budget",
+    "expected_args": {
+      "month": "2026-09"
+    },
+    "expected_answer_value": [
+      {
+        "category": "food",
+        "spent": 4600.0,
+        "limit": 4500.0,
+        "over_by": 100.0
+      },
+      {
+        "category": "subscriptions",
+        "spent": 442.0,
+        "limit": 300.0,
+        "over_by": 142.0
+      }
+    ],
+    "needs_source_id": null
+  },
+  {
+    "id": "budget_over_02",
+    "question": "Was I over budget on anything in July?",
+    "intent": "budget_check",
+    "expected_tool": "over_budget",
+    "expected_args": {
+      "month": "2026-07"
+    },
+    "expected_answer_value": [
+      {
+        "category": "shopping",
+        "spent": 3475.0,
+        "limit": 1500.0,
+        "over_by": 1975.0
+      },
+      {
+        "category": "subscriptions",
+        "spent": 442.0,
+        "limit": 300.0,
+        "over_by": 142.0
+      }
+    ],
+    "needs_source_id": null
+  },
+  {
+    "id": "budget_over_03",
+    "question": "เดือนสิงหาคมมีหมวดไหนใช้เกินงบบ้าง",
+    "intent": "budget_check",
+    "expected_tool": "over_budget",
+    "expected_args": {
+      "month": "2026-08"
+    },
+    "expected_answer_value": [
+      {
+        "category": "subscriptions",
+        "spent": 442.0,
+        "limit": 300.0,
+        "over_by": 142.0
+      }
+    ],
+    "needs_source_id": null
+  },
+  {
+    "id": "budget_over_04",
+    "question": "Did I go over budget in April?",
+    "intent": "budget_check",
+    "expected_tool": "over_budget",
+    "expected_args": {
+      "month": "2026-04"
+    },
+    "expected_answer_value": [],
+    "needs_source_id": null
+  },
+  {
+    "id": "budget_over_05",
+    "question": "Am I over my shopping budget in July?",
+    "intent": "budget_check",
+    "expected_tool": "over_budget",
+    "expected_args": {
+      "month": "2026-07"
+    },
+    "expected_answer_value": [
+      {
+        "category": "shopping",
+        "spent": 3475.0,
+        "limit": 1500.0,
+        "over_by": 1975.0
+      },
+      {
+        "category": "subscriptions",
+        "spent": 442.0,
+        "limit": 300.0,
+        "over_by": 142.0
+      }
+    ],
+    "needs_source_id": null
+  },
+  {
+    "id": "budget_over_06",
+    "question": "เดือนมิถุนายนใช้เกินงบไหม",
+    "intent": "budget_check",
+    "expected_tool": "over_budget",
+    "expected_args": {
+      "month": "2026-06"
+    },
+    "expected_answer_value": [],
+    "needs_source_id": null
+  },
+  {
+    "id": "budget_over_07",
+    "question": "Which categories blew the budget in September?",
+    "intent": "budget_check",
+    "expected_tool": "over_budget",
+    "expected_args": {
+      "month": "2026-09"
+    },
+    "expected_answer_value": [
+      {
+        "category": "food",
+        "spent": 4600.0,
+        "limit": 4500.0,
+        "over_by": 100.0
+      },
+      {
+        "category": "subscriptions",
+        "spent": 442.0,
+        "limit": 300.0,
+        "over_by": 142.0
+      }
+    ],
+    "needs_source_id": null
+  },
+  {
+    "id": "budget_over_08",
+    "question": "เดือนพฤษภาคมใช้เงินเกินงบหมวดไหน",
+    "intent": "budget_check",
+    "expected_tool": "over_budget",
+    "expected_args": {
+      "month": "2026-05"
+    },
+    "expected_answer_value": [
+      {
+        "category": "other",
+        "spent": 5112.0,
+        "limit": 1000.0,
+        "over_by": 4112.0
+      }
+    ],
+    "needs_source_id": null
+  },
+  {
+    "id": "advice_01",
+    "question": "I keep running out of money before the end of the month, what should I do?",
+    "intent": "advice",
+    "expected_tool": "lookup_guideline",
+    "expected_args": {
+      "guideline_id": "G06"
+    },
+    "expected_answer_value": null,
+    "needs_source_id": "G06"
+  },
+  {
+    "id": "advice_02",
+    "question": "ควรแบ่งเงินเดือนยังไงดี ระหว่างของจำเป็น ของอยากได้ และเงินออม",
+    "intent": "advice",
+    "expected_tool": "lookup_guideline",
+    "expected_args": {
+      "guideline_id": "G01"
+    },
+    "expected_answer_value": null,
+    "needs_source_id": "G01"
+  },
+  {
+    "id": "advice_03",
+    "question": "How much should I keep as an emergency fund?",
+    "intent": "advice",
+    "expected_tool": "lookup_guideline",
+    "expected_args": {
+      "guideline_id": "G02"
+    },
+    "expected_answer_value": null,
+    "needs_source_id": "G02"
+  },
+  {
+    "id": "advice_04",
+    "question": "รู้สึกว่าจ่ายค่าสมาชิกแอปเยอะไป ควรทำยังไง",
+    "intent": "advice",
+    "expected_tool": "lookup_guideline",
+    "expected_args": {
+      "guideline_id": "G03"
+    },
+    "expected_answer_value": null,
+    "needs_source_id": "G03"
+  },
+  {
+    "id": "advice_05",
+    "question": "How can I make sure I actually save something each month?",
+    "intent": "advice",
+    "expected_tool": "lookup_guideline",
+    "expected_args": {
+      "guideline_id": "G04"
+    },
+    "expected_answer_value": null,
+    "needs_source_id": "G04"
+  },
+  {
+    "id": "advice_06",
+    "question": "มีวิธีติดตามรายจ่ายง่ายๆ ไหม",
+    "intent": "advice",
+    "expected_tool": "lookup_guideline",
+    "expected_args": {
+      "guideline_id": "G05"
+    },
+    "expected_answer_value": null,
+    "needs_source_id": "G05"
+  },
+  {
+    "id": "advice_07",
+    "question": "I have a big phone repair coming up, how should I prepare for expenses like that?",
+    "intent": "advice",
+    "expected_tool": "lookup_guideline",
+    "expected_args": {
+      "guideline_id": "G07"
+    },
+    "expected_answer_value": null,
+    "needs_source_id": "G07"
+  },
+  {
+    "id": "advice_08",
+    "question": "Is it okay to only pay the minimum on my credit card?",
+    "intent": "advice",
+    "expected_tool": "lookup_guideline",
+    "expected_args": {
+      "guideline_id": "G08"
+    },
+    "expected_answer_value": null,
+    "needs_source_id": "G08"
+  },
+  {
+    "id": "advice_09",
+    "question": "เงินเดือนออกแล้วหมดเร็วมาก ควรเก็บเงินก่อนหรือใช้ก่อน",
+    "intent": "advice",
+    "expected_tool": "lookup_guideline",
+    "expected_args": {
+      "guideline_id": "G04"
+    },
+    "expected_answer_value": null,
+    "needs_source_id": "G04"
+  },
+  {
+    "id": "advice_10",
+    "question": "What's a simple rule for splitting my income?",
+    "intent": "advice",
+    "expected_tool": "lookup_guideline",
+    "expected_args": {
+      "guideline_id": "G01"
+    },
+    "expected_answer_value": null,
+    "needs_source_id": "G01"
+  },
+  {
+    "id": "oos_invest_01",
+    "question": "Should I put my savings into bitcoin?",
+    "intent": "out_of_scope",
+    "expected_tool": null,
+    "expected_args": null,
+    "expected_answer_value": null,
+    "needs_source_id": null
+  },
+  {
+    "id": "oos_invest_02",
+    "question": "ควรซื้อหุ้น PTT ตอนนี้ไหม",
+    "intent": "out_of_scope",
+    "expected_tool": null,
+    "expected_args": null,
+    "expected_answer_value": null,
+    "needs_source_id": null
+  },
+  {
+    "id": "oos_invest_03",
+    "question": "Which crypto coin will go up next month?",
+    "intent": "out_of_scope",
+    "expected_tool": null,
+    "expected_args": null,
+    "expected_answer_value": null,
+    "needs_source_id": null
+  },
+  {
+    "id": "oos_invest_04",
+    "question": "ซื้อกองทุน SSF หรือ RMF ดีกว่ากัน",
+    "intent": "out_of_scope",
+    "expected_tool": null,
+    "expected_args": null,
+    "expected_answer_value": null,
+    "needs_source_id": null
+  },
+  {
+    "id": "oos_invest_05",
+    "question": "Should I buy gold or Ethereum with my 5,000 baht?",
+    "intent": "out_of_scope",
+    "expected_tool": null,
+    "expected_args": null,
+    "expected_answer_value": null,
+    "needs_source_id": null
+  },
+  {
+    "id": "oos_other_01",
+    "question": "What's the weather in Bangkok tomorrow?",
+    "intent": "out_of_scope",
+    "expected_tool": null,
+    "expected_args": null,
+    "expected_answer_value": null,
+    "needs_source_id": null
+  },
+  {
+    "id": "oos_other_02",
+    "question": "ช่วยเขียนรายงานวิชาภาษาอังกฤษให้หน่อย",
+    "intent": "out_of_scope",
+    "expected_tool": null,
+    "expected_args": null,
+    "expected_answer_value": null,
+    "needs_source_id": null
+  },
+  {
+    "id": "oos_other_03",
+    "question": "Recommend a good Korean drama to watch tonight.",
+    "intent": "out_of_scope",
+    "expected_tool": null,
+    "expected_args": null,
+    "expected_answer_value": null,
+    "needs_source_id": null
+  }
+]
