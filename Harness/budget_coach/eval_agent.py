@@ -103,7 +103,7 @@ def numbers(text: str) -> set[float]:
 
 
 def has(text, value) -> bool:
-    return any(abs(n - abs(value)) < 0.51 for n in numbers(text))
+    return any(abs(abs(n) - abs(value)) < 0.51 for n in numbers(text))  # sign-blind: "-3,289" matches -3289
 
 
 def call_ok(item, calls) -> bool:

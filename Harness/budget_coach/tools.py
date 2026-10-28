@@ -33,6 +33,19 @@ def _check(month: str | None = None, category: str | None = None) -> None:
         raise ValueError(f"no data for month {month!r}; available: {_months()}")
 
 
+MAX_ROWS = 500
+
+
+def get_transactions(month: str, category: str | None = None) -> list[dict]:
+    """Individual transactions for one month (at most MAX_ROWS), optionally one category."""
+    _check(month, category)
+    rows = [{"date": r["date"], "amount": r["amount"], "category": r["category"],
+             "merchant": r["merchant"]}
+            for r in _transactions()
+            if r["date"].startswith(month) and (category is None or r["category"] == category)]
+    return rows[:MAX_ROWS]
+
+
 def sum_by_category(month: str, category: str) -> float:
     """Net spend in one category for one month."""
     _check(month, category)

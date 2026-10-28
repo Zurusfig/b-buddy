@@ -1,17 +1,42 @@
 # Local Python environments and caches
 .venv/
+.venv*/
 venv/
+env/
+.conda/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.ipynb_checkpoints/
+*.egg-info/
+.coverage
+htmlcov/
 
 # Credentials (keep the safe template)
 .env
 .env.*
 !.env.example
+*.pem
+*.key
 
-# Runtime logs and local tooling
+# Runtime logs and benchmark output
 logs/
+*.log
+ollama_benchmark_results.csv
+
+# Editor and OS files
 .DS_Store
+Thumbs.db
+desktop.ini
 .idea/
 .vscode/
+*.swp
+*~
+
+# Course material and synthetic persona data kept local (not pushed)
+resource/
+persona/seed.sql
+
+# Local tool settings (each person has their own)
+.claude/settings.local.json
+.claude/scheduled_tasks.lock

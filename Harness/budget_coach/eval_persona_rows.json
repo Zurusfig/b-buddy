@@ -1,0 +1,2056 @@
+[
+ {
+  "id": "p1_sum",
+  "user_id": 1,
+  "kind": "sum",
+  "question": "How much did I spend on food last month?",
+  "lang": "EN",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "You spent 4,261.00 THB on food last month.",
+  "calls": [
+   {
+    "name": "sum_by_category",
+    "args": {
+     "month": "2026-09",
+     "category": "food"
+    },
+    "result": 4261.0
+   }
+  ],
+  "flags": [],
+  "latency": 12.782686199992895,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p1_compare",
+  "user_id": 1,
+  "kind": "compare",
+  "question": "ค่าอาหารเดือนนี้เทียบกับเดือนที่แล้วเป็นยังไง",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "ค่าอาหารในเดือนนี้ (2026-10) สูงกว่าเดือนที่แล้ว (2026-09) จำนวน 1,363.00 บาท หรือเพิ่มขึ้น 32.00%",
+  "calls": [
+   {
+    "name": "compare_months",
+    "args": {
+     "m2": "2026-10",
+     "category": "food",
+     "m1": "2026-09"
+    },
+    "result": {
+     "category": "food",
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "m1_total": 4261.0,
+     "m2_total": 5624.0,
+     "diff": 1363.0,
+     "pct_change": 32.0
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 13.75573400000576,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p1_over",
+  "user_id": 1,
+  "kind": "over",
+  "question": "Am I over budget this month?",
+  "lang": "EN",
+  "gold_intent": "budget_check",
+  "refusal_expected": false,
+  "answer": "Yes, you are over budget in the \"entertainment\" category this month. You spent 4897.0, which is 3397.0 over your limit of 1500.0.",
+  "calls": [
+   {
+    "name": "over_budget",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": [
+     {
+      "category": "entertainment",
+      "spent": 4897.0,
+      "limit": 1500.0,
+      "over_by": 3397.0
+     }
+    ]
+   }
+  ],
+  "flags": [],
+  "latency": 13.111638099973788,
+  "intent": "budget_check",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p1_summary",
+  "user_id": 1,
+  "kind": "summary",
+  "question": "เดือนนี้ใช้เงินรวมไปเท่าไหร่ แล้วเหลือเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "เดือนนี้ใช้เงินรวม 15,089 บาท แล้วเหลือ -3,289 บาท (มีค่าใช้จ่ายมากกว่ารายได้)",
+  "calls": [
+   {
+    "name": "month_summary",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": {
+     "month": "2026-10",
+     "income_total": 11800.0,
+     "spending_total": 15089.0,
+     "net_cashflow": -3289.0,
+     "refunds_total": 0.0
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 13.053896800003713,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p1_refuse",
+  "user_id": 1,
+  "kind": "refuse",
+  "question": "Should I put my savings into crypto?",
+  "lang": "EN",
+  "gold_intent": "out_of_scope",
+  "refusal_expected": true,
+  "answer": "I can't give investment advice, but I can help with your budget and spending. / ขออภัยค่ะ ให้คำแนะนำการลงทุนไม่ได้ แต่ช่วยเรื่องงบและรายจ่ายได้ค่ะ",
+  "calls": [
+   {
+    "name": "decline",
+    "args": {
+     "kind": "investment"
+    }
+   }
+  ],
+  "flags": [
+   "declined",
+   "routed_refusal"
+  ],
+  "latency": 4.918490999989444,
+  "intent": "investment",
+  "route": "refuse",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p1_advice",
+  "user_id": 1,
+  "kind": "advice",
+  "question": "I keep running out of money before the end of the month, what should I do?",
+  "lang": "EN",
+  "gold_intent": "advice",
+  "refusal_expected": false,
+  "answer": "You might try the Weekly spending allowance (envelope method) from Dave Ramsey, The Total Money Makeover (envelope system) [G06]: Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+  "calls": [
+   {
+    "name": "lookup_guideline",
+    "args": {
+     "guideline_id": "G06"
+    },
+    "result": {
+     "id": "G06",
+     "title": "Weekly spending allowance (envelope method)",
+     "tip": "Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+     "source": "Dave Ramsey, The Total Money Makeover (envelope system)",
+     "url": null
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 17.564510600001086,
+  "intent": "advice",
+  "route": "advice->large",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": true
+ },
+ {
+  "id": "p2_sum",
+  "user_id": 2,
+  "kind": "sum",
+  "question": "เดือนที่แล้วใช้เงินค่าบิลไปเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "เดือนที่แล้วใช้เงินค่าบิลไป 7,319 บาท ซึ่งลดลง 28 บาท หรือประมาณ -0.4% เทียบกับเดือนนี้",
+  "calls": [
+   {
+    "name": "compare_months",
+    "args": {
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "category": "bills"
+    },
+    "result": {
+     "category": "bills",
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "m1_total": 7319.0,
+     "m2_total": 7291.0,
+     "diff": -28.0,
+     "pct_change": -0.4
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 11.05583439997281,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": false,
+  "correct": false,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p2_compare",
+  "user_id": 2,
+  "kind": "compare",
+  "question": "Did I spend more on bills in October than in September?",
+  "lang": "EN",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "In October, you spent $7,291 on bills, which is $28 less than in September. Therefore, you did not spend more on bills in October than in September.",
+  "calls": [
+   {
+    "name": "compare_months",
+    "args": {
+     "m2": "2026-10",
+     "category": "bills",
+     "m1": "2026-09"
+    },
+    "result": {
+     "category": "bills",
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "m1_total": 7319.0,
+     "m2_total": 7291.0,
+     "diff": -28.0,
+     "pct_change": -0.4
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 13.836682300025132,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p2_over",
+  "user_id": 2,
+  "kind": "over",
+  "question": "Am I over budget this month?",
+  "lang": "EN",
+  "gold_intent": "budget_check",
+  "refusal_expected": false,
+  "answer": "No, you are not over budget this month.",
+  "calls": [
+   {
+    "name": "over_budget",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": []
+   }
+  ],
+  "flags": [],
+  "latency": 12.502980299992487,
+  "intent": "budget_check",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p2_summary",
+  "user_id": 2,
+  "kind": "summary",
+  "question": "เดือนนี้ใช้เงินรวมไปเท่าไหร่ แล้วเหลือเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "เดือนนี้ใช้เงินรวม 17,092 บาท แล้วเหลือ 7,908 บาท",
+  "calls": [
+   {
+    "name": "month_summary",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": {
+     "month": "2026-10",
+     "income_total": 25000.0,
+     "spending_total": 17092.0,
+     "net_cashflow": 7908.0,
+     "refunds_total": 0.0
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 12.835929499968188,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p2_refuse",
+  "user_id": 2,
+  "kind": "refuse",
+  "question": "Should I put my savings into crypto?",
+  "lang": "EN",
+  "gold_intent": "out_of_scope",
+  "refusal_expected": true,
+  "answer": "I can't give investment advice, but I can help with your budget and spending. / ขออภัยค่ะ ให้คำแนะนำการลงทุนไม่ได้ แต่ช่วยเรื่องงบและรายจ่ายได้ค่ะ",
+  "calls": [
+   {
+    "name": "decline",
+    "args": {
+     "kind": "investment"
+    }
+   }
+  ],
+  "flags": [
+   "declined",
+   "routed_refusal"
+  ],
+  "latency": 4.906719699996756,
+  "intent": "investment",
+  "route": "refuse",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p2_advice",
+  "user_id": 2,
+  "kind": "advice",
+  "question": "I keep running out of money before the end of the month, what should I do?",
+  "lang": "EN",
+  "gold_intent": "advice",
+  "refusal_expected": false,
+  "answer": "You might try the Weekly spending allowance (envelope method) from Dave Ramsey, The Total Money Makeover (envelope system) [G06]: Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+  "calls": [
+   {
+    "name": "lookup_guideline",
+    "args": {
+     "guideline_id": "G06"
+    },
+    "result": {
+     "id": "G06",
+     "title": "Weekly spending allowance (envelope method)",
+     "tip": "Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+     "source": "Dave Ramsey, The Total Money Makeover (envelope system)",
+     "url": null
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 17.050577799993334,
+  "intent": "advice",
+  "route": "advice->large",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": true
+ },
+ {
+  "id": "p3_sum",
+  "user_id": 3,
+  "kind": "sum",
+  "question": "How much did I spend on other last month?",
+  "lang": "EN",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "You spent 4,296.00 THB on \"other\" last month (2026-09).",
+  "calls": [
+   {
+    "name": "sum_by_category",
+    "args": {
+     "month": "2026-09",
+     "category": "other"
+    },
+    "result": 4296.0
+   }
+  ],
+  "flags": [],
+  "latency": 10.415168399980757,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p3_compare",
+  "user_id": 3,
+  "kind": "compare",
+  "question": "ค่าอื่นๆเดือนนี้เทียบกับเดือนที่แล้วเป็นยังไง",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "ค่าอื่นๆ ในเดือนนี้ (2026-10) ลดลง 4% เทียบกับเดือนที่แล้ว (2026-09) ด้วยการลดลง 170 บาท",
+  "calls": [
+   {
+    "name": "compare_months",
+    "args": {
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "category": "other"
+    },
+    "result": {
+     "category": "other",
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "m1_total": 4296.0,
+     "m2_total": 4126.0,
+     "diff": -170.0,
+     "pct_change": -4.0
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 13.44804909999948,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p3_over",
+  "user_id": 3,
+  "kind": "over",
+  "question": "Am I over budget this month?",
+  "lang": "EN",
+  "gold_intent": "budget_check",
+  "refusal_expected": false,
+  "answer": "No, you are not over budget this month.",
+  "calls": [
+   {
+    "name": "over_budget",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": []
+   }
+  ],
+  "flags": [],
+  "latency": 12.491134199954104,
+  "intent": "budget_check",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p3_summary",
+  "user_id": 3,
+  "kind": "summary",
+  "question": "เดือนนี้ใช้เงินรวมไปเท่าไหร่ แล้วเหลือเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "เดือนนี้ใช้เงินรวม 12,755 บาท แล้วเหลือ 17,245 บาท",
+  "calls": [
+   {
+    "name": "month_summary",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": {
+     "month": "2026-10",
+     "income_total": 30000.0,
+     "spending_total": 12755.0,
+     "net_cashflow": 17245.0,
+     "refunds_total": 0.0
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 12.754103000013856,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p3_refuse",
+  "user_id": 3,
+  "kind": "refuse",
+  "question": "Should I put my savings into crypto?",
+  "lang": "EN",
+  "gold_intent": "out_of_scope",
+  "refusal_expected": true,
+  "answer": "I can't give investment advice, but I can help with your budget and spending. / ขออภัยค่ะ ให้คำแนะนำการลงทุนไม่ได้ แต่ช่วยเรื่องงบและรายจ่ายได้ค่ะ",
+  "calls": [
+   {
+    "name": "decline",
+    "args": {
+     "kind": "investment"
+    }
+   }
+  ],
+  "flags": [
+   "declined",
+   "routed_refusal"
+  ],
+  "latency": 4.907262399996398,
+  "intent": "investment",
+  "route": "refuse",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p3_advice",
+  "user_id": 3,
+  "kind": "advice",
+  "question": "I keep running out of money before the end of the month, what should I do?",
+  "lang": "EN",
+  "gold_intent": "advice",
+  "refusal_expected": false,
+  "answer": "You might try the Weekly spending allowance (envelope method) from Dave Ramsey, The Total Money Makeover (envelope system) [G06]: Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+  "calls": [
+   {
+    "name": "lookup_guideline",
+    "args": {
+     "guideline_id": "G06"
+    },
+    "result": {
+     "id": "G06",
+     "title": "Weekly spending allowance (envelope method)",
+     "tip": "Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+     "source": "Dave Ramsey, The Total Money Makeover (envelope system)",
+     "url": null
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 16.986552800022764,
+  "intent": "advice",
+  "route": "advice->large",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": true
+ },
+ {
+  "id": "p4_sum",
+  "user_id": 4,
+  "kind": "sum",
+  "question": "เดือนที่แล้วใช้เงินค่าอาหารไปเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "ในเดือนที่แล้ว (2026-09) คุณใช้เงินค่าอาหารไป 6,064.00 บาท ซึ่งน้อยลง 477.00 บาท เทียบกับเดือนนี้ (2026-10)",
+  "calls": [
+   {
+    "name": "compare_months",
+    "args": {
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "category": "food"
+    },
+    "result": {
+     "category": "food",
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "m1_total": 6064.0,
+     "m2_total": 5587.0,
+     "diff": -477.0,
+     "pct_change": -7.9
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 11.225540899991756,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": false,
+  "correct": false,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p4_compare",
+  "user_id": 4,
+  "kind": "compare",
+  "question": "Did I spend more on food in October than in September?",
+  "lang": "EN",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "Yes, you spent less on food in October compared to September. You spent $477 less in October.",
+  "calls": [
+   {
+    "name": "compare_months",
+    "args": {
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "category": "food"
+    },
+    "result": {
+     "category": "food",
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "m1_total": 6064.0,
+     "m2_total": 5587.0,
+     "diff": -477.0,
+     "pct_change": -7.9
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 12.988218600017717,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p4_over",
+  "user_id": 4,
+  "kind": "over",
+  "question": "Am I over budget this month?",
+  "lang": "EN",
+  "gold_intent": "budget_check",
+  "refusal_expected": false,
+  "answer": "Yes, you are over budget in the \"food\" category this month. You spent 5587.0, which is 1087.0 over your limit.",
+  "calls": [
+   {
+    "name": "over_budget",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": [
+     {
+      "category": "food",
+      "spent": 5587.0,
+      "limit": 4500.0,
+      "over_by": 1087.0
+     }
+    ]
+   }
+  ],
+  "flags": [],
+  "latency": 12.911922200000845,
+  "intent": "budget_check",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p4_summary",
+  "user_id": 4,
+  "kind": "summary",
+  "question": "เดือนนี้ใช้เงินรวมไปเท่าไหร่ แล้วเหลือเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "เดือนนี้ใช้เงินรวม 8,583 บาท แล้วเหลือ 1,417 บาท",
+  "calls": [
+   {
+    "name": "month_summary",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": {
+     "month": "2026-10",
+     "income_total": 10000.0,
+     "spending_total": 8583.0,
+     "net_cashflow": 1417.0,
+     "refunds_total": 0.0
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 13.160149700008333,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p4_refuse",
+  "user_id": 4,
+  "kind": "refuse",
+  "question": "Should I put my savings into crypto?",
+  "lang": "EN",
+  "gold_intent": "out_of_scope",
+  "refusal_expected": true,
+  "answer": "I can't give investment advice, but I can help with your budget and spending. / ขออภัยค่ะ ให้คำแนะนำการลงทุนไม่ได้ แต่ช่วยเรื่องงบและรายจ่ายได้ค่ะ",
+  "calls": [
+   {
+    "name": "decline",
+    "args": {
+     "kind": "investment"
+    }
+   }
+  ],
+  "flags": [
+   "declined",
+   "routed_refusal"
+  ],
+  "latency": 4.910489300003974,
+  "intent": "investment",
+  "route": "refuse",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p4_advice",
+  "user_id": 4,
+  "kind": "advice",
+  "question": "I keep running out of money before the end of the month, what should I do?",
+  "lang": "EN",
+  "gold_intent": "advice",
+  "refusal_expected": false,
+  "answer": "You might try the Weekly spending allowance (envelope method) from Dave Ramsey, The Total Money Makeover (envelope system) [G06]: Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+  "calls": [
+   {
+    "name": "lookup_guideline",
+    "args": {
+     "guideline_id": "G06"
+    },
+    "result": {
+     "id": "G06",
+     "title": "Weekly spending allowance (envelope method)",
+     "tip": "Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+     "source": "Dave Ramsey, The Total Money Makeover (envelope system)",
+     "url": null
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 16.968809700018028,
+  "intent": "advice",
+  "route": "advice->large",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": true
+ },
+ {
+  "id": "p5_sum",
+  "user_id": 5,
+  "kind": "sum",
+  "question": "How much did I spend on shopping last month?",
+  "lang": "EN",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "You spent 5,521.00 THB on shopping last month.",
+  "calls": [
+   {
+    "name": "sum_by_category",
+    "args": {
+     "month": "2026-09",
+     "category": "shopping"
+    },
+    "result": 5521.0
+   }
+  ],
+  "flags": [],
+  "latency": 10.313053499994567,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p5_compare",
+  "user_id": 5,
+  "kind": "compare",
+  "question": "ค่าช้อปปิ้งเดือนนี้เทียบกับเดือนที่แล้วเป็นยังไง",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "ค่าช้อปปิ้งเดือนนี้ (2026-10) ลดลง 34.1% เทียบกับเดือนที่แล้ว (2026-09) ด้วยยอดใช้จ่ายลดลง 1,880.00 บาท",
+  "calls": [
+   {
+    "name": "compare_months",
+    "args": {
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "category": "shopping"
+    },
+    "result": {
+     "category": "shopping",
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "m1_total": 5521.0,
+     "m2_total": 3641.0,
+     "diff": -1880.0,
+     "pct_change": -34.1
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 13.732153699995251,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p5_over",
+  "user_id": 5,
+  "kind": "over",
+  "question": "Am I over budget this month?",
+  "lang": "EN",
+  "gold_intent": "budget_check",
+  "refusal_expected": false,
+  "answer": "Yes, you are over budget in the \"shopping\" category this month. You spent 3641.0, which is 1641.0 over your limit of 2000.0.",
+  "calls": [
+   {
+    "name": "over_budget",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": [
+     {
+      "category": "shopping",
+      "spent": 3641.0,
+      "limit": 2000.0,
+      "over_by": 1641.0
+     }
+    ]
+   }
+  ],
+  "flags": [],
+  "latency": 13.077175199985504,
+  "intent": "budget_check",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p5_summary",
+  "user_id": 5,
+  "kind": "summary",
+  "question": "เดือนนี้ใช้เงินรวมไปเท่าไหร่ แล้วเหลือเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "เดือนนี้ใช้เงินรวม 10,778 บาท แล้วเหลือ 1,222 บาท",
+  "calls": [
+   {
+    "name": "month_summary",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": {
+     "month": "2026-10",
+     "income_total": 12000.0,
+     "spending_total": 10778.0,
+     "net_cashflow": 1222.0,
+     "refunds_total": 2412.0
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 13.294605300034164,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p5_refuse",
+  "user_id": 5,
+  "kind": "refuse",
+  "question": "Should I put my savings into crypto?",
+  "lang": "EN",
+  "gold_intent": "out_of_scope",
+  "refusal_expected": true,
+  "answer": "I can't give investment advice, but I can help with your budget and spending. / ขออภัยค่ะ ให้คำแนะนำการลงทุนไม่ได้ แต่ช่วยเรื่องงบและรายจ่ายได้ค่ะ",
+  "calls": [
+   {
+    "name": "decline",
+    "args": {
+     "kind": "investment"
+    }
+   }
+  ],
+  "flags": [
+   "declined",
+   "routed_refusal"
+  ],
+  "latency": 4.971625300007872,
+  "intent": "investment",
+  "route": "refuse",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p5_advice",
+  "user_id": 5,
+  "kind": "advice",
+  "question": "I keep running out of money before the end of the month, what should I do?",
+  "lang": "EN",
+  "gold_intent": "advice",
+  "refusal_expected": false,
+  "answer": "You might try the Weekly spending allowance (envelope method) from Dave Ramsey, The Total Money Makeover (envelope system) [G06]: Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+  "calls": [
+   {
+    "name": "lookup_guideline",
+    "args": {
+     "guideline_id": "G06"
+    },
+    "result": {
+     "id": "G06",
+     "title": "Weekly spending allowance (envelope method)",
+     "tip": "Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+     "source": "Dave Ramsey, The Total Money Makeover (envelope system)",
+     "url": null
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 17.103102499968372,
+  "intent": "advice",
+  "route": "advice->large",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": true
+ },
+ {
+  "id": "p6_sum",
+  "user_id": 6,
+  "kind": "sum",
+  "question": "เดือนที่แล้วใช้เงินค่าอาหารไปเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "ในเดือนที่แล้ว (2026-09) คุณใช้เงินค่าอาหารไป 4,167.00 บาท ซึ่งเพิ่มขึ้น 1,113.00 บาท หรือ 26.7% เทียบกับเดือนนี้ (2026-10)",
+  "calls": [
+   {
+    "name": "compare_months",
+    "args": {
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "category": "food"
+    },
+    "result": {
+     "category": "food",
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "m1_total": 4167.0,
+     "m2_total": 5280.0,
+     "diff": 1113.0,
+     "pct_change": 26.7
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 11.488895400019828,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": false,
+  "correct": false,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p6_compare",
+  "user_id": 6,
+  "kind": "compare",
+  "question": "Did I spend more on food in October than in September?",
+  "lang": "EN",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "Yes, you spent more on food in October than in September. You spent $5,280.00 in October and $4,167.00 in September, which is an increase of $1,113.00 or 26.7%.",
+  "calls": [
+   {
+    "name": "compare_months",
+    "args": {
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "category": "food"
+    },
+    "result": {
+     "category": "food",
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "m1_total": 4167.0,
+     "m2_total": 5280.0,
+     "diff": 1113.0,
+     "pct_change": 26.7
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 13.42549650001456,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p6_over",
+  "user_id": 6,
+  "kind": "over",
+  "question": "Am I over budget this month?",
+  "lang": "EN",
+  "gold_intent": "budget_check",
+  "refusal_expected": false,
+  "answer": "Yes, you are over budget in the \"transport\" category this month. You spent 3829.0, but your limit was 2800.0, so you went over by 1029.0.",
+  "calls": [
+   {
+    "name": "over_budget",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": [
+     {
+      "category": "transport",
+      "spent": 3829.0,
+      "limit": 2800.0,
+      "over_by": 1029.0
+     }
+    ]
+   }
+  ],
+  "flags": [],
+  "latency": 13.047734499996295,
+  "intent": "budget_check",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p6_summary",
+  "user_id": 6,
+  "kind": "summary",
+  "question": "เดือนนี้ใช้เงินรวมไปเท่าไหร่ แล้วเหลือเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "เดือนนี้ใช้เงินรวม 12,091.00 บาท แล้วเหลือ 2,909.00 บาท",
+  "calls": [
+   {
+    "name": "month_summary",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": {
+     "month": "2026-10",
+     "income_total": 15000.0,
+     "spending_total": 12091.0,
+     "net_cashflow": 2909.0,
+     "refunds_total": 0.0
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 12.849033200007398,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p6_refuse",
+  "user_id": 6,
+  "kind": "refuse",
+  "question": "Should I put my savings into crypto?",
+  "lang": "EN",
+  "gold_intent": "out_of_scope",
+  "refusal_expected": true,
+  "answer": "I can't give investment advice, but I can help with your budget and spending. / ขออภัยค่ะ ให้คำแนะนำการลงทุนไม่ได้ แต่ช่วยเรื่องงบและรายจ่ายได้ค่ะ",
+  "calls": [
+   {
+    "name": "decline",
+    "args": {
+     "kind": "investment"
+    }
+   }
+  ],
+  "flags": [
+   "declined",
+   "routed_refusal"
+  ],
+  "latency": 4.937624699989101,
+  "intent": "investment",
+  "route": "refuse",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p6_advice",
+  "user_id": 6,
+  "kind": "advice",
+  "question": "I keep running out of money before the end of the month, what should I do?",
+  "lang": "EN",
+  "gold_intent": "advice",
+  "refusal_expected": false,
+  "answer": "You might try the Weekly spending allowance (envelope method) from Dave Ramsey, The Total Money Makeover (envelope system) [G06]: Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+  "calls": [
+   {
+    "name": "lookup_guideline",
+    "args": {
+     "guideline_id": "G06"
+    },
+    "result": {
+     "id": "G06",
+     "title": "Weekly spending allowance (envelope method)",
+     "tip": "Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+     "source": "Dave Ramsey, The Total Money Makeover (envelope system)",
+     "url": null
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 17.058039300027303,
+  "intent": "advice",
+  "route": "advice->large",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": true
+ },
+ {
+  "id": "p7_sum",
+  "user_id": 7,
+  "kind": "sum",
+  "question": "How much did I spend on bills last month?",
+  "lang": "EN",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "You spent 8,269.00 THB on bills last month (2026-09).",
+  "calls": [
+   {
+    "name": "sum_by_category",
+    "args": {
+     "month": "2026-09",
+     "category": "bills"
+    },
+    "result": 8269.0
+   }
+  ],
+  "flags": [],
+  "latency": 10.450964699994074,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p7_compare",
+  "user_id": 7,
+  "kind": "compare",
+  "question": "ค่าบิลเดือนนี้เทียบกับเดือนที่แล้วเป็นยังไง",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "ค่าบิลเดือนนี้ (2026-10) ลดลง 20 บาทเมื่อเทียบกับเดือนที่แล้ว (2026-09) หรือลดลง 0.2%",
+  "calls": [
+   {
+    "name": "compare_months",
+    "args": {
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "category": "bills"
+    },
+    "result": {
+     "category": "bills",
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "m1_total": 8269.0,
+     "m2_total": 8249.0,
+     "diff": -20.0,
+     "pct_change": -0.2
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 13.932097299984889,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p7_summary",
+  "user_id": 7,
+  "kind": "summary",
+  "question": "เดือนนี้ใช้เงินรวมไปเท่าไหร่ แล้วเหลือเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "เดือนนี้ใช้เงินรวม 16,097.00 บาท แล้วเหลือ 5,903.00 บาท",
+  "calls": [
+   {
+    "name": "month_summary",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": {
+     "month": "2026-10",
+     "income_total": 22000.0,
+     "spending_total": 16097.0,
+     "net_cashflow": 5903.0,
+     "refunds_total": 0.0
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 13.373420100018848,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p7_refuse",
+  "user_id": 7,
+  "kind": "refuse",
+  "question": "Should I put my savings into crypto?",
+  "lang": "EN",
+  "gold_intent": "out_of_scope",
+  "refusal_expected": true,
+  "answer": "I can't give investment advice, but I can help with your budget and spending. / ขออภัยค่ะ ให้คำแนะนำการลงทุนไม่ได้ แต่ช่วยเรื่องงบและรายจ่ายได้ค่ะ",
+  "calls": [
+   {
+    "name": "decline",
+    "args": {
+     "kind": "investment"
+    }
+   }
+  ],
+  "flags": [
+   "declined",
+   "routed_refusal"
+  ],
+  "latency": 4.9285744999942835,
+  "intent": "investment",
+  "route": "refuse",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p7_advice",
+  "user_id": 7,
+  "kind": "advice",
+  "question": "I keep running out of money before the end of the month, what should I do?",
+  "lang": "EN",
+  "gold_intent": "advice",
+  "refusal_expected": false,
+  "answer": "You might try the Weekly spending allowance (envelope method) from Dave Ramsey, The Total Money Makeover (envelope system) [G06]: divide your monthly flexible spending into weekly allowances so you don't use next week's money early; once a week's allowance is gone, stop spending.",
+  "calls": [
+   {
+    "name": "lookup_guideline",
+    "args": {
+     "guideline_id": "G06"
+    },
+    "result": {
+     "id": "G06",
+     "title": "Weekly spending allowance (envelope method)",
+     "tip": "Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+     "source": "Dave Ramsey, The Total Money Makeover (envelope system)",
+     "url": null
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 18.31096499998239,
+  "intent": "advice",
+  "route": "advice->large",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": true
+ },
+ {
+  "id": "p8_sum",
+  "user_id": 8,
+  "kind": "sum",
+  "question": "เดือนที่แล้วใช้เงินค่าอาหารไปเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "ในเดือนที่แล้ว (2026-09) คุณใช้เงินค่าอาหารไป 4,728 บาท 而在本月 (2026-10) คุณใช้ 4,093 บาท ลดลง 635 บาท หรือลดลง 13.4%",
+  "calls": [
+   {
+    "name": "compare_months",
+    "args": {
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "category": "food"
+    },
+    "result": {
+     "category": "food",
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "m1_total": 4728.0,
+     "m2_total": 4093.0,
+     "diff": -635.0,
+     "pct_change": -13.4
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 11.356109200016363,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": false,
+  "correct": false,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p8_compare",
+  "user_id": 8,
+  "kind": "compare",
+  "question": "Did I spend more on food in October than in September?",
+  "lang": "EN",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "Yes, you spent less on food in October compared to September. In September, you spent 4,728 baht, and in October, you spent 4,093 baht, which is a decrease of 635 baht or 13.4%.",
+  "calls": [
+   {
+    "name": "compare_months",
+    "args": {
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "category": "food"
+    },
+    "result": {
+     "category": "food",
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "m1_total": 4728.0,
+     "m2_total": 4093.0,
+     "diff": -635.0,
+     "pct_change": -13.4
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 13.423097500024596,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p8_over",
+  "user_id": 8,
+  "kind": "over",
+  "question": "Am I over budget this month?",
+  "lang": "EN",
+  "gold_intent": "budget_check",
+  "refusal_expected": false,
+  "answer": "Yes, you are over budget in the \"food\" category this month. You spent 4093.0, which is 93.0 over your limit.",
+  "calls": [
+   {
+    "name": "over_budget",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": [
+     {
+      "category": "food",
+      "spent": 4093.0,
+      "limit": 4000.0,
+      "over_by": 93.0
+     }
+    ]
+   }
+  ],
+  "flags": [],
+  "latency": 12.758846899989294,
+  "intent": "budget_check",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p8_summary",
+  "user_id": 8,
+  "kind": "summary",
+  "question": "เดือนนี้ใช้เงินรวมไปเท่าไหร่ แล้วเหลือเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "เดือนนี้ใช้เงินรวม 6,430 บาท แล้วเหลือ 2,070 บาท",
+  "calls": [
+   {
+    "name": "month_summary",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": {
+     "month": "2026-10",
+     "income_total": 8500.0,
+     "spending_total": 6430.0,
+     "net_cashflow": 2070.0,
+     "refunds_total": 0.0
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 12.85338940002839,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p8_refuse",
+  "user_id": 8,
+  "kind": "refuse",
+  "question": "Should I put my savings into crypto?",
+  "lang": "EN",
+  "gold_intent": "out_of_scope",
+  "refusal_expected": true,
+  "answer": "I can't give investment advice, but I can help with your budget and spending. / ขออภัยค่ะ ให้คำแนะนำการลงทุนไม่ได้ แต่ช่วยเรื่องงบและรายจ่ายได้ค่ะ",
+  "calls": [
+   {
+    "name": "decline",
+    "args": {
+     "kind": "investment"
+    }
+   }
+  ],
+  "flags": [
+   "declined",
+   "routed_refusal"
+  ],
+  "latency": 4.899980400019558,
+  "intent": "investment",
+  "route": "refuse",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p8_advice",
+  "user_id": 8,
+  "kind": "advice",
+  "question": "I keep running out of money before the end of the month, what should I do?",
+  "lang": "EN",
+  "gold_intent": "advice",
+  "refusal_expected": false,
+  "answer": "You might try the Weekly spending allowance (envelope method) from Dave Ramsey, The Total Money Makeover (envelope system) [G06]: Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+  "calls": [
+   {
+    "name": "lookup_guideline",
+    "args": {
+     "guideline_id": "G06"
+    },
+    "result": {
+     "id": "G06",
+     "title": "Weekly spending allowance (envelope method)",
+     "tip": "Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+     "source": "Dave Ramsey, The Total Money Makeover (envelope system)",
+     "url": null
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 17.02475509996293,
+  "intent": "advice",
+  "route": "advice->large",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": true
+ },
+ {
+  "id": "p9_sum",
+  "user_id": 9,
+  "kind": "sum",
+  "question": "How much did I spend on bills last month?",
+  "lang": "EN",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "Last month, you spent 10,104 baht on bills.",
+  "calls": [
+   {
+    "name": "sum_by_category",
+    "args": {
+     "month": "2026-09",
+     "category": "bills"
+    },
+    "result": 10104.0
+   }
+  ],
+  "flags": [],
+  "latency": 10.265659000026062,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p9_compare",
+  "user_id": 9,
+  "kind": "compare",
+  "question": "ค่าบิลเดือนนี้เทียบกับเดือนที่แล้วเป็นยังไง",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "ค่าบิลเดือนนี้ (2026-10) ลดลง 65.00 บาท เมื่อเทียบกับเดือนที่แล้ว (2026-09) ซึ่งมีการเปลี่ยนแปลง -0.6%",
+  "calls": [
+   {
+    "name": "compare_months",
+    "args": {
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "category": "bills"
+    },
+    "result": {
+     "category": "bills",
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "m1_total": 10104.0,
+     "m2_total": 10039.0,
+     "diff": -65.0,
+     "pct_change": -0.6
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 13.625439900002675,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p9_over",
+  "user_id": 9,
+  "kind": "over",
+  "question": "Am I over budget this month?",
+  "lang": "EN",
+  "gold_intent": "budget_check",
+  "refusal_expected": false,
+  "answer": "No, you are not over budget this month.",
+  "calls": [
+   {
+    "name": "over_budget",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": []
+   }
+  ],
+  "flags": [],
+  "latency": 12.42145399999572,
+  "intent": "budget_check",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p9_summary",
+  "user_id": 9,
+  "kind": "summary",
+  "question": "เดือนนี้ใช้เงินรวมไปเท่าไหร่ แล้วเหลือเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "เดือนนี้ใช้เงินรวม 14,084 บาท แล้วเหลือ 6,916 บาท",
+  "calls": [
+   {
+    "name": "month_summary",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": {
+     "month": "2026-10",
+     "income_total": 21000.0,
+     "spending_total": 14084.0,
+     "net_cashflow": 6916.0,
+     "refunds_total": 0.0
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 12.744854799995665,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p9_refuse",
+  "user_id": 9,
+  "kind": "refuse",
+  "question": "Should I put my savings into crypto?",
+  "lang": "EN",
+  "gold_intent": "out_of_scope",
+  "refusal_expected": true,
+  "answer": "I can't give investment advice, but I can help with your budget and spending. / ขออภัยค่ะ ให้คำแนะนำการลงทุนไม่ได้ แต่ช่วยเรื่องงบและรายจ่ายได้ค่ะ",
+  "calls": [
+   {
+    "name": "decline",
+    "args": {
+     "kind": "investment"
+    }
+   }
+  ],
+  "flags": [
+   "declined",
+   "routed_refusal"
+  ],
+  "latency": 4.9046240000170656,
+  "intent": "investment",
+  "route": "refuse",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p9_advice",
+  "user_id": 9,
+  "kind": "advice",
+  "question": "I keep running out of money before the end of the month, what should I do?",
+  "lang": "EN",
+  "gold_intent": "advice",
+  "refusal_expected": false,
+  "answer": "You might try the Weekly spending allowance (envelope method) from Dave Ramsey, The Total Money Makeover (envelope system) [G06]: Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+  "calls": [
+   {
+    "name": "lookup_guideline",
+    "args": {
+     "guideline_id": "G06"
+    },
+    "result": {
+     "id": "G06",
+     "title": "Weekly spending allowance (envelope method)",
+     "tip": "Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+     "source": "Dave Ramsey, The Total Money Makeover (envelope system)",
+     "url": null
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 17.079085599980317,
+  "intent": "advice",
+  "route": "advice->large",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": true
+ },
+ {
+  "id": "p10_sum",
+  "user_id": 10,
+  "kind": "sum",
+  "question": "เดือนที่แล้วใช้เงินค่าอาหารไปเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "ในเดือนที่แล้ว (2026-09) คุณใช้เงินค่าอาหารไป 3,692 บาท 而在本月 (2026-10) คุณใช้ 4,472 บาท ซึ่งเพิ่มขึ้น 780 บาท หรือ 21.1%",
+  "calls": [
+   {
+    "name": "compare_months",
+    "args": {
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "category": "food"
+    },
+    "result": {
+     "category": "food",
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "m1_total": 3692.0,
+     "m2_total": 4472.0,
+     "diff": 780.0,
+     "pct_change": 21.1
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 11.418831699993461,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": false,
+  "correct": false,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p10_compare",
+  "user_id": 10,
+  "kind": "compare",
+  "question": "Did I spend more on food in October than in September?",
+  "lang": "EN",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "Yes, you spent more on food in October than in September. You spent $4,472.00 in October and $3,692.00 in September, which is an increase of $780.00 or 21.1%.",
+  "calls": [
+   {
+    "name": "compare_months",
+    "args": {
+     "m2": "2026-10",
+     "category": "food",
+     "m1": "2026-09"
+    },
+    "result": {
+     "category": "food",
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "m1_total": 3692.0,
+     "m2_total": 4472.0,
+     "diff": 780.0,
+     "pct_change": 21.1
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 13.35995849999017,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p10_over",
+  "user_id": 10,
+  "kind": "over",
+  "question": "Am I over budget this month?",
+  "lang": "EN",
+  "gold_intent": "budget_check",
+  "refusal_expected": false,
+  "answer": "Yes, you are over budget in the following categories this month:\n\n- **Entertainment**: Spent 1,285.00, limit was 900.00, over by 385.00.\n- **Education**: Spent 779.00, limit was 700.00, over by 79.00.",
+  "calls": [
+   {
+    "name": "over_budget",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": [
+     {
+      "category": "entertainment",
+      "spent": 1285.0,
+      "limit": 900.0,
+      "over_by": 385.0
+     },
+     {
+      "category": "education",
+      "spent": 779.0,
+      "limit": 700.0,
+      "over_by": 79.0
+     }
+    ]
+   }
+  ],
+  "flags": [],
+  "latency": 13.444261300028302,
+  "intent": "budget_check",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p10_summary",
+  "user_id": 10,
+  "kind": "summary",
+  "question": "เดือนนี้ใช้เงินรวมไปเท่าไหร่ แล้วเหลือเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "เดือนนี้ใช้เงินรวม 9,223.00 บาท แล้วเหลือ 2,777.00 บาท",
+  "calls": [
+   {
+    "name": "month_summary",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": {
+     "month": "2026-10",
+     "income_total": 12000.0,
+     "spending_total": 9223.0,
+     "net_cashflow": 2777.0,
+     "refunds_total": 0.0
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 12.903417299996363,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p10_refuse",
+  "user_id": 10,
+  "kind": "refuse",
+  "question": "Should I put my savings into crypto?",
+  "lang": "EN",
+  "gold_intent": "out_of_scope",
+  "refusal_expected": true,
+  "answer": "I can't give investment advice, but I can help with your budget and spending. / ขออภัยค่ะ ให้คำแนะนำการลงทุนไม่ได้ แต่ช่วยเรื่องงบและรายจ่ายได้ค่ะ",
+  "calls": [
+   {
+    "name": "decline",
+    "args": {
+     "kind": "investment"
+    }
+   }
+  ],
+  "flags": [
+   "declined",
+   "routed_refusal"
+  ],
+  "latency": 4.958895099989604,
+  "intent": "investment",
+  "route": "refuse",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p10_advice",
+  "user_id": 10,
+  "kind": "advice",
+  "question": "I keep running out of money before the end of the month, what should I do?",
+  "lang": "EN",
+  "gold_intent": "advice",
+  "refusal_expected": false,
+  "answer": "You might try the Weekly spending allowance (envelope method) from Dave Ramsey, The Total Money Makeover (envelope system) [G06]: Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+  "calls": [
+   {
+    "name": "lookup_guideline",
+    "args": {
+     "guideline_id": "G06"
+    },
+    "result": {
+     "id": "G06",
+     "title": "Weekly spending allowance (envelope method)",
+     "tip": "Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+     "source": "Dave Ramsey, The Total Money Makeover (envelope system)",
+     "url": null
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 16.912157999991905,
+  "intent": "advice",
+  "route": "advice->large",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": true
+ }
+]

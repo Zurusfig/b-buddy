@@ -1,0 +1,32 @@
+id,name,type,currency,bankName,deletedAt,userId
+1,เงินสด,cash,THB,,,1
+2,SCB ออมทรัพย์,bank,THB,SCB,,1
+3,TrueMoney Wallet,ewallet,THB,,,1
+4,เงินสด,cash,THB,,,2
+5,KBank ออมทรัพย์,bank,THB,KBank,,2
+6,TrueMoney Wallet,ewallet,THB,,,2
+7,เงินสด,cash,THB,,,3
+8,Krungthai ออมทรัพย์,bank,THB,Krungthai,,3
+9,TrueMoney Wallet,ewallet,THB,,,3
+10,เงินสด,cash,THB,,,4
+11,Bangkok Bank ออมทรัพย์,bank,THB,Bangkok Bank,,4
+12,TrueMoney Wallet,ewallet,THB,,,4
+13,เงินสด,cash,THB,,,5
+14,Krungsri ออมทรัพย์,bank,THB,Krungsri,,5
+15,TrueMoney Wallet,ewallet,THB,,,5
+16,บัตรเครดิต KTC,credit,THB,KTC,,5
+17,เงินสด,cash,THB,,,6
+18,KBank ออมทรัพย์,bank,THB,KBank,,6
+19,Rabbit LINE Pay,ewallet,THB,,,6
+20,เงินสด,cash,THB,,,7
+21,SCB ออมทรัพย์,bank,THB,SCB,,7
+22,TrueMoney Wallet,ewallet,THB,,,7
+23,เงินสด,cash,THB,,,8
+24,Krungthai ออมทรัพย์,bank,THB,Krungthai,,8
+25,TrueMoney Wallet,ewallet,THB,,,8
+26,เงินสด,cash,THB,,,9
+27,KBank ออมทรัพย์,bank,THB,KBank,,9
+28,TrueMoney Wallet,ewallet,THB,,,9
+29,เงินสด,cash,THB,,,10
+30,SCB ออมทรัพย์,bank,THB,SCB,,10
+31,TrueMoney Wallet,ewallet,THB,,,10

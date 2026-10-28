@@ -1,0 +1,11 @@
+id,email,passwordHash,createdAt
+1,persona01.mint@budgetbuddy.test,synthetic-account-no-login,2026-04-21 10:00:00
+2,persona02.ploy@budgetbuddy.test,synthetic-account-no-login,2026-04-22 10:00:00
+3,persona03.bank@budgetbuddy.test,synthetic-account-no-login,2026-04-23 10:00:00
+4,persona04.fern@budgetbuddy.test,synthetic-account-no-login,2026-04-24 10:00:00
+5,persona05.earth@budgetbuddy.test,synthetic-account-no-login,2026-04-25 10:00:00
+6,persona06.nat@budgetbuddy.test,synthetic-account-no-login,2026-04-26 10:00:00
+7,persona07.tae@budgetbuddy.test,synthetic-account-no-login,2026-04-27 10:00:00
+8,persona08.pim@budgetbuddy.test,synthetic-account-no-login,2026-04-28 10:00:00
+9,persona09.beam@budgetbuddy.test,synthetic-account-no-login,2026-04-29 10:00:00
+10,persona10.ice@budgetbuddy.test,synthetic-account-no-login,2026-04-30 10:00:00
