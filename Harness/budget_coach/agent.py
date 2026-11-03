@@ -341,11 +341,11 @@ def _chat_once(key, model, messages, think, tool_defs):
 
 
 def _log_tool(model, think, name, args, res, duration_s):
-    """One coach_tool_call line: which tool, with what arguments, ok or error, and a short result."""
+    """One coach_tool_call line: which tool, with what arguments, ok or error, and its full result."""
     error = res.get("error") if isinstance(res, dict) else None
     LOG.write("coach_tool_call", model=model, think=think, tool=name, arguments=args, ok=error is None,
               duration_s=round(duration_s, 4), error=error,
-              result=json.dumps(res, ensure_ascii=False, default=str)[:300])
+              result=json.dumps(res, ensure_ascii=False, default=str))
 
 
 def run(question: str, model: str, think: bool, key: str | None = None, raw: bool = True,

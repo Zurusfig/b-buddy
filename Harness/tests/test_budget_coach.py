@@ -226,12 +226,17 @@ class RunLoopTests(AgentTestCase):
         self.assertFalse(rec["ok"])
         self.assertIn("no data for month", rec["error"])
 
-    def test_long_results_are_truncated_in_the_log(self):
-        chat = ScriptedChat(tool_reply("get_transactions", {"month": "2026-07"}), text_reply("Here."))
-        with mock.patch.object(agent, "_chat", chat):
-            agent.run("list July", "m", False)
-        (rec,) = self.logged("coach_tool_call")
-        self.assertLessEqual(len(rec["result"]), 300)
+    def test_long_tool_results_are_logged_in_full(self):
+        cases = (("get_transactions", {"month": "2026-07"}, "list July"),
+                 ("lookup_guideline", {"guideline_id": "G01"}, "show tip G01"))
+        for name, args, question in cases:
+            with self.subTest(tool=name):
+                chat = ScriptedChat(tool_reply(name, args), text_reply("Here."))
+                with mock.patch.object(agent, "_chat", chat):
+                    agent.run(question, "m", False)
+                rec = self.logged("coach_tool_call")[-1]
+                self.assertGreater(len(rec["result"]), 300)
+                self.assertEqual(json.loads(rec["result"]), agent.run_tool(name, args))
 
     def test_decline_is_logged_as_a_tool_call(self):
         chat = ScriptedChat(tool_reply("decline", {"kind": "investment"}))
