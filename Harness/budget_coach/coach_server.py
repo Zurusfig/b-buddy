@@ -16,6 +16,7 @@ from __future__ import annotations
 import hmac
 import json
 import os
+import re
 import sys
 import threading
 import time
@@ -116,22 +117,29 @@ def shape(r: dict) -> dict:
 
 
 def ask(user_id: int, question: str, data_factory: Callable = db_data.DbData,
-        answerer: Callable = persona_agent.answer_for) -> tuple[int, dict]:
+        answerer: Callable = persona_agent.answer_for, uat: dict | None = None,
+        persona: str | None = None) -> tuple[int, dict]:
     """(http status, body). Never raises: every failure is a short code the app can show in plain words."""
+    meta = {"round": uat["round"] if uat else None,
+            "tester_number": uat["tester_number"] if uat else None,
+            "task_id": uat["task_id"] if uat else None, "persona": persona}
     ready, reason = ollama_ready()
     if not ready:
+        agent.LOG.write("coach_http", user_id=user_id, question=question, status=503, error=reason, **meta)
         return 503, {"error": reason}
     try:
         data = data_factory(user_id)
     except ValueError:
+        agent.LOG.write("coach_http", user_id=user_id, question=question, status=404, error="no_data", **meta)
         return 404, {"error": "no_data"}
     except Exception as e:
         print(f"[coach] database error: {type(e).__name__}: {e}", file=sys.stderr)
+        agent.LOG.write("coach_http", user_id=user_id, question=question, status=503, error="database_unavailable", **meta)
         return 503, {"error": "database_unavailable"}
     global _waiting
     with _queue_lock:
         if _waiting >= QUEUE_MAX:
-            agent.LOG.write("coach_http", user_id=user_id, status=429, error="busy", waiting=_waiting)
+            agent.LOG.write("coach_http", user_id=user_id, question=question, status=429, error="busy", waiting=_waiting, **meta)
             return 429, {"error": "busy"}
         _waiting += 1
     t0 = time.perf_counter()
@@ -139,22 +147,24 @@ def ask(user_id: int, question: str, data_factory: Callable = db_data.DbData,
     with _queue_lock:
         _waiting -= 1
     if not got:
-        agent.LOG.write("coach_http", user_id=user_id, status=429, error="busy_timeout")
+        agent.LOG.write("coach_http", user_id=user_id, question=question, status=429, error="busy_timeout", **meta)
         return 429, {"error": "busy"}
     try:
-        r = answerer(question, data, log_extra={"dataset": "app"})
+        r = answerer(question, data, log_extra={"dataset": "app", **meta})
     except Exception as e:
         print(f"[coach] answer failed: {type(e).__name__}", file=sys.stderr)
+        agent.LOG.write("coach_http", user_id=user_id, question=question, status=500, error="answer_failed", **meta)
         return 500, {"error": "answer_failed"}
     finally:
         _ask_lock.release()
     if r["answer"].startswith("[error]"):
         print(f"[coach] model error: {r['answer'][:120]}", file=sys.stderr)  # a short code and plain words
-        agent.LOG.write("coach_http", user_id=user_id, status=502, error=r.get("error"), run_id=r.get("run_id"))
+        agent.LOG.write("coach_http", user_id=user_id, question=question, status=502, error=r.get("error"),
+                        run_id=r.get("run_id"), **meta)
         return 502, {"error": "model_error"}
     body = shape(r)
     agent.LOG.write("coach_http", user_id=user_id, question=question, answer=r["answer"], route=r["route"],
-                    flags=r["flags"], wall_s=round(time.perf_counter() - t0, 3), run_id=r.get("run_id"))
+                    flags=r["flags"], wall_s=round(time.perf_counter() - t0, 3), run_id=r.get("run_id"), **meta)
     return 200, body
 
 
@@ -206,12 +216,21 @@ class Handler(BaseHTTPRequestHandler):
                 raise ValueError
             body = json.loads(self.rfile.read(size))
             user_id, question = body["userId"], body["question"]
+            uat, persona = body.get("uat"), body.get("persona")
             if (not isinstance(user_id, int) or isinstance(user_id, bool) or user_id < 1
                     or not isinstance(question, str) or not 0 < len(question.strip()) <= MAX_QUESTION_CHARS):
                 raise ValueError
+            if uat is not None and (not isinstance(uat, dict)
+                                    or type(uat.get("round")) is not int or uat["round"] not in (1, 2)
+                                    or type(uat.get("tester_number")) is not int or uat["tester_number"] not in (1, 2, 3, 4)
+                                    or not isinstance(uat.get("task_id"), str)
+                                    or not re.fullmatch(r"UAT-(0[1-9]|1[01])", uat["task_id"])):
+                raise ValueError
+            if persona is not None and (not isinstance(persona, str) or not re.fullmatch(r"[A-Z][a-z]+", persona)):
+                raise ValueError
         except (ValueError, KeyError, TypeError):
             return self._send(400, {"error": "bad_request"})
-        status, out = ask(user_id, question.strip())
+        status, out = ask(user_id, question.strip(), uat=uat, persona=persona)
         self._send(status, out)
 
 

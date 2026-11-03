@@ -202,6 +202,32 @@ class DbDataTests(unittest.TestCase):
                 db_data.DbData(1)
 
 
+class UatMetadataTests(unittest.TestCase):
+    def test_app_run_passes_metadata_to_question_and_http_logs(self):
+        seen = {}
+        def answer(question, data, log_extra=None):
+            seen.update(log_extra)
+            return {"answer": "ok", "route": "small", "model": "qwen3:4b", "flags": [],
+                    "latency": 0.1, "calls": [], "run_id": "test-run"}
+        uat = {"round": 2, "tester_number": 3, "task_id": "UAT-04"}
+        with mock.patch.object(coach_server, "ollama_ready", return_value=(True, "")), \
+             mock.patch.object(coach_server.agent.LOG, "write") as log:
+            status, _ = coach_server.ask(4, "ค่าอาหาร", data_factory=lambda uid: mock.Mock(user_id=uid),
+                                         answerer=answer, uat=uat, persona="Diana")
+        self.assertEqual(status, 200)
+        self.assertEqual({k: seen[k] for k in ("round", "tester_number", "task_id", "persona")},
+                         {**uat, "persona": "Diana"})
+        self.assertEqual(log.call_args.kwargs["task_id"], "UAT-04")
+        self.assertEqual(log.call_args.kwargs["run_id"], "test-run")
+
+    def test_normal_run_logs_null_metadata(self):
+        with mock.patch.object(coach_server, "ollama_ready", return_value=(False, "ollama_offline")), \
+             mock.patch.object(coach_server.agent.LOG, "write") as log:
+            coach_server.ask(1, "food?")
+        self.assertIsNone(log.call_args.kwargs["round"])
+        self.assertIsNone(log.call_args.kwargs["task_id"])
+
+
 class ServerTests(unittest.TestCase):
     SECRET = "test-secret"
 
