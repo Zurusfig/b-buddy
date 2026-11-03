@@ -5,6 +5,8 @@
     python dev.py demo-remove            # dry run: shows what would be deleted
     python dev.py demo-remove --yes      # deletes ONLY the demo users' rows and demo-credentials.txt
     python dev.py demo-reader-sql        # writes coach_reader.generated.sql (read-only coach role)
+    python dev.py demo-reset-passwords   # preview password reset for Henry, Diana, Grace
+    python dev.py demo-reset-passwords --yes  # rotate those three only; preserve all data
 
 Every demo user has an email ending in @demo.budgetbuddy.test, and that is the only thing removal
 looks at: no real account can match it, and no row is touched unless it belongs to such a user.
@@ -30,6 +32,7 @@ CREDENTIALS = ROOT / "demo-credentials.txt"
 READER_TEMPLATE = HERE / "coach_reader.sql"
 READER_OUT = HERE / "coach_reader.generated.sql"
 DEMO_DOMAIN = "demo.budgetbuddy.test"
+UAT_EMAILS = tuple(f"{name}@{DEMO_DOMAIN}" for name in ("henry", "diana", "grace"))
 THAI_OFFSET = "+07:00"
 
 ACCOUNT_TYPE = {"cash": "wallet", "ewallet": "wallet", "bank": "bank", "credit": "credit_card"}
@@ -128,6 +131,32 @@ def write_credentials(passwords: dict[str, str], path: Path = CREDENTIALS) -> No
     body = ["Budget Buddy demo logins (random per run). Remove with: python dev.py demo-remove --yes", ""]
     body += [f"{email}    {pw}" for email, pw in passwords.items()]
     path.write_text("\n".join(body) + "\n", encoding="utf-8")
+
+
+def reset_uat_passwords(conn, path: Path = CREDENTIALS, password_factory=None, hasher=None) -> None:
+    """Rotate only the three UAT demo logins. Never touch their transactions or other users."""
+    if path.exists():
+        raise RuntimeError(f"{path.name} already exists; refusing to overwrite it")
+    rows = conn.execute('SELECT id, email FROM "User" WHERE email IN (%s, %s, %s)', UAT_EMAILS).fetchall()
+    if {email for _, email in rows} != set(UAT_EMAILS):
+        raise RuntimeError("Henry, Diana, and Grace must all exist before resetting passwords")
+    if password_factory is None:
+        password_factory = lambda: secrets.token_urlsafe(12)
+    if hasher is None:
+        import bcrypt
+        hasher = lambda password: bcrypt.hashpw(password.encode(), bcrypt.gensalt(10)).decode()
+    passwords = {email: password_factory() for email in UAT_EMAILS}
+    for uid, email in rows:
+        result = conn.execute('UPDATE "User" SET "passwordHash" = %s WHERE id = %s AND email = %s',
+                              (hasher(passwords[email]), uid, email))
+        if result.rowcount != 1:
+            raise RuntimeError(f"password reset did not update exactly one row for {email}")
+    # O_EXCL refuses an existing file, and mode 0600 keeps passwords private from creation.
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8") as out:
+        out.write("Budget Buddy UAT demo logins (passwords rotated for these three only)\n\n")
+        for email in UAT_EMAILS:
+            out.write(f"{email}    {passwords[email]}\n")
 
 
 def seed(conn, plan: list[dict], passwords: dict[str, str], hasher) -> dict[str, int]:
@@ -289,7 +318,7 @@ def check_reader() -> int:
 
 
 def main(argv: list[str]) -> int:
-    if not argv or argv[0] not in ("seed", "remove", "reader-sql", "status", "check-reader", "reader-url"):
+    if not argv or argv[0] not in ("seed", "remove", "reader-sql", "status", "check-reader", "reader-url", "reset-passwords"):
         print(__doc__)
         return 2
     cmd, apply = argv[0], "--yes" in argv
@@ -303,6 +332,25 @@ def main(argv: list[str]) -> int:
         print(f"Wrote {READER_OUT.name} (read-only role coach_reader, random password inside the file).\n"
               "Review it, run it once in the Supabase SQL editor, then set COACH_DATABASE_URL in Harness/.env\n"
               f"to a connection string for user coach_reader with the password from that file.")
+        return 0
+    if cmd == "reset-passwords":
+        if CREDENTIALS.exists():
+            print(f"Refusing to overwrite {CREDENTIALS}.")
+            return 1
+        print("UAT password reset targets: " + ", ".join(UAT_EMAILS))
+        if not apply:
+            print("Dry run: no passwords changed. Add --yes to rotate only these three accounts.")
+            return 0
+        conn = _connect()
+        try:
+            with conn:
+                reset_uat_passwords(conn)
+        except Exception as e:
+            print(f"Password reset failed ({type(e).__name__}); no passwords printed.")
+            return 1
+        finally:
+            conn.close()
+        print(f"Passwords saved to {CREDENTIALS} (owner-only permissions). No persona data was changed.")
         return 0
     if cmd == "seed":
         plan = build_plan()

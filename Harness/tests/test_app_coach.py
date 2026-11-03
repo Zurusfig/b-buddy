@@ -8,6 +8,7 @@ built from persona/csv, and the server is exercised on an ephemeral local port.
 import csv
 import json
 import sys
+import tempfile
 import threading
 import unittest
 import urllib.error
@@ -142,6 +143,38 @@ class DemoRemoveTests(unittest.TestCase):
         self.assertEqual(grants, ["GRANT USAGE ON SCHEMA public TO coach_reader;",
                                   "GRANT SELECT ON v_transactions, v_categories TO coach_reader;"])
         self.assertIn("default_transaction_read_only = on", sql)
+
+
+class DemoPasswordResetTests(unittest.TestCase):
+    def test_rotates_only_three_demo_accounts_and_writes_private_file(self):
+        emails = demo_db.UAT_EMAILS
+        rows = [(8, emails[0]), (4, emails[1]), (7, emails[2])]
+        conn = mock.Mock()
+        conn.execute.side_effect = [mock.Mock(fetchall=lambda: rows)] + [mock.Mock(rowcount=1) for _ in rows]
+        path = Path(tempfile.mkdtemp()) / "demo-credentials.txt"
+        passwords = iter(("henry-secret", "diana-secret", "grace-secret"))
+        demo_db.reset_uat_passwords(conn, path, password_factory=lambda: next(passwords),
+                                    hasher=lambda pw: "hash:" + pw)
+        self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+        self.assertEqual(len(conn.execute.call_args_list), 4)
+        for call in conn.execute.call_args_list[1:]:
+            self.assertEqual(call.args[0], 'UPDATE "User" SET "passwordHash" = %s WHERE id = %s AND email = %s')
+            self.assertIn(call.args[1][2], emails)
+            self.assertTrue(call.args[1][0].startswith("hash:"))
+        text = path.read_text()
+        self.assertTrue(all(email in text for email in emails))
+
+    def test_refuses_missing_accounts_or_existing_credentials(self):
+        path = Path(tempfile.mkdtemp()) / "demo-credentials.txt"
+        conn = mock.Mock()
+        conn.execute.return_value.fetchall.return_value = [(8, demo_db.UAT_EMAILS[0])]
+        with self.assertRaisesRegex(RuntimeError, "must all exist"):
+            demo_db.reset_uat_passwords(conn, path)
+        self.assertFalse(path.exists())
+        path.write_text("existing passwords")
+        with self.assertRaisesRegex(RuntimeError, "refusing to overwrite"):
+            demo_db.reset_uat_passwords(conn, path)
+        self.assertEqual(path.read_text(), "existing passwords")
 
 
 def csv_fetch(user_id):

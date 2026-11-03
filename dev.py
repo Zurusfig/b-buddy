@@ -12,6 +12,7 @@
     python dev.py serve            local coach server for the finance app (127.0.0.1:8765)
     python dev.py coach-secret     create COACH_SHARED_SECRET in Harness/.env
     python dev.py demo-seed|demo-remove|demo-status [--yes]   demo accounts in the app's database
+    python dev.py demo-reset-passwords [--yes]  rotate Henry, Diana, Grace demo logins only
     python dev.py demo-reader-sql  write the SQL for the read-only coach role
     python dev.py demo-check-reader  prove the coach role can read the views and nothing else
     python dev.py sources-check    do the advice source links still open? (writes Harness/data/sources_check.json)
@@ -311,6 +312,7 @@ COMMANDS = {
     "demo-seed": lambda a: _script("demo_db.py")(["seed", *a]),
     "demo-remove": lambda a: _script("demo_db.py")(["remove", *a]),
     "demo-status": lambda a: _script("demo_db.py")(["status", *a]),
+    "demo-reset-passwords": lambda a: _script("demo_db.py")(["reset-passwords", *a]),
     "demo-reader-sql": lambda a: _script("demo_db.py")(["reader-sql", *a]),
     "demo-check-reader": lambda a: _script("demo_db.py")(["check-reader", *a]),
     "demo-reader-url": lambda a: _script("demo_db.py")(["reader-url", *a]),

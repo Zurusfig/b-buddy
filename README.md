@@ -154,6 +154,9 @@ One-time setup (nothing is written to the database until you run the `--yes` ste
 3. Put the owner connection in `Harness/.env` as `DEMO_ADMIN_DATABASE_URL`, then preview and create the demo users:
    `python dev.py demo-seed` (dry run), then `python dev.py demo-seed --yes`. Logins are
    `alice@demo.budgetbuddy.test` ... `jack@demo.budgetbuddy.test` with random passwords saved to `demo-credentials.txt`.
+   If that ignored credentials file is lost after seeding, run `python dev.py demo-reset-passwords` to preview,
+   then `python dev.py demo-reset-passwords --yes` to rotate only Henry, Diana, and Grace. Their new passwords
+   are saved to `demo-credentials.txt` with owner-only permissions; transactions and budgets are untouched.
 4. In the app: `frontend/.env.local` gets `NEXT_PUBLIC_COACH_ENABLED=true`; restart `make dev`.
 5. `python dev.py serve` (or `make demo-up`). The chat button turns from "offline" to ready by itself.
 
