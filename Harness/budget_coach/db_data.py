@@ -14,8 +14,7 @@ Access is limited by the database, not by this code: the coach connects as `coac
 only SELECT from two views (v_transactions, v_categories; see coach_reader.sql). The user is fixed when
 the object is built, and no tool takes a user id.
 
-"this month" is COACH_REFERENCE_MONTH when set (the evaluations and the UAT plan fix it at 2026-10),
-otherwise the latest month with data.
+"this month" is fixed to 2026-10 for the app's UAT data, even if the environment omits the setting.
 """
 from __future__ import annotations
 
@@ -30,6 +29,7 @@ TRANSACTIONS_SQL = (
 CATEGORIES_SQL = 'SELECT category, category_type, monthly_limit FROM v_categories WHERE "userId" = %s'
 STATEMENT_TIMEOUT_MS = 5000
 CONNECT_TIMEOUT_S = 5
+UAT_REFERENCE_MONTH = "2026-10"
 
 Fetch = Callable[[str, tuple], list[dict]]
 
@@ -76,12 +76,7 @@ class DbData(PersonaData):
         names = [c for c, t in self.category_type.items() if t == "expense"]
         known = [c for c in EXPENSE_CATEGORIES if c in names]
         self.expense_categories = tuple(known + sorted(n for n in names if n not in known))
-        self._reference = reference_month or os.environ.get("COACH_REFERENCE_MONTH") or None
+        self._reference = reference_month or UAT_REFERENCE_MONTH
 
     def reference_month(self) -> str:
-        if self._reference:
-            return self._reference
-        months = self.months()
-        if not months:
-            raise ValueError("this user has no transactions yet")
-        return months[-1]
+        return self._reference

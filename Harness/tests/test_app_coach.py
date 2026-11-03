@@ -187,7 +187,9 @@ class DbDataTests(unittest.TestCase):
 
     def test_reference_month_override_and_default(self):
         self.assertEqual(db_data.DbData(1, fetch=csv_fetch(1), reference_month="2026-09").reference_month(), "2026-09")
-        with mock.patch.dict("os.environ", {"COACH_REFERENCE_MONTH": "2026-10"}):
+        with mock.patch.dict("os.environ", {"COACH_REFERENCE_MONTH": "2026-09"}):
+            self.assertEqual(db_data.DbData(1, fetch=csv_fetch(1)).reference_month(), "2026-10")
+        with mock.patch.dict("os.environ", {"COACH_REFERENCE_MONTH": ""}):
             self.assertEqual(db_data.DbData(1, fetch=csv_fetch(1)).reference_month(), "2026-10")
 
     def test_unknown_user_is_an_error_not_empty_data(self):
