@@ -23,6 +23,7 @@ import coach_server  # noqa: E402
 import db_data  # noqa: E402
 import demo_db  # noqa: E402
 import persona_data  # noqa: E402
+import persona_agent  # noqa: E402
 from persona_data import PersonaData  # noqa: E402
 
 HAVE_DATA = persona_data.available()
@@ -226,6 +227,18 @@ class UatMetadataTests(unittest.TestCase):
             coach_server.ask(1, "food?")
         self.assertIsNone(log.call_args.kwargs["round"])
         self.assertIsNone(log.call_args.kwargs["task_id"])
+
+
+class ThaiLookupGuidanceTests(unittest.TestCase):
+    def test_single_month_questions_are_distinct_from_comparisons(self):
+        data = PersonaData(4)
+        system = persona_agent._system(data)
+        tools = {t["function"]["name"]: t["function"]["description"]
+                 for t in persona_agent._tool_defs(data)}
+        self.assertIn("including \"last month\" or a named month: use sum_by_category", system)
+        self.assertIn("only when the user explicitly asks for a comparison", system)
+        self.assertIn("last month or a named month without a comparison", tools["sum_by_category"])
+        self.assertIn("Only for an explicit comparison", tools["compare_months"])
 
 
 class ServerTests(unittest.TestCase):

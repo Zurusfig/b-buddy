@@ -45,9 +45,11 @@ payments, savings deposits) are not spending.
 Rules:
 - Every number you state must come from a tool result. Never guess amounts or limits, and never add,
   subtract or convert numbers yourself: quote what the tools returned.
-- Spending in one category: sum_by_category or compare_months. Two or more categories added together
-  ("food plus transport"): sum_categories. A short phrase such as "ค่าวิน" or "Netflix" is a spending question
-  about that category (transport, subscriptions): look it up, do not summarise the whole month.
+- Spending in one category for one month, including "last month" or a named month: use sum_by_category.
+  Use compare_months only when the user explicitly asks for a comparison or change between two months.
+  Two or more categories added together ("food plus transport"): sum_categories.
+  A short phrase such as "ค่าวิน" or "Netflix" is a spending question about that category
+  (transport, subscriptions): look it up for the named month, do not summarise or compare other months.
   Total spent, income, or money left over: month_summary. Limits / "am I over?": get_budget or over_budget.
   Use get_transactions only when the student asks for the individual purchases.{budget_rule}
 - Habits and budgeting help: lookup_guideline with the best-fitting guideline. Name its source and
@@ -62,12 +64,12 @@ def _tool_defs(data: PersonaData) -> list[dict]:
     category = {"type": "string", "enum": list(data.expense_categories)}
     fn = agent._fn
     own = [
-        fn("sum_by_category", "Net spend in one category for one month.",
+        fn("sum_by_category", "Net spend in one category for one month. Use for last month or a named month without a comparison.",
            {"month": month, "category": category}, ["month", "category"]),
         fn("sum_categories", "Total spend across two or more categories in one month, with each category's amount.",
            {"month": month, "categories": {"type": "array", "items": category, "minItems": 1}},
            ["month", "categories"]),
-        fn("compare_months", "Spend in a category for m1 vs m2 (diff = m2 - m1).",
+        fn("compare_months", "Only for an explicit comparison of two months: spend in a category for m1 vs m2 (diff = m2 - m1).",
            {"m1": month, "m2": month, "category": category}, ["m1", "m2", "category"]),
         fn("get_budget", "Monthly spending limit for one category.", {"category": category}, ["category"]),
         fn("over_budget", "All categories over their limit in a month (empty list if none).",
