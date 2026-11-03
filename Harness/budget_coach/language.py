@@ -17,9 +17,14 @@ import re
 
 THAI = re.compile(r"[฀-๿]")
 LATIN = re.compile(r"[A-Za-z]")
+LATIN_WORD = re.compile(r"[A-Za-z]{2,}")
+HAN = re.compile(r"[\u4e00-\u9fff]")
 MIN_LETTERS = 15      # shorter replies (a bare number, "ok") are not judged
 THAI_MIN_SHARE = 0.2  # a Thai reply must be at least this much Thai letters
 EN_MAX_SHARE = 0.5    # an English reply may be at most this much Thai letters (quoted merchant names)
+TH_CATEGORY = {"food": "อาหาร", "transport": "เดินทาง", "shopping": "ช้อปปิ้ง",
+               "entertainment": "บันเทิง", "bills": "บิล", "education": "การศึกษา",
+               "health": "สุขภาพ", "other": "อื่นๆ", "subscriptions": "สมาชิก"}
 
 RETRY_INSTRUCTION = {
     "th": "Your reply must be in Thai (ภาษาไทย), the language of the question. Rewrite it in Thai, "
@@ -41,8 +46,22 @@ def thai_share(text: str) -> float:
 
 
 def reply_matches(lang: str, reply: str) -> bool:
+    if lang == "th" and (HAN.search(reply) or len(LATIN_WORD.findall(reply)) > 1):
+        return False
     letters = len(THAI.findall(reply)) + len(LATIN.findall(reply))
     if letters < MIN_LETTERS:
         return True
     share = thai_share(reply)
     return share >= THAI_MIN_SHARE if lang == "th" else share <= EN_MAX_SHARE
+
+
+def thai_tool_fallback(calls: list[dict]) -> str:
+    """A short Thai answer for a verified single-category total when a model's retry still mixes scripts."""
+    for call in reversed(calls):
+        args, amount = call.get("args") or {}, call.get("result")
+        if (call.get("name") == "sum_by_category" and isinstance(amount, (int, float))
+                and not isinstance(amount, bool) and isinstance(args.get("month"), str)):
+            category = TH_CATEGORY.get(args.get("category"), "หมวดนี้")
+            number = f"{amount:,.2f}".rstrip("0").rstrip(".")
+            return f"เดือน {args['month']} คุณใช้ค่า{category}ไป {number} บาท"
+    return "ขออภัย ไม่สามารถยืนยันคำตอบภาษาไทยได้ในตอนนี้ กรุณาลองใหม่"

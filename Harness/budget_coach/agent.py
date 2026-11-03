@@ -403,6 +403,9 @@ def run(question: str, model: str, think: bool, key: str | None = None, raw: boo
                         messages.append({"role": "user", "content": language.RETRY_INSTRUCTION[lang]})
                         continue
                     flags.add("wrong_language")
+                    answer = (language.thai_tool_fallback(calls) if lang == "th"
+                              else validator.fallback_answer(calls, lang))
+                    break
                 bad = validator.unsupported_numbers(answer, calls, question, ctx.numbers)
                 if bad:
                     LOG.write("coach_validator", model=model, rejected=sorted(bad), retry=validator_retries)

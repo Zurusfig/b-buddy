@@ -15,6 +15,7 @@ COACH = Path(__file__).resolve().parent.parent / "budget_coach"
 sys.path.insert(0, str(COACH))
 
 import agent  # noqa: E402
+import language  # noqa: E402
 import router  # noqa: E402
 import tools  # noqa: E402
 import validator  # noqa: E402
@@ -55,6 +56,15 @@ class AgentTestCase(unittest.TestCase):
         patch = mock.patch.object(agent, "LOG", JsonlLogger(self.log_path))
         patch.start()
         self.addCleanup(patch.stop)
+
+
+class LanguageTests(unittest.TestCase):
+    def test_thai_reply_rejects_mixed_chinese_and_english(self):
+        answer = ("ในเดือนที่แล้ว (2026-09) คุณใช้เงินค่าอาหารไป 4,728 บาท 而在本月 "
+                  "(2026-10) คุณใช้ 4,093 บาท ลดลง 635 บาท หรือลดลง 13.4% compared to last month.")
+        self.assertFalse(language.reply_matches("th", answer))
+        self.assertFalse(language.reply_matches("th", "คุณใช้ค่าอาหารไป 4,728 บาท compared to last month"))
+        self.assertTrue(language.reply_matches("th", "คุณใช้ค่าอาหารไป 4,728 บาท"))
 
 
 class ValidatorTests(unittest.TestCase):
@@ -143,6 +153,17 @@ class RouterTests(unittest.TestCase):
 
 
 class RunLoopTests(AgentTestCase):
+    def test_persistent_mixed_script_reply_uses_thai_tool_fallback(self):
+        bad = f"ค่าอาหาร {FOOD:,.0f} บาท 而在本月 compared to last month"
+        chat = ScriptedChat(tool_reply("sum_by_category", {"month": "2026-07", "category": "food"}),
+                            text_reply(bad), text_reply(bad))
+        with mock.patch.object(agent, "_chat", chat):
+            result = agent.run("ค่าอาหารเดือนกรกฎาเท่าไหร่", "m", False)
+        self.assertIn("wrong_language", result["flags"])
+        self.assertIn(f"{FOOD:,.0f}", result["answer"])
+        self.assertFalse(language.HAN.search(result["answer"]))
+        self.assertFalse(language.LATIN_WORD.search(result["answer"]))
+
     def test_verified_answer_passes_untouched(self):
         chat = ScriptedChat(tool_reply("sum_by_category", {"month": "2026-07", "category": "food"}),
                             text_reply(f"Food in July was {FOOD:,.2f} THB."))
