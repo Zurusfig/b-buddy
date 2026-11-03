@@ -51,7 +51,7 @@ that environment and skips `.venv`. (If a `.venv` folder exists, `dev.py` uses i
 | Test your gateway key | `python dev.py check --gateway` | `make check-gateway` |
 | Delete `__pycache__` folders | `python dev.py clean` | `make clean` |
 
-Anything after the command name is passed on, for example `python dev.py eval-persona --users 1,tae`.
+Anything after the command name is passed on, for example `python dev.py eval-persona --users 1,grace`.
 
 ## What each part needs
 
@@ -116,7 +116,7 @@ the computer's clock.
 
 `persona/` holds 10 synthetic students with 6 months of data (2026-05 to 2026-10) in the real app's
 schema. `persona_agent.py` runs the same routed coach on any one of them and leaves the single-student
-commands untouched. The persona is chosen with `--user` (id or key such as `mint`); the model cannot
+commands untouched. The persona is chosen with `--user` (id or key such as `alice`); the model cannot
 switch it, because `user_id` is not an argument of any tool.
 
 ```sh
@@ -136,6 +136,31 @@ file with every answer, tool call and flag. `eval-gateway` writes the older gate
 They make many requests and overwrite those files, so existing reports are snapshots from earlier
 runs. A missing key, HTTP 401/403 or an unavailable model means checking your gateway credentials;
 gateway availability is separate from the offline tests.
+
+## Finance app link (chat button in NgernTong)
+
+The coach can answer inside the finance app (`finance-tracker`, branch `feat/coach-chat`). A small local
+server (`python dev.py serve`, `127.0.0.1:8765`) sits behind the app's backend: the browser asks the backend
+(`POST /api/chat`), the backend checks the login and forwards `{userId, question}` with a shared secret, and the
+coach reads that user's rows **read-only** from the app's Postgres database. The user id always comes from the
+login token, never from the browser or the model.
+
+One-time setup (nothing is written to the database until you run the `--yes` steps):
+
+1. `python dev.py coach-secret`, then copy `COACH_SHARED_SECRET` from `Harness/.env` into the app's `backend/.env`.
+2. `python dev.py demo-reader-sql` writes `Harness/budget_coach/coach_reader.generated.sql`. Review it and run it once
+   in the Supabase SQL editor. It creates a role that can only `SELECT` from two views (no `User` table, no writes).
+   Put that role's connection string in `Harness/.env` as `COACH_DATABASE_URL`.
+3. Put the owner connection in `Harness/.env` as `DEMO_ADMIN_DATABASE_URL`, then preview and create the demo users:
+   `python dev.py demo-seed` (dry run), then `python dev.py demo-seed --yes`. Logins are
+   `alice@demo.budgetbuddy.test` ... `jack@demo.budgetbuddy.test` with random passwords saved to `demo-credentials.txt`.
+4. In the app: `frontend/.env.local` gets `NEXT_PUBLIC_COACH_ENABLED=true`; restart `make dev`.
+5. `python dev.py serve` (or `make demo-up`). The chat button turns from "offline" to ready by itself.
+
+Removing it again: `python dev.py demo-remove` previews, `python dev.py demo-remove --yes` deletes only rows owned by
+`@demo.budgetbuddy.test` users and `demo-credentials.txt`. To take the feature out of the app, unset
+`NEXT_PUBLIC_COACH_ENABLED` (or delete the `CoachChat` mount in `AppShell.tsx`). `transfer` rows are not copied to the app
+because it has no transfer type; the coach never counted them.
 
 ## Local harness demos (Ollama)
 

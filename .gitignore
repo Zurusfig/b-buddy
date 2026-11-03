@@ -40,3 +40,10 @@ persona/seed.sql
 # Local tool settings (each person has their own)
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
+
+# Demo logins and generated SQL (hold passwords)
+demo-credentials.txt
+Harness/budget_coach/coach_reader.generated.sql
+
+# questions students asked that no tip matched (may contain personal wording)
+Harness/data/tip_misses.jsonl

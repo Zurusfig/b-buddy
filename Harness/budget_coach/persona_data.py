@@ -42,7 +42,7 @@ def list_users(root: Path = PERSONA_DIR) -> list[dict]:
     out = []
     for u in _table("User", str(root)):
         email = u["email"]
-        key = email.split("@")[0].split(".", 1)[-1]  # persona01.mint@... -> mint
+        key = email.split("@")[0].split(".", 1)[-1]  # persona01.alice@... -> alice
         out.append({"user_id": int(u["id"]), "key": key, "email": email})
     return out
 
@@ -108,6 +108,15 @@ class PersonaData:
             elif r["type"] == "income":  # refund into an expense category
                 total -= r["amount"]
         return round(total, 2)
+
+    def sum_categories(self, month: str, categories: list[str]) -> dict:
+        """Net spend across several categories in one month, so a combined total comes from code (P4)."""
+        if not isinstance(categories, list) or not categories:
+            raise ValueError("categories must be a non-empty list")
+        names = list(dict.fromkeys(categories))  # drop repeats, keep order
+        by_category = {c: self.sum_by_category(month, c) for c in names}
+        return {"month": month, "categories": names, "by_category": by_category,
+                "total": round(sum(by_category.values()), 2)}
 
     def compare_months(self, m1: str, m2: str, category: str) -> dict:
         """Spend in `category` for m1 vs m2. diff = m2 - m1; pct_change relative to m1."""

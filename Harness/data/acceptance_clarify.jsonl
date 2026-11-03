@@ -1,0 +1,22 @@
+{"id": "C01", "question": "Grab เดือนนี้เท่าไหร่", "expect": "ask", "reason": "ambiguous:grab"}
+{"id": "C02", "question": "How much did I spend on Grab this month?", "expect": "ask", "reason": "ambiguous:grab"}
+{"id": "C03", "question": "ค่าแกร็บ", "expect": "ask", "reason": "ambiguous:grab"}
+{"id": "C04", "question": "ช่วยหน่อย", "expect": "ask", "reason": "vague"}
+{"id": "C05", "question": "help", "expect": "ask", "reason": "vague"}
+{"id": "C06", "question": "สวัสดี", "expect": "ask", "reason": "vague"}
+{"id": "C07", "question": "Am I okay?", "expect": "ask", "reason": "vague"}
+{"id": "C08", "question": "ได้ไหม", "expect": "ask", "reason": "vague"}
+{"id": "N01", "question": "Grab Food เดือนนี้เท่าไหร่", "expect": "answer", "reason": null}
+{"id": "N02", "question": "ค่า Grab เรียกรถเดือนที่แล้ว", "expect": "answer", "reason": null}
+{"id": "N03", "question": "How much on Grab rides last month?", "expect": "answer", "reason": null}
+{"id": "N04", "question": "ค่าวิน", "expect": "answer", "reason": null}
+{"id": "N05", "question": "ค่า Netflix", "expect": "answer", "reason": null}
+{"id": "N06", "question": "ชานม", "expect": "answer", "reason": null}
+{"id": "N07", "question": "How did I do in October?", "expect": "answer", "reason": null}
+{"id": "N08", "question": "Did I overspend in October?", "expect": "answer", "reason": null}
+{"id": "N09", "question": "หุ้นตัวไหนดี", "expect": "answer", "reason": null}
+{"id": "N10", "question": "Should I buy Bitcoin?", "expect": "answer", "reason": null}
+{"id": "N11", "question": "วันนี้อากาศเป็นยังไง", "expect": "answer", "reason": null}
+{"id": "N12", "question": "How can I save money?", "expect": "answer", "reason": null}
+{"id": "N13", "question": "สรุปเดือนนี้ให้หน่อย", "expect": "answer", "reason": null}
+{"id": "N14", "question": "Give me a tip to save money", "expect": "answer", "reason": null}

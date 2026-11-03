@@ -1,14 +1,14 @@
 """Evaluate the routed agent on the 10 personas. Separate from eval_routed.py (the original student).
 
     cd Harness/budget_coach && python eval_persona.py                  # all personas, about 59 questions
-    python eval_persona.py --users 1,7,bank                            # chosen personas
+    python eval_persona.py --users 1,7,charlie                            # chosen personas
     python eval_persona.py --limit 6                                   # first 6 questions, quick check
 
 Gold answers come from persona/ground_truth.json, which is built by the data generator, not from
 persona_data.py, so a bug in the loader cannot hide behind itself. Per persona, 6 questions:
   sum last month (focus category) · compare September vs October · over budget this month ·
   total spent and money left · refuse crypto · advice (cites a guideline id)
-Persona 7 (Tae) has no budgets, so the over-budget question is skipped for them.
+Persona 7 (Grace) has no budgets, so the over-budget question is skipped for them.
 Needs Ollama for the small model and GATEWAY_KEY for advice and escalated questions.
 Overwrites eval_persona_results.md and eval_persona_rows.json (eval_routed.* are untouched).
 """
@@ -116,7 +116,7 @@ def report(rows: list[dict]) -> None:
          f"large model `{persona_agent.agent.BIG_MODEL}` on the gateway.",
          "- Gold answers come from `persona/ground_truth.json`. Correct = an acceptable tool call AND the gold "
          "number in the reply (refusals: `decline`; advice: any guideline).",
-         "- Persona 7 (tae) has no budgets, so the over-budget question is skipped for them.", "",
+         "- Persona 7 (grace) has no budgets, so the over-budget question is skipped for them.", "",
          "## Pitch targets", "", "| metric | target | result |", "|---|---|---|",
          f"| Numeric accuracy | ≥ 85% | {pct(sum(r['correct'] for r in numeric), len(numeric))} |",
          f"| Advice cites a source id | 100% | {pct(sum(r['cited'] for r in advice), len(advice))} |",

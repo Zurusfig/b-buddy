@@ -9,6 +9,13 @@
     python dev.py ask "How much did I spend on food in July?"
     python dev.py persona --user 3 "Am I over budget this month?"      (also: persona --list)
     python dev.py eval | eval-persona | eval-gateway                   (extra arguments are passed on)
+    python dev.py serve            local coach server for the finance app (127.0.0.1:8765)
+    python dev.py coach-secret     create COACH_SHARED_SECRET in Harness/.env
+    python dev.py demo-seed|demo-remove|demo-status [--yes]   demo accounts in the app's database
+    python dev.py demo-reader-sql  write the SQL for the read-only coach role
+    python dev.py demo-check-reader  prove the coach role can read the views and nothing else
+    python dev.py sources-check    do the advice source links still open? (writes Harness/data/sources_check.json)
+    python dev.py sources-misses|sources-pending|sources-approve   review queue for new advice tips
     python dev.py clean            delete __pycache__ folders
 
 Commands run with the repo's .venv if it exists, otherwise with the Python that runs this file.
@@ -64,6 +71,8 @@ def run(cmd: list[str], cwd: Path = ROOT) -> int:
     env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
     try:
         return subprocess.call(cmd, cwd=cwd, env=env)
+    except KeyboardInterrupt:
+        return 130  # Ctrl+C: the child already said it stopped
     except FileNotFoundError:
         print(f"{FAIL} cannot run {cmd[0]!r}")
         return 127
@@ -267,6 +276,22 @@ def _script(name: str):
     return lambda args: run([project_python(), name, *args], cwd=COACH)
 
 
+def cmd_coach_secret(args: list[str]) -> int:
+    """Create COACH_SHARED_SECRET in Harness/.env (an empty value counts as missing) and say where the app needs it."""
+    import secrets
+    env = ROOT / "Harness" / ".env"
+    lines = env.read_text(encoding="utf-8").splitlines() if env.exists() else []
+    key = "COACH_SHARED_SECRET="
+    if any(ln.startswith(key) and ln[len(key):].strip() for ln in lines):
+        print("COACH_SHARED_SECRET is already set in Harness/.env")
+        return 0
+    lines = [ln for ln in lines if not ln.startswith(key)] + [key + secrets.token_urlsafe(32)]
+    env.write_text(chr(10).join(lines) + chr(10), encoding="utf-8")
+    print("Created COACH_SHARED_SECRET in Harness/.env. Copy that same line into the app's backend/.env "
+          "(see the README, Finance app link), then restart the backend.")
+    return 0
+
+
 def cmd_clean(args: list[str]) -> int:
     n = 0
     for d in ROOT.rglob("__pycache__"):
@@ -282,6 +307,17 @@ COMMANDS = {
     "setup": cmd_setup, "check": cmd_check, "test": cmd_test, "pull": cmd_pull, "ask": cmd_ask,
     "persona": cmd_persona, "eval": _script("eval_routed.py"), "eval-persona": _script("eval_persona.py"),
     "eval-gateway": _script("eval_agent.py"), "clean": cmd_clean,
+    "serve": _script("coach_server.py"), "coach-secret": cmd_coach_secret,
+    "demo-seed": lambda a: _script("demo_db.py")(["seed", *a]),
+    "demo-remove": lambda a: _script("demo_db.py")(["remove", *a]),
+    "demo-status": lambda a: _script("demo_db.py")(["status", *a]),
+    "demo-reader-sql": lambda a: _script("demo_db.py")(["reader-sql", *a]),
+    "demo-check-reader": lambda a: _script("demo_db.py")(["check-reader", *a]),
+    "demo-reader-url": lambda a: _script("demo_db.py")(["reader-url", *a]),
+    "sources-check": _script("sources_check.py"),
+    "sources-misses": lambda a: _script("tips_review.py")(["misses", *a]),
+    "sources-pending": lambda a: _script("tips_review.py")(["pending", *a]),
+    "sources-approve": lambda a: _script("tips_review.py")(["approve", *a]),
 }
 
 

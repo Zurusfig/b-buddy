@@ -1,0 +1,11 @@
+{"id": "L01", "question": "หุ้นตัวไหนดี", "lang": "th", "check": "refusal", "kind": "investment", "note": "UAT T09: a Thai question must get a Thai-only refusal"}
+{"id": "L02", "question": "Should I buy Bitcoin?", "lang": "en", "check": "refusal", "kind": "investment", "note": "an English question must get an English-only refusal"}
+{"id": "L03", "question": "วันนี้อากาศเป็นยังไง", "lang": "th", "check": "refusal", "kind": "off_topic"}
+{"id": "L04", "question": "What's the weather today?", "lang": "en", "check": "refusal", "kind": "off_topic"}
+{"id": "L05", "question": "Grab เดือนนี้เท่าไหร่", "lang": "th", "check": "detect", "note": "mixed Thai and English counts as Thai"}
+{"id": "L06", "question": "How much did I spend at 7-Eleven?", "lang": "en", "check": "detect"}
+{"id": "L07", "question": "ค่า Netflix เดือนที่แล้ว", "lang": "th", "check": "detect", "note": "a brand name does not make it English"}
+{"id": "L08", "question": "ค่าอาหารเดือนที่แล้วเท่าไหร่", "lang": "th", "check": "fallback", "note": "the raw-results fallback follows the question's language"}
+{"id": "L09", "question": "How much on food last month?", "lang": "en", "check": "fallback"}
+{"id": "L10", "question": "เดือนนี้ใช้เงินรวมเท่าไหร่", "lang": "th", "check": "model_wrong_language", "wrong_reply": "You spent more than you earned this month, so your spending needs a closer look.", "right_reply": "เดือนนี้คุณใช้เงินมากกว่ารายได้ ควรดูรายจ่ายอีกครั้งนะคะ", "note": "model answers a Thai question in English: retry once, then flag"}
+{"id": "L11", "question": "How much did I spend this month in total?", "lang": "en", "check": "model_wrong_language", "wrong_reply": "เดือนนี้คุณใช้เงินมากกว่ารายได้ของคุณอยู่พอสมควร ควรดูรายจ่ายอีกครั้งนะคะ", "right_reply": "You spent more than you earned this month, so spending needs a closer look.", "note": "model answers an English question in Thai"}

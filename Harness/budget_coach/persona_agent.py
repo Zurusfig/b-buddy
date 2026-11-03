@@ -2,14 +2,14 @@
 
     python persona_agent.py --list
     python persona_agent.py --user 3 "เดือนที่แล้วใช้เงินค่าอาหารไปเท่าไหร่"
-    python persona_agent.py --user mint "Am I over budget this month?"
+    python persona_agent.py --user alice "Am I over budget this month?"
 
 It reuses the same routed loop as agent.py (classifier, small model, large model, validator,
 logging); only the data and tools differ. The persona is chosen by --user and cannot be changed
 by the model: user_id is not an argument of any tool.
 
     from persona_agent import answer_persona
-    r = answer_persona("Did I overspend in October?", user="ploy")
+    r = answer_persona("Did I overspend in October?", user="bob")
 """
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ import agent
 import persona_data
 from persona_data import PersonaData
 
-TOOL_NAMES = ("sum_by_category", "compare_months", "get_budget", "over_budget", "month_summary",
+TOOL_NAMES = ("sum_by_category", "sum_categories", "compare_months", "get_budget", "over_budget", "month_summary",
               "get_transactions")
 DATA_TOOLS = frozenset(TOOL_NAMES) | {"lookup_guideline"}
 CLASSIFIER_HINT = ("This student's categories also include bills (rent, phone, internet, utilities) and "
@@ -28,7 +28,9 @@ CLASSIFIER_HINT = ("This student's categories also include bills (rent, phone, i
 
 def _system(data: PersonaData) -> str:
     months = data.months()
-    ref, prev = months[-1], months[-2]
+    ref = data.reference_month()
+    earlier = [m for m in months if m < ref]
+    prev = earlier[-1] if earlier else ref
     budget_rule = ("" if data.budgets else
                    "\n- This student has not set any budgets: get_budget and over_budget will say so. "
                    "Tell them, and suggest setting limits. Do not invent a limit.")
@@ -43,8 +45,10 @@ payments, savings deposits) are not spending.
 Rules:
 - Every number you state must come from a tool result. Never guess amounts or limits, and never add,
   subtract or convert numbers yourself: quote what the tools returned.
-- Spending in one category: sum_by_category or compare_months. Total spent, income, or money left over:
-  month_summary. Limits / "am I over?": get_budget or over_budget.
+- Spending in one category: sum_by_category or compare_months. Two or more categories added together
+  ("food plus transport"): sum_categories. A short phrase such as "ค่าวิน" or "Netflix" is a spending question
+  about that category (transport, subscriptions): look it up, do not summarise the whole month.
+  Total spent, income, or money left over: month_summary. Limits / "am I over?": get_budget or over_budget.
   Use get_transactions only when the student asks for the individual purchases.{budget_rule}
 - Habits and budgeting help: lookup_guideline with the best-fitting guideline. Name its source and
   put its id in square brackets, for example [G03].
@@ -60,6 +64,9 @@ def _tool_defs(data: PersonaData) -> list[dict]:
     own = [
         fn("sum_by_category", "Net spend in one category for one month.",
            {"month": month, "category": category}, ["month", "category"]),
+        fn("sum_categories", "Total spend across two or more categories in one month, with each category's amount.",
+           {"month": month, "categories": {"type": "array", "items": category, "minItems": 1}},
+           ["month", "categories"]),
         fn("compare_months", "Spend in a category for m1 vs m2 (diff = m2 - m1).",
            {"m1": month, "m2": month, "category": category}, ["m1", "m2", "category"]),
         fn("get_budget", "Monthly spending limit for one category.", {"category": category}, ["category"]),
@@ -74,9 +81,8 @@ def _tool_defs(data: PersonaData) -> list[dict]:
     return own + shared
 
 
-def build_context(user: str | int, root=persona_data.PERSONA_DIR) -> tuple[agent.Context, PersonaData]:
-    data = PersonaData(persona_data.resolve_user(user, root), root)
-
+def context_for(data) -> agent.Context:
+    """The agent context for any data object with the PersonaData tools (CSV personas or the live database)."""
     def run_tool(name: str, args: dict, raw: bool = True):
         if name in agent.RAW_TOOLS and not raw:
             raise ValueError(f"tool {name!r} is not available here")
@@ -86,10 +92,30 @@ def build_context(user: str | int, root=persona_data.PERSONA_DIR) -> tuple[agent
             raise ValueError(f"unknown tool {name!r}")
         return getattr(data, name)(**args)  # an unexpected argument such as user_id raises TypeError
 
+    def advice_facts() -> dict:
+        month = data.reference_month()
+        try:
+            over = [o["category"] for o in data.over_budget(month)]
+            has_budget = True
+        except ValueError:
+            over, has_budget = [], False
+        return {"over_budget": over, "has_budget": has_budget, "net": data.month_summary(month)["net_cashflow"]}
+
     years = tuple(sorted({int(m[:4]) for m in data.months()}))
-    ctx = agent.Context(system=_system(data), tools=_tool_defs(data), run_tool=run_tool, numbers=years,
-                        data_tools=DATA_TOOLS, classifier_hint=CLASSIFIER_HINT)
-    return ctx, data
+    return agent.Context(system=_system(data), tools=_tool_defs(data), run_tool=run_tool, numbers=years,
+                         data_tools=DATA_TOOLS, classifier_hint=CLASSIFIER_HINT,
+                         advice_facts=advice_facts, categories=tuple(data.expense_categories))
+
+
+def build_context(user: str | int, root=persona_data.PERSONA_DIR) -> tuple[agent.Context, PersonaData]:
+    data = PersonaData(persona_data.resolve_user(user, root), root)
+    return context_for(data), data
+
+
+def answer_for(question: str, data, key: str | None = None, log_extra: dict | None = None) -> dict:
+    """Routed answer over any data object; the caller fixes the user when it builds `data`."""
+    return agent.answer_routed(question, key, ctx=context_for(data),
+                               log_extra={"user_id": data.user_id, **(log_extra or {})})
 
 
 def answer_persona(question: str, user: str | int, key: str | None = None) -> dict:

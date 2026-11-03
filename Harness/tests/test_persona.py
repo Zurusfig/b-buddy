@@ -110,17 +110,17 @@ class CountingRules(unittest.TestCase):
             self.assertAlmostEqual(per_category, d.month_summary(month)["spending_total"], places=2)
 
     def test_refund_reduces_its_category(self):
-        fern = persona_data.PersonaData(4)
-        month = next(m for m in fern.months() if fern.month_summary(m)["refunds_total"] > 0)
-        gross = sum(r["amount"] for r in fern._month_rows(month) if r["type"] == "expense")
-        self.assertLess(fern.month_summary(month)["spending_total"], gross)
+        diana = persona_data.PersonaData(4)
+        month = next(m for m in diana.months() if diana.month_summary(m)["refunds_total"] > 0)
+        gross = sum(r["amount"] for r in diana._month_rows(month) if r["type"] == "expense")
+        self.assertLess(diana.month_summary(month)["spending_total"], gross)
 
     def test_persona_without_budgets_gets_clear_errors(self):
-        tae = persona_data.PersonaData(7)
+        grace = persona_data.PersonaData(7)
         with self.assertRaisesRegex(ValueError, "not set any budgets"):
-            tae.over_budget("2026-10")
+            grace.over_budget("2026-10")
         with self.assertRaisesRegex(ValueError, "no budget is set"):
-            tae.get_budget("food")
+            grace.get_budget("food")
 
     def test_unknown_month_and_category_raise(self):
         d = persona_data.PersonaData(1)
@@ -143,7 +143,7 @@ class CountingRules(unittest.TestCase):
 class UsersAndContext(unittest.TestCase):
     def test_resolve_user_by_id_and_key(self):
         self.assertEqual(persona_data.resolve_user("3"), 3)
-        self.assertEqual(persona_data.resolve_user("bank"), 3)
+        self.assertEqual(persona_data.resolve_user("charlie"), 3)
         self.assertEqual(persona_data.resolve_user(7), 7)
         with self.assertRaises(ValueError):
             persona_data.resolve_user("nobody")
@@ -164,7 +164,7 @@ class UsersAndContext(unittest.TestCase):
             ctx.run_tool("get_transactions", {"month": "2026-10"}, raw=False)
 
     def test_context_describes_this_persona(self):
-        ctx, data = persona_agent.build_context("mint")
+        ctx, data = persona_agent.build_context("alice")
         self.assertIn('"this month" = 2026-10', ctx.system)
         self.assertIn("bills", ctx.system)
         self.assertNotIn("has not set any budgets", ctx.system)
@@ -176,7 +176,7 @@ class UsersAndContext(unittest.TestCase):
                          list(data.expense_categories))
 
     def test_persona_without_budgets_gets_a_prompt_rule(self):
-        ctx, _ = persona_agent.build_context("tae")
+        ctx, _ = persona_agent.build_context("grace")
         self.assertIn("has not set any budgets", ctx.system)
 
 
@@ -218,7 +218,7 @@ class AgentLoopOnPersonas(unittest.TestCase):
     def test_answer_persona_logs_dataset_and_user(self):
         cls = {"intent": "investment", "ok": True, "latency": 0.1, "error": None}
         with mock.patch.object(router, "classify", return_value=cls) as classify:
-            r = persona_agent.answer_persona("buy crypto?", "ploy")
+            r = persona_agent.answer_persona("buy crypto?", "bob")
         self.assertEqual(r["route"], "refuse")
         self.assertIn("bills", classify.call_args.kwargs["hint"])
         lines = [json.loads(x) for x in self.log_path.read_text(encoding="utf-8").splitlines()]

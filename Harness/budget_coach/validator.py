@@ -68,10 +68,16 @@ def unsupported_numbers(answer: str, calls: list[dict], question: str = "",
     return sorted(n for n in numbers_in(answer) if not any(_close(n, a) for a in ok))
 
 
-def fallback_answer(calls: list[dict]) -> str:
-    """Raw totals from the tool results, used when the model cannot give a verified answer."""
-    lines = ["I could not verify a written answer, so here are the raw results. / "
-             "ตรวจสอบคำตอบไม่ผ่าน จึงแสดงผลดิบจากเครื่องมือแทนค่ะ"]
+FALLBACK_HEADER = {
+    "en": "I could not verify a written answer, so here are the raw results.",
+    "th": "ตรวจสอบคำตอบไม่ผ่าน จึงแสดงผลดิบจากเครื่องมือแทนค่ะ",
+}
+FALLBACK_EMPTY = {"en": "- (no data was retrieved)", "th": "- (ไม่ได้ดึงข้อมูลมา)"}
+
+
+def fallback_answer(calls: list[dict], lang: str = "en") -> str:
+    """Raw totals from the tool results, used when the model cannot give a verified answer, in the question's language."""
+    lines = [FALLBACK_HEADER.get(lang, FALLBACK_HEADER["en"])]
     shown = 0
     for c in calls:
         res = c.get("result")
@@ -83,5 +89,5 @@ def fallback_answer(calls: list[dict]) -> str:
                      f"{json.dumps(res, ensure_ascii=False)}")
         shown += 1
     if not shown:
-        lines.append("- (no data was retrieved)")
+        lines.append(FALLBACK_EMPTY.get(lang, FALLBACK_EMPTY["en"]))
     return "\n".join(lines)

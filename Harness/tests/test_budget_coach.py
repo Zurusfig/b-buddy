@@ -224,7 +224,7 @@ class RunLoopTests(AgentTestCase):
         with mock.patch.object(agent, "_chat", chat):
             r = agent.run("buy bitcoin?", "m", False)
         self.assertIn("declined", r["flags"])
-        self.assertEqual(r["answer"], agent.DECLINE_MSG["investment"])
+        self.assertEqual(r["answer"], agent.decline_message("investment", "en"))
 
 
 class OllamaAdapterTests(unittest.TestCase):
@@ -258,7 +258,7 @@ class RoutingTests(AgentTestCase):
         cls = {"intent": intent, "ok": intent is not None, "latency": 0.5, "error": None}
         fake = mock.Mock(side_effect=runs)
         with mock.patch.object(router, "classify", return_value=cls), mock.patch.object(agent, "run", fake):
-            return agent.answer_routed("q"), fake
+            return agent.answer_routed("How much did I spend on food last month?"), fake  # a real question: "q" is vague now
 
     @staticmethod
     def result(**kw):
@@ -269,7 +269,7 @@ class RoutingTests(AgentTestCase):
     def test_investment_is_refused_without_a_model_call(self):
         r, run = self.route("investment", [])
         run.assert_not_called()
-        self.assertEqual((r["route"], r["answer"]), ("refuse", agent.DECLINE_MSG["investment"]))
+        self.assertEqual((r["route"], r["answer"]), ("refuse", agent.decline_message("investment", "en")))
         self.assertIn("declined", r["flags"])
 
     def test_trend_uses_the_small_model(self):

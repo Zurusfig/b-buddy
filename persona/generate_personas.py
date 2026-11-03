@@ -181,7 +181,7 @@ def frontload(day):
 
 PERSONAS = [
     {
-        "key": "mint", "nickname": "มิ้นท์ (Mint)", "age": 20,
+        "key": "alice", "nickname": "Alice", "age": 20,
         "archetype": "Party-goer",
         "story": "3rd-year communication arts student living with family in Bangkok. "
                  "Lives for weekends: bars, concerts and games. Entertainment is over "
@@ -229,10 +229,10 @@ PERSONAS = [
         "deleted": 3,
     },
     {
-        "key": "ploy", "nickname": "พลอย (Ploy)", "age": 23,
+        "key": "bob", "nickname": "Bob", "age": 23,
         "archetype": "Disciplined saver",
-        "story": "Junior accountant in her first job, renting a small condo near the BTS. "
-                 "Moves 30% of her salary into two goals on payday and stays under "
+        "story": "Junior accountant in their first job, renting a small condo near the BTS. "
+                 "Moves 30% of their salary into two goals on payday and stays under "
                  "budget almost everywhere.",
         "focus": "food",
         "accounts": {
@@ -278,10 +278,10 @@ PERSONAS = [
         "deleted": 3,
     },
     {
-        "key": "bank", "nickname": "แบงค์ (Bank)", "age": 24,
+        "key": "charlie", "nickname": "Charlie", "age": 24,
         "archetype": "Heavy saver (investing removed)",
-        "story": "Software developer living with his parents. Saves half his salary for a "
-                 "condo down payment and an emergency fund; spends little and gives his "
+        "story": "Software developer living with their parents. Saves half their salary for a "
+                 "condo down payment and an emergency fund; spends little and gives their "
                  "mother money every month.",
         "focus": "transport",
         "accounts": {
@@ -322,7 +322,7 @@ PERSONAS = [
         "deleted": 3,
     },
     {
-        "key": "fern", "nickname": "เฟิร์น (Fern)", "age": 19,
+        "key": "diana", "nickname": "Diana", "age": 19,
         "archetype": "Food-delivery addict",
         "story": "1st-year student in a dorm (parents pay the rent). Started with street "
                  "food, now orders GrabFood / LINE MAN almost every day - food spending "
@@ -363,7 +363,7 @@ PERSONAS = [
         "deleted": 4,
     },
     {
-        "key": "earth", "nickname": "เอิร์ธ (Earth)", "age": 21,
+        "key": "eve", "nickname": "Eve", "age": 21,
         "archetype": "Online shopper",
         "story": "3rd-year student who tutors part-time. Buys almost everything on Shopee "
                  "and Lazada with a credit card; double-day sales (6.6 ... 10.10) cause big "
@@ -407,10 +407,10 @@ PERSONAS = [
         "deleted": 4,
     },
     {
-        "key": "nat", "nickname": "ณัฐ (Nat)", "age": 22,
+        "key": "frank", "nickname": "Frank", "age": 22,
         "archetype": "Long-distance commuter",
         "story": "Final-year engineering student living in Bang Na. Commutes across the city "
-                 "by BTS + MRT; from July he also does an internship downtown, so transport "
+                 "by BTS + MRT; from July they also do an internship downtown, so transport "
                  "costs jump.",
         "focus": "transport",
         "accounts": {
@@ -453,11 +453,11 @@ PERSONAS = [
         "deleted": 3,
     },
     {
-        "key": "tae", "nickname": "เต้ (Tae)", "age": 25,
+        "key": "grace", "nickname": "Grace", "age": 25,
         "archetype": "Freelancer, irregular income (NO budgets set)",
         "story": "Freelance graphic designer renting a studio apartment. Income swings from "
                  "5,000 to 38,000 a month; spending is steady, so some months go negative "
-                 "and he dips into his emergency fund. Has never set a budget.",
+                 "and they dip into their emergency fund. Has never set a budget.",
         "focus": "food",
         "accounts": {
             "cash": ("เงินสด", ACC_CASH, None),
@@ -508,7 +508,7 @@ PERSONAS = [
         "deleted": 4,
     },
     {
-        "key": "pim", "nickname": "พิม (Pim)", "age": 18,
+        "key": "henry", "nickname": "Henry", "age": 18,
         "archetype": "Allowance student, broke by day 25",
         "story": "1st-year student who gets a monthly allowance on the 1st. Spends freely in "
                  "the first two weeks and is nearly broke after the 24th; mum sometimes "
@@ -551,7 +551,7 @@ PERSONAS = [
         "deleted": 3,
     },
     {
-        "key": "beam", "nickname": "บีม (Beam)", "age": 25,
+        "key": "ivy", "nickname": "Ivy", "age": 25,
         "archetype": "Fresh grad renting, bills-heavy",
         "story": "Fresh graduate working as a marketing coordinator. Rent, student-loan "
                  "(กยศ.) repayments and a summer electricity spike make bills the biggest "
@@ -595,7 +595,7 @@ PERSONAS = [
         "deleted": 3,
     },
     {
-        "key": "ice", "nickname": "ไอซ์ (Ice)", "age": 20,
+        "key": "jack", "nickname": "Jack", "age": 20,
         "archetype": "Subscription creep",
         "story": "2nd-year student who keeps adding subscriptions - Spotify and YouTube in "
                  "May, then Netflix, iCloud, Disney+, ChatGPT and Game Pass. Each one is "

@@ -14,8 +14,8 @@
   "personas": [
     {
       "user_id": 1,
-      "key": "mint",
-      "nickname": "มิ้นท์ (Mint)",
+      "key": "alice",
+      "nickname": "Alice",
       "age": 20,
       "archetype": "Party-goer",
       "budgets": {
@@ -878,8 +878,8 @@
     },
     {
       "user_id": 2,
-      "key": "ploy",
-      "nickname": "พลอย (Ploy)",
+      "key": "bob",
+      "nickname": "Bob",
       "age": 23,
       "archetype": "Disciplined saver",
       "budgets": {
@@ -1731,8 +1731,8 @@
     },
     {
       "user_id": 3,
-      "key": "bank",
-      "nickname": "แบงค์ (Bank)",
+      "key": "charlie",
+      "nickname": "Charlie",
       "age": 24,
       "archetype": "Heavy saver (investing removed)",
       "budgets": {
@@ -2584,8 +2584,8 @@
     },
     {
       "user_id": 4,
-      "key": "fern",
-      "nickname": "เฟิร์น (Fern)",
+      "key": "diana",
+      "nickname": "Diana",
       "age": 19,
       "archetype": "Food-delivery addict",
       "budgets": {
@@ -3446,8 +3446,8 @@
     },
     {
       "user_id": 5,
-      "key": "earth",
-      "nickname": "เอิร์ธ (Earth)",
+      "key": "eve",
+      "nickname": "Eve",
       "age": 21,
       "archetype": "Online shopper",
       "budgets": {
@@ -4310,8 +4310,8 @@
     },
     {
       "user_id": 6,
-      "key": "nat",
-      "nickname": "ณัฐ (Nat)",
+      "key": "frank",
+      "nickname": "Frank",
       "age": 22,
       "archetype": "Long-distance commuter",
       "budgets": {
@@ -5168,8 +5168,8 @@
     },
     {
       "user_id": 7,
-      "key": "tae",
-      "nickname": "เต้ (Tae)",
+      "key": "grace",
+      "nickname": "Grace",
       "age": 25,
       "archetype": "Freelancer, irregular income (NO budgets set)",
       "budgets": null,
@@ -5915,8 +5915,8 @@
     },
     {
       "user_id": 8,
-      "key": "pim",
-      "nickname": "พิม (Pim)",
+      "key": "henry",
+      "nickname": "Henry",
       "age": 18,
       "archetype": "Allowance student, broke by day 25",
       "budgets": {
@@ -6776,8 +6776,8 @@
     },
     {
       "user_id": 9,
-      "key": "beam",
-      "nickname": "บีม (Beam)",
+      "key": "ivy",
+      "nickname": "Ivy",
       "age": 25,
       "archetype": "Fresh grad renting, bills-heavy",
       "budgets": {
@@ -7628,8 +7628,8 @@
     },
     {
       "user_id": 10,
-      "key": "ice",
-      "nickname": "ไอซ์ (Ice)",
+      "key": "jack",
+      "nickname": "Jack",
       "age": 20,
       "archetype": "Subscription creep",
       "budgets": {

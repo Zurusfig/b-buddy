@@ -5,7 +5,7 @@ PY ?= python
 Q  ?= Am I over budget this month?
 WHO ?= 1
 
-.PHONY: help setup setup-here check check-gateway test pull pull-all ask persona personas eval eval-persona eval-gateway clean
+.PHONY: help setup setup-here check check-gateway test pull pull-all ask persona personas eval eval-persona eval-gateway clean serve coach-secret demo-seed demo-remove demo-status demo-reader-sql demo-up
 
 help:
 	@$(PY) dev.py help
@@ -53,3 +53,26 @@ eval-gateway:
 
 clean:
 	@$(PY) dev.py clean
+
+serve:
+	@$(PY) dev.py serve
+
+coach-secret:
+	@$(PY) dev.py coach-secret
+
+demo-seed:
+	@$(PY) dev.py demo-seed
+
+demo-remove:
+	@$(PY) dev.py demo-remove
+
+demo-status:
+	@$(PY) dev.py demo-status
+
+demo-reader-sql:
+	@$(PY) dev.py demo-reader-sql
+
+# Seed (dry run unless YES=1) then start the coach server.
+demo-up:
+	@$(PY) dev.py demo-seed $(if $(YES),--yes,)
+	@$(PY) dev.py serve

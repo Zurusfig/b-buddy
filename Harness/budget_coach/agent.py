@@ -25,6 +25,7 @@ A model name containing ":" (e.g. qwen3:4b-q4_K_M) is served by Ollama, any othe
 """
 from __future__ import annotations
 
+import contextvars
 import json
 import os
 import re
@@ -36,28 +37,79 @@ from typing import Callable
 
 import requests
 
+import advice
+import categories
+import clarify
+import language
 import router
 import tools
 import validator
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
-from harness.logger import JsonlLogger  # noqa: E402  (shared M14 logger from the harness package)
+from harness.logger import JsonlLogger, new_run_id  # noqa: E402  (shared M14 logger from the harness package)
 
-LOG = JsonlLogger(HERE.parent / "logs" / "coach_calls.jsonl")
+_RUN: contextvars.ContextVar = contextvars.ContextVar("coach_run_id", default=None)
+
+
+class _RunLog:
+    """The shared JSONL logger, but every line also carries the run_id of the question being answered (P8)."""
+
+    def __init__(self, inner):
+        self.inner = inner
+
+    def write(self, event: str, **fields):
+        fields.setdefault("run_id", _RUN.get())
+        return self.inner.write(event, **fields)
+
+
+LOG = _RunLog(JsonlLogger(HERE.parent / "logs" / "coach_calls.jsonl"))
 OLLAMA_URL = router.OLLAMA_URL
 SMALL_MODEL = router.CLASSIFIER_MODEL
 BIG_MODEL = os.environ.get("COACH_BIG_MODEL", "gemma-4-31b")
 VALIDATOR_RETRIES = 1
+LANGUAGE_RETRIES = 1
 # Backup, only on the university VPN: "http://161.200.93.57:4000/v1"
 GATEWAY_URL = "https://llm.nattee.net/v1"
 # The gateway's front door (Cloudflare) refuses default library User-Agents with 403.
 HEADERS = {"User-Agent": "week12-budget-coach/1.0", "Content-Type": "application/json"}
-TIMEOUT_S = 300
-MAX_MODEL_CALLS = 6
+# Limits (P6). A 4B model on a laptop needs about 10-15 s for a normal answer, so the slide's 5 s is reported as
+# "slow" rather than enforced; what IS enforced is how long one question may run and how many model calls it may use.
+TIMEOUT_S = 120        # one HTTP call to a model
+DEADLINE_S = 90        # one run (small or large) stops starting new model calls after this long
+SLOW_S = 30            # a question slower than this is flagged "slow" (logged, never escalated)
+MAX_MODEL_CALLS = 4    # per run: tool round, answer, one language retry, one number retry
 MAX_TOOLS_PER_ROUND = 8
 MAX_TOKENS = {"off": 1024, "on": 8192}
-AUTO_TRIGGERS = ("think_harder", "tool_error", "no_tool", "declined", "loop", "validator_fallback")
+AUTO_TRIGGERS = ("think_harder", "tool_error", "no_tool", "declined", "loop", "validator_fallback",
+                 "wrong_language", "arg_mismatch", "model_error")
+
+
+class LLMError(Exception):
+    """A model call failed. Only the short code is kept: the response body can echo a key hash or a prompt (P7)."""
+
+    def __init__(self, code: str):
+        super().__init__(code)
+        self.code = code
+
+
+ERROR_TEXT = {
+    "local_down": "The local model (Ollama) is not running. Start it, then ask again.",
+    "local_error": "The local model returned an error.",
+    "gateway_auth": "The model server rejected the key. Check GATEWAY_KEY in Harness/.env.",
+    "gateway_busy": "The model server is busy. Try again in a minute.",
+    "gateway_down": "The model server could not be reached. Check the network or VPN.",
+    "gateway_error": "The model server returned an error.",
+    "timeout": "The model took too long to answer.",
+    "internal": "Something went wrong inside the coach.",
+}
+
+
+def _http_code(status: int, local: bool) -> str:
+    if local:
+        return "local_error"
+    return "gateway_auth" if status in (401, 403) else "gateway_busy" if status == 429 else (
+        "gateway_down" if status >= 500 else "gateway_error")
 
 PERSONA = json.loads((HERE / "persona.json").read_text("utf-8"))
 GUIDELINES = {g["id"]: g for g in json.loads((HERE / "guidelines.json").read_text("utf-8"))}
@@ -114,9 +166,18 @@ THINK_HARDER = _fn("think_harder", "Hand this question to a slower, more careful
 DATA_TOOLS = {"sum_by_category", "compare_months", "get_budget", "over_budget", "lookup_guideline",
               "get_transactions"}
 RAW_TOOLS = {"get_transactions"}  # not offered to the large model: it only sees computed totals
-DECLINE_MSG = {"investment": "I can't give investment advice, but I can help with your budget and spending. / "
-                             "ขออภัยค่ะ ให้คำแนะนำการลงทุนไม่ได้ แต่ช่วยเรื่องงบและรายจ่ายได้ค่ะ",
-               "off_topic": "I can only help with your budget and spending. / ช่วยได้เฉพาะเรื่องงบและรายจ่ายค่ะ"}
+# Fixed refusals, one per language (P1: they used to be one English-and-Thai string for everyone).
+DECLINE_MSG = {
+    "en": {"investment": "I can't give investment advice, but I can help with your budget and spending.",
+           "off_topic": "I can only help with your budget and spending."},
+    "th": {"investment": "ขออภัยค่ะ ให้คำแนะนำการลงทุนไม่ได้ แต่ช่วยเรื่องงบและรายจ่ายได้ค่ะ",
+           "off_topic": "ช่วยได้เฉพาะเรื่องงบและรายจ่ายค่ะ"},
+}
+
+
+def decline_message(kind: str, lang: str = "en") -> str:
+    table = DECLINE_MSG.get(lang, DECLINE_MSG["en"])
+    return table.get(kind, table["off_topic"])
 
 # Gemma's native syntax: <|channel>thought ...<channel|> and <|tool_call>call:name{k:<|"|>v<|"|>}<tool_call|>.
 # The gateway does not turn it into tool_calls, so we ask for special tokens and parse it (as in lab6).
@@ -138,14 +199,34 @@ def load_key() -> str:
     raise SystemExit("Set GATEWAY_KEY in your environment or in budget_coach/.env or Harness/.env")
 
 
+def _quote_keys(raw: str) -> str:
+    """Quote bare keys (month:"2026-09" -> "month":"2026-09") outside strings, so lists and nested values parse."""
+    out, in_str, i = [], False, 0
+    while i < len(raw):
+        ch = raw[i]
+        if ch == '"' and (i == 0 or raw[i - 1] != "\\"):
+            in_str = not in_str
+        if not in_str:
+            m = re.match(r"(?<![\w\"])(\w+)(\s*:)", raw[i:]) if (i == 0 or raw[i - 1] in ", {") else None
+            if m:
+                out.append(f'"{m.group(1)}"{m.group(2)}')
+                i += m.end()
+                continue
+        out.append(ch)
+        i += 1
+    return "".join(out)
+
+
 def _text_args(raw: str) -> dict:
     raw = raw.replace('<|"|>', '"').strip()
     if not raw:
         return {}
-    try:
-        return json.loads("{" + raw + "}")
-    except ValueError:
-        return {k: v.strip().strip('"\'') for k, v in re.findall(r'"?(\w+)"?\s*:\s*("[^"]*"|[^,]*)', raw)}
+    for candidate in (raw, _quote_keys(raw)):
+        try:
+            return json.loads("{" + candidate + "}")
+        except ValueError:
+            pass
+    return {k: v.strip().strip('"\'') for k, v in re.findall(r'"?(\w+)"?\s*:\s*("[^"]*"|[^,]*)', raw)}
 
 
 def run_tool(name: str, args: dict, raw: bool = True):
@@ -177,6 +258,8 @@ class Context:
     numbers: tuple          # numbers a reply may state without a tool (income, data years)
     data_tools: frozenset   # tools that count as "the model looked something up"
     classifier_hint: str = ""
+    categories: tuple | None = None  # this data's own category names (see categories.py)
+    advice_facts: Callable | None = None  # () -> facts the advice picker uses (see advice.py)
 
 
 DEFAULT_CONTEXT = Context(SYSTEM, TOOLS, run_tool, PERSONA_NUMBERS, frozenset(DATA_TOOLS))
@@ -212,7 +295,7 @@ def _chat_ollama(model, messages, think, tool_defs):
         "messages": _to_ollama(messages), "tools": tool_defs,
         "options": {"temperature": 0, "num_ctx": 8192, "num_predict": MAX_TOKENS["on" if think else "off"]}})
     if r.status_code >= 400:
-        raise RuntimeError(f"Ollama HTTP {r.status_code}: {r.text[:200]}")
+        raise LLMError(_http_code(r.status_code, True))
     d = r.json()
     msg = d.get("message", {})
     calls = [{"id": f"call_{i}", "type": "function",
@@ -228,6 +311,17 @@ def _chat_ollama(model, messages, think, tool_defs):
 
 
 def _chat(key, model, messages, think, tool_defs):
+    try:
+        return _chat_once(key, model, messages, think, tool_defs)
+    except LLMError:
+        raise
+    except requests.Timeout:
+        raise LLMError("timeout") from None
+    except requests.ConnectionError:
+        raise LLMError("local_down" if is_local(model) else "gateway_down") from None
+
+
+def _chat_once(key, model, messages, think, tool_defs):
     t0 = time.perf_counter()
     if is_local(model):
         data = _chat_ollama(model, messages, think, tool_defs)
@@ -238,7 +332,7 @@ def _chat(key, model, messages, think, tool_defs):
         r = requests.post(GATEWAY_URL + "/chat/completions", json=body, timeout=TIMEOUT_S,
                           headers={**HEADERS, "Authorization": "Bearer " + (key or load_key())})
         if r.status_code >= 400:
-            raise RuntimeError(f"HTTP {r.status_code}: {r.text[:200]}")
+            raise LLMError(_http_code(r.status_code, False))
         data = r.json()
     LOG.write("coach_llm_call", model=model, think=think, wall_s=round(time.perf_counter() - t0, 3),
               out_tokens=data.get("usage", {}).get("completion_tokens", 0),
@@ -255,7 +349,7 @@ def _log_tool(model, think, name, args, res, duration_s):
 
 
 def run(question: str, model: str, think: bool, key: str | None = None, raw: bool = True,
-        ctx: Context = DEFAULT_CONTEXT) -> dict:
+        ctx: Context = DEFAULT_CONTEXT, system_extra: str = "", check_args: bool = True) -> dict:
     """One full tool loop with thinking fixed on or off. Returns answer, calls and trigger flags.
 
     raw=False hides get_transactions, so the model only ever sees computed totals.
@@ -264,14 +358,21 @@ def run(question: str, model: str, think: bool, key: str | None = None, raw: boo
     """
     tool_defs = [t for t in ctx.tools if raw or t["function"]["name"] not in RAW_TOOLS]
     tool_defs = tool_defs if think else tool_defs + [THINK_HARDER]
-    messages = [{"role": "system", "content": ctx.system + ("" if think else THINK_HARDER_NOTE)},
+    messages = [{"role": "system", "content": ctx.system + ("" if think else THINK_HARDER_NOTE) + system_extra},
                 {"role": "user", "content": question}]
     calls, flags, answer, model_calls, tokens = [], set(), "", 0, 0
     validator_retries = 0
+    error = None
+    lang = language.question_lang(question)  # decided by code, not by the model
+    lang_retries = 0
     t0 = time.perf_counter()
     try:
         while True:
             if model_calls >= MAX_MODEL_CALLS:
+                flags.add("loop")
+                break
+            if time.perf_counter() - t0 > DEADLINE_S:
+                flags.add("deadline")
                 flags.add("loop")
                 break
             data = _chat(key, model, messages, think, tool_defs)
@@ -294,8 +395,17 @@ def run(question: str, model: str, think: bool, key: str | None = None, raw: boo
             if not todo:
                 if choice.get("finish_reason") == "length":
                     flags.add("loop")
-                answer = SPECIAL.sub("", content).strip()
+                answer = SPECIAL.sub("", content).strip().replace("。", ".")  # a stray CJK full stop
+                if not language.reply_matches(lang, answer):
+                    if lang_retries < LANGUAGE_RETRIES:
+                        lang_retries += 1
+                        messages.append({"role": "assistant", "content": answer})
+                        messages.append({"role": "user", "content": language.RETRY_INSTRUCTION[lang]})
+                        continue
+                    flags.add("wrong_language")
                 bad = validator.unsupported_numbers(answer, calls, question, ctx.numbers)
+                if bad:
+                    LOG.write("coach_validator", model=model, rejected=sorted(bad), retry=validator_retries)
                 if bad and validator_retries < VALIDATOR_RETRIES:
                     validator_retries += 1
                     messages.append({"role": "assistant", "content": answer})
@@ -305,7 +415,7 @@ def run(question: str, model: str, think: bool, key: str | None = None, raw: boo
                     continue
                 if bad:
                     flags.add("validator_fallback")
-                    answer = validator.fallback_answer(calls)
+                    answer = validator.fallback_answer(calls, lang)
                 break
             names = {n for n, _, _ in todo}
             if "think_harder" in names:
@@ -318,7 +428,7 @@ def run(question: str, model: str, think: bool, key: str | None = None, raw: boo
                 _log_tool(model, think, "decline", {"kind": kind}, {"refused": True}, 0.0)
                 calls.append({"name": "decline", "args": {"kind": kind}})
                 flags.add("declined")
-                answer = DECLINE_MSG.get(kind, DECLINE_MSG["off_topic"])
+                answer = decline_message(kind, lang)
                 break
             results = []
             for i, (name, args, _) in enumerate(todo):
@@ -347,14 +457,25 @@ def run(question: str, model: str, think: bool, key: str | None = None, raw: boo
                 messages.append({"role": "user", "content": "<tool_results>\n" + json.dumps(
                     [{"tool": n, "result": r} for (n, _, _), r in zip(todo, results)],
                     ensure_ascii=False) + "\n</tool_results>\nAnswer the original question using only these results."})
-    except Exception as e:  # runtime failure: report it, no fallback model
-        flags.add("loop")
-        answer = f"[error] {type(e).__name__}: {e}"
-    if not any(c["name"] in ctx.data_tools | {"decline"} for c in calls) and "think_harder" not in flags:
+    except LLMError as e:  # a model call failed: a short code and plain words, never the response body
+        flags.add("model_error")
+        error = e.code
+        answer = f"[error] {e.code}: {ERROR_TEXT.get(e.code, ERROR_TEXT['internal'])}"
+        LOG.write("coach_error", model=model, code=e.code)
+    except Exception as e:  # anything else: the type goes to the log, the student gets a generic line
+        flags.add("model_error")
+        error = "internal"
+        answer = f"[error] internal: {ERROR_TEXT['internal']}"
+        LOG.write("coach_error", model=model, code="internal", exc=type(e).__name__)
+    if not answer.strip() and not error and "think_harder" not in flags:
+        answer = validator.fallback_answer(calls, lang)  # ran out of calls or time: show what the tools found
+    if not error and not any(c["name"] in ctx.data_tools | {"decline"} for c in calls) and "think_harder" not in flags:
         flags.add("no_tool")
+    if check_args and not ({"think_harder", "declined"} & flags) and categories.mismatch(question, calls, ctx.categories):
+        flags.add("arg_mismatch")  # the tool call does not match the categories the question named
     return {"answer": answer, "calls": calls, "flags": sorted(flags), "model_calls": model_calls,
             "tokens": tokens, "latency": time.perf_counter() - t0, "think": think, "model": model,
-            "validator_retries": validator_retries}
+            "validator_retries": validator_retries, "error": error}
 
 
 def escalate(off: dict, triggers=AUTO_TRIGGERS) -> list[str]:
@@ -377,6 +498,18 @@ def answer(question: str, model: str = "gemma-4-31b", mode: str = "auto", key: s
 
 def answer_routed(question: str, key: str | None = None, ctx: Context = DEFAULT_CONTEXT,
                   log_extra: dict | None = None) -> dict:
+    """Give the question a run_id (every log line of this question carries it), then answer it."""
+    run_id = new_run_id()
+    token = _RUN.set(run_id)
+    try:
+        out = _answer_routed(question, key, ctx, log_extra)
+    finally:
+        _RUN.reset(token)
+    out["run_id"] = run_id
+    return out
+
+
+def _answer_routed(question: str, key: str | None, ctx: Context, log_extra: dict | None) -> dict:
     """Classify, then answer on the route that fits. See the module docstring for the routes.
 
     ctx selects the data (default: the original sample student); log_extra adds fields to the
@@ -386,24 +519,55 @@ def answer_routed(question: str, key: str | None = None, ctx: Context = DEFAULT_
     intent = cls["intent"]
     base = {"mode": "routed", "intent": intent, "classifier_s": cls["latency"],
             "classifier_error": cls["error"], "escalated_by": []}
-    if intent in ("investment", "off_topic"):
-        r = {"answer": DECLINE_MSG[intent], "calls": [{"name": "decline", "args": {"kind": intent}}],
+    need = clarify.needs(question)
+    # A vague phrase ("help", a greeting) that the 4B router calls off_topic gets buttons, not a refusal.
+    # An investment question is always refused, and an off_topic question with something to look up still is.
+    refuse = intent == "investment" or (intent == "off_topic" and not (need and need["reason"] == "vague"))
+    if refuse:
+        r = {"answer": decline_message(intent, language.question_lang(question)), "calls": [{"name": "decline", "args": {"kind": intent}}],
              "flags": ["declined", "routed_refusal"], "model_calls": 0, "tokens": 0, "latency": 0.0,
              "think": False, "model": None, "validator_retries": 0, "route": "refuse"}
+    elif need:  # ask back with buttons instead of guessing (P5)
+        r = {"answer": need["ask"], "options": need["options"], "calls": [], "flags": ["clarify"],
+             "model_calls": 0, "tokens": 0, "latency": 0.0, "think": False, "model": None,
+             "validator_retries": 0, "route": "clarify"}
+        base["clarify"] = need["reason"]
     elif intent == "advice":
-        r = {**run(question, BIG_MODEL, True, key, raw=False, ctx=ctx), "route": "advice->large"}
+        lang = language.question_lang(question)
+        try:
+            facts = ctx.advice_facts() if ctx.advice_facts else {}
+        except Exception:  # the picker still works from the question alone
+            facts = {}
+        gid, matched = advice.pick_match(question, facts)
+        note = (f"\n\nFor this question use guideline {gid}: call lookup_guideline with guideline_id {gid}, then "
+                "give the advice in 2-3 short sentences using the student's own numbers from the tools. "
+                "Do not write links or source names: the source is added for you.")
+        r = {**run(question, BIG_MODEL, True, key, raw=False, ctx=ctx, system_extra=note, check_args=False), "route": "advice->large"}
+        fetched = [c["args"].get("guideline_id") for c in r["calls"] if c["name"] == "lookup_guideline"]
+        if "validator_fallback" not in r["flags"]:  # a raw-results fallback is shown as it is
+            r["answer"], extra = advice.attach_source(r["answer"], gid, lang, fetched, matched)
+            r["flags"] = list(r["flags"]) + extra
+        r["source"] = advice.source_info(gid)
+        base["cited_guideline"] = gid
+        if not matched:
+            advice.log_miss(question, gid, lang)
     else:  # trend, budget_check, or no classification: small model first
         r = {**run(question, SMALL_MODEL, False, key, ctx=ctx), "route": "small"}
         why = escalate(r)
-        if why:
+        if why and r["latency"] < DEADLINE_S:  # a small run that already used its time is not rerun on the large model
             big = run(question, BIG_MODEL, True, key, raw=False, ctx=ctx)
             r = {**big, "route": "small->large", "latency": r["latency"] + big["latency"],
                  "tokens": r["tokens"] + big["tokens"], "model_calls": r["model_calls"] + big["model_calls"]}
             base["escalated_by"] = why
     out = {**r, **base, "latency": r["latency"] + cls["latency"]}
-    LOG.write("coach_question", question=question, intent=intent, route=out["route"], flags=out["flags"],
-              escalated_by=out["escalated_by"], latency_s=round(out["latency"], 3),
-              validator_retries=out["validator_retries"], **(log_extra or {}))
+    if out["latency"] > SLOW_S:
+        out["flags"] = list(out["flags"]) + ["slow"]
+    LOG.write("coach_question", question=question, answer=out["answer"], intent=intent, route=out["route"],
+              flags=out["flags"], escalated_by=out["escalated_by"], latency_s=round(out["latency"], 3),
+              classifier_s=round(cls["latency"] or 0, 3), model_calls=out["model_calls"], tokens=out["tokens"],
+              error=out.get("error"),
+              validator_retries=out["validator_retries"], cited_guideline=base.get("cited_guideline"), clarify=base.get("clarify"),
+              **(log_extra or {}))
     return out
 
 

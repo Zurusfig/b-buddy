@@ -1,0 +1,20 @@
+{"id": "S01", "question": "ค่าวิน", "category": "transport", "small_model_did": "get_budget"}
+{"id": "S02", "question": "ค่ามอไซค์", "category": "transport", "small_model_did": null}
+{"id": "S03", "question": "ค่ารถไฟฟ้า", "category": "transport", "small_model_did": null}
+{"id": "S04", "question": "ค่าแท็กซี่", "category": "transport", "small_model_did": null}
+{"id": "S05", "question": "ชานม", "category": "food", "small_model_did": null}
+{"id": "S06", "question": "หมูกระทะ", "category": "food", "small_model_did": null}
+{"id": "S07", "question": "ค่าข้าว", "category": "food", "small_model_did": null}
+{"id": "S08", "question": "ค่าเซเว่น", "category": "food", "small_model_did": null}
+{"id": "S09", "question": "ค่ากาแฟ", "category": "food", "small_model_did": null}
+{"id": "S10", "question": "ค่าหอ", "category": "bills", "small_model_did": "get_budget"}
+{"id": "S11", "question": "ค่าไฟ", "category": "bills", "small_model_did": null}
+{"id": "S12", "question": "ค่าเน็ต", "category": "bills", "small_model_did": "month_summary"}
+{"id": "S13", "question": "ค่าเทอม", "category": "education", "small_model_did": "get_budget"}
+{"id": "S14", "question": "ค่ายา", "category": "health", "small_model_did": "lookup_guideline"}
+{"id": "S15", "question": "ค่าฟิตเนส", "category": "health", "small_model_did": "get_budget"}
+{"id": "S16", "question": "ค่า Netflix", "category": "entertainment", "small_model_did": "lookup_guideline"}
+{"id": "S17", "question": "ค่าหนัง", "category": "entertainment", "small_model_did": "lookup_guideline"}
+{"id": "S18", "question": "ค่า Shopee", "category": "shopping", "small_model_did": null}
+{"id": "S19", "question": "ค่าเสื้อผ้า", "category": "shopping", "small_model_did": null}
+{"id": "S20", "question": "ค่าเกม", "category": "entertainment", "small_model_did": "lookup_guideline"}

@@ -1,0 +1,204 @@
+{
+  "_help": "Words that point to ONE spending category. th = Thai text anywhere in the question; en = English words (prefix match, so 'subscription' also matches 'subscriptions'); en_exact = whole English word only. Add a word here when the coach misreads it; nothing else needs editing. Leave out ambiguous words (Grab can be a ride or food). _ambiguous: a word that can mean two categories. The coach asks which one (buttons) instead of guessing; 'resolved' words in the question skip the ask.",
+  "transport": {
+    "th": [
+      "วิน",
+      "มอไซค์",
+      "มอเตอร์ไซค์",
+      "แท็กซี่",
+      "รถเมล์",
+      "รถไฟฟ้า",
+      "เดินทาง",
+      "น้ำมัน",
+      "ทางด่วน",
+      "ค่ารถ"
+    ],
+    "en": [
+      "motorbike taxi",
+      "transport",
+      "commut",
+      "fuel"
+    ],
+    "en_exact": [
+      "win",
+      "bts",
+      "mrt",
+      "taxi"
+    ]
+  },
+  "subscriptions": {
+    "th": [
+      "สมาชิกรายเดือน",
+      "เน็ตฟลิกซ์",
+      "สปอติฟาย"
+    ],
+    "en": [
+      "netflix",
+      "spotify",
+      "youtube premium",
+      "icloud",
+      "subscription"
+    ],
+    "en_exact": []
+  },
+  "shopping": {
+    "th": [
+      "ช้อปปี้",
+      "ลาซาด้า",
+      "ยูนิโคล่",
+      "ช้อปปิ้ง",
+      "เสื้อผ้า",
+      "รองเท้า"
+    ],
+    "en": [
+      "shopee",
+      "lazada",
+      "uniqlo",
+      "shopping",
+      "clothes"
+    ],
+    "en_exact": []
+  },
+  "food": {
+    "th": [
+      "อาหาร",
+      "เซเว่น",
+      "กาแฟ",
+      "ร้านอาหาร",
+      "เดลิเวอรี่",
+      "ข้าว",
+      "ชานม",
+      "หมูกระทะ",
+      "บุฟเฟ่ต์",
+      "ขนม"
+    ],
+    "en": [
+      "food",
+      "7-eleven",
+      "7eleven",
+      "coffee",
+      "restaurant",
+      "delivery",
+      "groceries"
+    ],
+    "en_exact": []
+  },
+  "bills": {
+    "th": [
+      "ค่าเช่า",
+      "ค่าหอ",
+      "หอพัก",
+      "ค่าห้อง",
+      "ค่าไฟ",
+      "ค่าน้ำ",
+      "ค่าประปา",
+      "ค่าเน็ต",
+      "ค่าอินเทอร์เน็ต",
+      "ค่าโทรศัพท์",
+      "บิล"
+    ],
+    "en": [
+      "electricity",
+      "utilities",
+      "internet bill",
+      "phone bill"
+    ],
+    "en_exact": [
+      "bill",
+      "bills",
+      "rent"
+    ]
+  },
+  "health": {
+    "th": [
+      "ค่ายา",
+      "ซื้อยา",
+      "ร้านยา",
+      "คลินิก",
+      "โรงพยาบาล",
+      "ฟิตเนส",
+      "สุขภาพ",
+      "ทำฟัน"
+    ],
+    "en": [
+      "health",
+      "pharmacy",
+      "clinic",
+      "hospital",
+      "doctor"
+    ],
+    "en_exact": [
+      "gym"
+    ]
+  },
+  "education": {
+    "th": [
+      "ค่าเทอม",
+      "หนังสือเรียน",
+      "คอร์สเรียน",
+      "ค่าเรียน"
+    ],
+    "en": [
+      "education",
+      "tuition"
+    ],
+    "en_exact": []
+  },
+  "entertainment": {
+    "th": [
+      "บันเทิง",
+      "หนัง",
+      "คอนเสิร์ต",
+      "เกม",
+      "ปาร์ตี้",
+      "ผับ",
+      "บาร์"
+    ],
+    "en": [
+      "entertainment",
+      "cinema",
+      "movie",
+      "concert",
+      "party",
+      "nightclub"
+    ],
+    "en_exact": [
+      "game",
+      "games",
+      "bar"
+    ]
+  },
+  "_ambiguous": [
+    {
+      "id": "grab",
+      "match": "grab|แกร็บ|แกรบ",
+      "resolved": "food|อาหาร|ride|เรียกรถ|bike|ไบค์|taxi|แท็กซี่|เดินทาง|delivery|เดลิเวอรี่|ส่งของ|express|mart",
+      "ask": {
+        "en": "Do you mean Grab rides or Grab food?",
+        "th": "Grab หมายถึงเรียกรถหรือสั่งอาหาร"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "Grab rides",
+            "th": "Grab เรียกรถ"
+          },
+          "question": {
+            "en": "How much did I spend on Grab rides (transport) this month?",
+            "th": "ค่า Grab เรียกรถ (ค่าเดินทาง) เดือนนี้เท่าไหร่"
+          }
+        },
+        {
+          "label": {
+            "en": "Grab food",
+            "th": "Grab สั่งอาหาร"
+          },
+          "question": {
+            "en": "How much did I spend on Grab Food (food) this month?",
+            "th": "ค่า Grab สั่งอาหาร (ค่าอาหาร) เดือนนี้เท่าไหร่"
+          }
+        }
+      ]
+    }
+  ]
+}

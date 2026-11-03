@@ -1,0 +1,84 @@
+{
+ "https://www.consumerfinance.gov/archive/blog/budgeting-how-to-create-a-budget-and-stick-with-it/": {
+  "status": 403,
+  "ok": false,
+  "title": null,
+  "final_url": "https://www.consumerfinance.gov/archive/blog/budgeting-how-to-create-a-budget-and-stick-with-it/",
+  "verdict": "hand",
+  "used_by": [
+   "G01",
+   "G06",
+   "G10"
+  ],
+  "checked": "2026-11-02"
+ },
+ "https://www.consumerfinance.gov/an-essential-guide-to-building-an-emergency-fund/": {
+  "status": 403,
+  "ok": false,
+  "title": null,
+  "final_url": "https://www.consumerfinance.gov/an-essential-guide-to-building-an-emergency-fund/",
+  "verdict": "hand",
+  "used_by": [
+   "G02"
+  ],
+  "checked": "2026-11-02"
+ },
+ "https://www.bot.or.th/th/satang-story/money-plan/planning-steps.html": {
+  "status": 200,
+  "ok": true,
+  "title": "การวางแผนการเงิน",
+  "final_url": "https://www.bot.or.th/th/satang-story/money-plan/planning-steps.html",
+  "verdict": "ok",
+  "used_by": [
+   "G02",
+   "G05"
+  ],
+  "checked": "2026-11-02"
+ },
+ "https://consumer.ftc.gov/articles/getting-and-out-free-trials-auto-renewals-and-negative-option-subscriptions": {
+  "status": 404,
+  "ok": false,
+  "title": null,
+  "final_url": "https://consumer.ftc.gov/articles/getting-and-out-free-trials-auto-renewals-and-negative-option-subscriptions",
+  "verdict": "hand",
+  "used_by": [
+   "G03",
+   "G11"
+  ],
+  "checked": "2026-11-02"
+ },
+ "https://www.bot.or.th/th/satang-story/money-plan/saving.html": {
+  "status": 200,
+  "ok": true,
+  "title": "การออม",
+  "final_url": "https://www.bot.or.th/th/satang-story/money-plan/saving.html",
+  "verdict": "ok",
+  "used_by": [
+   "G04"
+  ],
+  "checked": "2026-11-02"
+ },
+ "https://files.consumerfinance.gov/f/documents/cfpb_ymyg-savings-booklet.pdf": {
+  "status": 403,
+  "ok": false,
+  "title": null,
+  "final_url": "https://files.consumerfinance.gov/f/documents/cfpb_ymyg-savings-booklet.pdf",
+  "verdict": "hand",
+  "used_by": [
+   "G07",
+   "G09"
+  ],
+  "checked": "2026-11-02"
+ },
+ "https://www.consumerfinance.gov/ask-cfpb/how-does-my-credit-card-company-calculate-the-amount-of-interest-i-owe-en-51/": {
+  "status": 403,
+  "ok": false,
+  "title": null,
+  "final_url": "https://www.consumerfinance.gov/ask-cfpb/how-does-my-credit-card-company-calculate-the-amount-of-interest-i-owe-en-51/",
+  "verdict": "hand",
+  "used_by": [
+   "G08"
+  ],
+  "checked": "2026-11-02"
+ }
+}

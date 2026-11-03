@@ -19,7 +19,7 @@
    }
   ],
   "flags": [],
-  "latency": 12.782686199992895,
+  "latency": 9.974085400026524,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -42,9 +42,9 @@
    {
     "name": "compare_months",
     "args": {
+     "m1": "2026-09",
      "m2": "2026-10",
-     "category": "food",
-     "m1": "2026-09"
+     "category": "food"
     },
     "result": {
      "category": "food",
@@ -58,7 +58,7 @@
    }
   ],
   "flags": [],
-  "latency": 13.75573400000576,
+  "latency": 13.440832000022056,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -94,7 +94,7 @@
    }
   ],
   "flags": [],
-  "latency": 13.111638099973788,
+  "latency": 12.91423950000899,
   "intent": "budget_check",
   "route": "small",
   "escalated_by": [],
@@ -129,7 +129,7 @@
    }
   ],
   "flags": [],
-  "latency": 13.053896800003713,
+  "latency": 12.846503800014034,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -160,7 +160,7 @@
    "declined",
    "routed_refusal"
   ],
-  "latency": 4.918490999989444,
+  "latency": 4.9030286000052,
   "intent": "investment",
   "route": "refuse",
   "escalated_by": [],
@@ -195,7 +195,7 @@
    }
   ],
   "flags": [],
-  "latency": 17.564510600001086,
+  "latency": 17.29081000003498,
   "intent": "advice",
   "route": "advice->large",
   "escalated_by": [],
@@ -234,7 +234,7 @@
    }
   ],
   "flags": [],
-  "latency": 11.05583439997281,
+  "latency": 10.944700900028693,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -257,9 +257,9 @@
    {
     "name": "compare_months",
     "args": {
+     "m1": "2026-09",
      "m2": "2026-10",
-     "category": "bills",
-     "m1": "2026-09"
+     "category": "bills"
     },
     "result": {
      "category": "bills",
@@ -273,7 +273,7 @@
    }
   ],
   "flags": [],
-  "latency": 13.836682300025132,
+  "latency": 13.142903600004502,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -302,7 +302,7 @@
    }
   ],
   "flags": [],
-  "latency": 12.502980299992487,
+  "latency": 12.400599999993574,
   "intent": "budget_check",
   "route": "small",
   "escalated_by": [],
@@ -337,7 +337,7 @@
    }
   ],
   "flags": [],
-  "latency": 12.835929499968188,
+  "latency": 12.665835199994035,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -368,7 +368,7 @@
    "declined",
    "routed_refusal"
   ],
-  "latency": 4.906719699996756,
+  "latency": 4.887564300006488,
   "intent": "investment",
   "route": "refuse",
   "escalated_by": [],
@@ -403,7 +403,7 @@
    }
   ],
   "flags": [],
-  "latency": 17.050577799993334,
+  "latency": 17.011022199993022,
   "intent": "advice",
   "route": "advice->large",
   "escalated_by": [],
@@ -433,7 +433,7 @@
    }
   ],
   "flags": [],
-  "latency": 10.415168399980757,
+  "latency": 10.29484250000678,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -472,7 +472,7 @@
    }
   ],
   "flags": [],
-  "latency": 13.44804909999948,
+  "latency": 13.35627379998914,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -501,7 +501,7 @@
    }
   ],
   "flags": [],
-  "latency": 12.491134199954104,
+  "latency": 12.454299899982288,
   "intent": "budget_check",
   "route": "small",
   "escalated_by": [],
@@ -536,7 +536,7 @@
    }
   ],
   "flags": [],
-  "latency": 12.754103000013856,
+  "latency": 12.68816600003629,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -567,7 +567,7 @@
    "declined",
    "routed_refusal"
   ],
-  "latency": 4.907262399996398,
+  "latency": 4.840398600004846,
   "intent": "investment",
   "route": "refuse",
   "escalated_by": [],
@@ -602,7 +602,7 @@
    }
   ],
   "flags": [],
-  "latency": 16.986552800022764,
+  "latency": 17.021802600007504,
   "intent": "advice",
   "route": "advice->large",
   "escalated_by": [],
@@ -625,9 +625,9 @@
    {
     "name": "compare_months",
     "args": {
-     "m1": "2026-09",
      "m2": "2026-10",
-     "category": "food"
+     "category": "food",
+     "m1": "2026-09"
     },
     "result": {
      "category": "food",
@@ -641,7 +641,7 @@
    }
   ],
   "flags": [],
-  "latency": 11.225540899991756,
+  "latency": 11.200368100020569,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -680,7 +680,7 @@
    }
   ],
   "flags": [],
-  "latency": 12.988218600017717,
+  "latency": 12.830656800011639,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -716,7 +716,7 @@
    }
   ],
   "flags": [],
-  "latency": 12.911922200000845,
+  "latency": 12.723083300021244,
   "intent": "budget_check",
   "route": "small",
   "escalated_by": [],
@@ -751,7 +751,7 @@
    }
   ],
   "flags": [],
-  "latency": 13.160149700008333,
+  "latency": 12.705532800027868,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -782,7 +782,7 @@
    "declined",
    "routed_refusal"
   ],
-  "latency": 4.910489300003974,
+  "latency": 4.873621999984607,
   "intent": "investment",
   "route": "refuse",
   "escalated_by": [],
@@ -817,7 +817,7 @@
    }
   ],
   "flags": [],
-  "latency": 16.968809700018028,
+  "latency": 17.067637799977092,
   "intent": "advice",
   "route": "advice->large",
   "escalated_by": [],
@@ -847,7 +847,7 @@
    }
   ],
   "flags": [],
-  "latency": 10.313053499994567,
+  "latency": 10.199182600015774,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -870,9 +870,9 @@
    {
     "name": "compare_months",
     "args": {
+     "category": "shopping",
      "m1": "2026-09",
-     "m2": "2026-10",
-     "category": "shopping"
+     "m2": "2026-10"
     },
     "result": {
      "category": "shopping",
@@ -886,7 +886,7 @@
    }
   ],
   "flags": [],
-  "latency": 13.732153699995251,
+  "latency": 13.548409799986985,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -922,7 +922,7 @@
    }
   ],
   "flags": [],
-  "latency": 13.077175199985504,
+  "latency": 12.808263699989766,
   "intent": "budget_check",
   "route": "small",
   "escalated_by": [],
@@ -957,7 +957,7 @@
    }
   ],
   "flags": [],
-  "latency": 13.294605300034164,
+  "latency": 12.666194399964297,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -988,7 +988,7 @@
    "declined",
    "routed_refusal"
   ],
-  "latency": 4.971625300007872,
+  "latency": 4.866400500002783,
   "intent": "investment",
   "route": "refuse",
   "escalated_by": [],
@@ -1023,7 +1023,7 @@
    }
   ],
   "flags": [],
-  "latency": 17.103102499968372,
+  "latency": 17.007684999960475,
   "intent": "advice",
   "route": "advice->large",
   "escalated_by": [],
@@ -1062,7 +1062,7 @@
    }
   ],
   "flags": [],
-  "latency": 11.488895400019828,
+  "latency": 11.551604599982966,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -1101,7 +1101,7 @@
    }
   ],
   "flags": [],
-  "latency": 13.42549650001456,
+  "latency": 13.369228299998213,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -1137,7 +1137,7 @@
    }
   ],
   "flags": [],
-  "latency": 13.047734499996295,
+  "latency": 12.878602300013881,
   "intent": "budget_check",
   "route": "small",
   "escalated_by": [],
@@ -1172,7 +1172,7 @@
    }
   ],
   "flags": [],
-  "latency": 12.849033200007398,
+  "latency": 12.662119800021173,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -1203,7 +1203,7 @@
    "declined",
    "routed_refusal"
   ],
-  "latency": 4.937624699989101,
+  "latency": 4.8478004000207875,
   "intent": "investment",
   "route": "refuse",
   "escalated_by": [],
@@ -1238,7 +1238,7 @@
    }
   ],
   "flags": [],
-  "latency": 17.058039300027303,
+  "latency": 17.29478100000415,
   "intent": "advice",
   "route": "advice->large",
   "escalated_by": [],
@@ -1261,14 +1261,14 @@
    {
     "name": "sum_by_category",
     "args": {
-     "month": "2026-09",
-     "category": "bills"
+     "category": "bills",
+     "month": "2026-09"
     },
     "result": 8269.0
    }
   ],
   "flags": [],
-  "latency": 10.450964699994074,
+  "latency": 10.402409900008934,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -1307,7 +1307,7 @@
    }
   ],
   "flags": [],
-  "latency": 13.932097299984889,
+  "latency": 13.337060999998357,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -1342,7 +1342,7 @@
    }
   ],
   "flags": [],
-  "latency": 13.373420100018848,
+  "latency": 12.777823899959913,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -1373,7 +1373,7 @@
    "declined",
    "routed_refusal"
   ],
-  "latency": 4.9285744999942835,
+  "latency": 4.862383800005773,
   "intent": "investment",
   "route": "refuse",
   "escalated_by": [],
@@ -1408,7 +1408,7 @@
    }
   ],
   "flags": [],
-  "latency": 18.31096499998239,
+  "latency": 15.7616357000079,
   "intent": "advice",
   "route": "advice->large",
   "escalated_by": [],
@@ -1431,9 +1431,9 @@
    {
     "name": "compare_months",
     "args": {
+     "category": "food",
      "m1": "2026-09",
-     "m2": "2026-10",
-     "category": "food"
+     "m2": "2026-10"
     },
     "result": {
      "category": "food",
@@ -1447,7 +1447,7 @@
    }
   ],
   "flags": [],
-  "latency": 11.356109200016363,
+  "latency": 11.287757700018119,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -1486,7 +1486,7 @@
    }
   ],
   "flags": [],
-  "latency": 13.423097500024596,
+  "latency": 13.304608799982816,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -1522,7 +1522,7 @@
    }
   ],
   "flags": [],
-  "latency": 12.758846899989294,
+  "latency": 12.820174099993892,
   "intent": "budget_check",
   "route": "small",
   "escalated_by": [],
@@ -1557,7 +1557,7 @@
    }
   ],
   "flags": [],
-  "latency": 12.85338940002839,
+  "latency": 12.741973500000313,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -1588,7 +1588,7 @@
    "declined",
    "routed_refusal"
   ],
-  "latency": 4.899980400019558,
+  "latency": 4.914777099998901,
   "intent": "investment",
   "route": "refuse",
   "escalated_by": [],
@@ -1623,7 +1623,7 @@
    }
   ],
   "flags": [],
-  "latency": 17.02475509996293,
+  "latency": 17.042135999974562,
   "intent": "advice",
   "route": "advice->large",
   "escalated_by": [],
@@ -1653,7 +1653,7 @@
    }
   ],
   "flags": [],
-  "latency": 10.265659000026062,
+  "latency": 10.218929800001206,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -1692,7 +1692,7 @@
    }
   ],
   "flags": [],
-  "latency": 13.625439900002675,
+  "latency": 13.631204799981788,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -1721,7 +1721,7 @@
    }
   ],
   "flags": [],
-  "latency": 12.42145399999572,
+  "latency": 12.485635100019863,
   "intent": "budget_check",
   "route": "small",
   "escalated_by": [],
@@ -1756,7 +1756,7 @@
    }
   ],
   "flags": [],
-  "latency": 12.744854799995665,
+  "latency": 12.748139200004516,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -1787,7 +1787,7 @@
    "declined",
    "routed_refusal"
   ],
-  "latency": 4.9046240000170656,
+  "latency": 4.87706060000346,
   "intent": "investment",
   "route": "refuse",
   "escalated_by": [],
@@ -1822,7 +1822,7 @@
    }
   ],
   "flags": [],
-  "latency": 17.079085599980317,
+  "latency": 17.001422899978934,
   "intent": "advice",
   "route": "advice->large",
   "escalated_by": [],
@@ -1861,7 +1861,7 @@
    }
   ],
   "flags": [],
-  "latency": 11.418831699993461,
+  "latency": 11.375535100029083,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -1884,9 +1884,9 @@
    {
     "name": "compare_months",
     "args": {
+     "m1": "2026-09",
      "m2": "2026-10",
-     "category": "food",
-     "m1": "2026-09"
+     "category": "food"
     },
     "result": {
      "category": "food",
@@ -1900,7 +1900,7 @@
    }
   ],
   "flags": [],
-  "latency": 13.35995849999017,
+  "latency": 13.46544719999656,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -1942,7 +1942,7 @@
    }
   ],
   "flags": [],
-  "latency": 13.444261300028302,
+  "latency": 13.323140900029102,
   "intent": "budget_check",
   "route": "small",
   "escalated_by": [],
@@ -1977,7 +1977,7 @@
    }
   ],
   "flags": [],
-  "latency": 12.903417299996363,
+  "latency": 12.738325100013753,
   "intent": "trend",
   "route": "small",
   "escalated_by": [],
@@ -2008,7 +2008,7 @@
    "declined",
    "routed_refusal"
   ],
-  "latency": 4.958895099989604,
+  "latency": 4.857881799980532,
   "intent": "investment",
   "route": "refuse",
   "escalated_by": [],
@@ -2043,7 +2043,7 @@
    }
   ],
   "flags": [],
-  "latency": 16.912157999991905,
+  "latency": 16.99329359998228,
   "intent": "advice",
   "route": "advice->large",
   "escalated_by": [],
