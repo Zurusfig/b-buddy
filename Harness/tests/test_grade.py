@@ -39,6 +39,11 @@ class GradeTests(unittest.TestCase):
             {"name": "get_transactions", "args": {"month": "2026-10"}, "result": []}]}
         self.assertTrue(grade.grade(self.tasks["T10"], result, self.people))
 
+    def test_thai_reply_rejects_chinese_words(self):
+        result = {"answer": "ค่าอาหาร 6,064 บาท 而在本月", "calls": [
+            {"name": "sum_by_category", "args": {"month": "2026-09", "category": "food"}, "result": 6064.0}]}
+        self.assertIn("reply contains non-Thai words", grade.grade(self.tasks["T04"], result, self.people))
+
 
 if __name__ == "__main__":
     unittest.main()

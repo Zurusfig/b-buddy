@@ -81,8 +81,8 @@ def grade(task: dict, result: dict, people: dict) -> list[str]:
                     errors.append(f"wrong budget figures for {row['category']}")
             if categories and not any(cat in answer.lower() for cat in ("food", "อาหาร")):
                 errors.append("reply does not name the over-budget category")
-    if want.get("reply_language") == "th" and re.search(r"[A-Za-z]{2,}", answer):
-        errors.append("reply contains English words")
+    if want.get("reply_language") == "th" and re.search(r"[A-Za-z]{2,}|[\u4e00-\u9fff]", answer):
+        errors.append("reply contains non-Thai words")
     action = want.get("action")
     if action in ("no_data", "no_budgets"):
         phrase = (r"no data|no transactions|nothing.*April|ไม่มีข้อมูล|ไม่พบข้อมูล" if action == "no_data"
