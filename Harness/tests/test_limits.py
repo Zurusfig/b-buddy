@@ -183,8 +183,9 @@ class LogTests(unittest.TestCase):  # P8
     def test_the_http_line_carries_the_same_run_id_as_the_question(self):
         r = self.ask(Q, [tool_reply(), text_reply("Your food budget is 4,500.")])
         r.setdefault("model", agent.SMALL_MODEL)
-        status, _ = coach_server.ask(1, Q, data_factory=lambda uid: mock.Mock(user_id=uid),
-                                     answerer=lambda q, d, log_extra=None: r)
+        with mock.patch.object(coach_server, "ollama_ready", return_value=(True, "")):  # CI has no Ollama
+            status, _ = coach_server.ask(1, Q, data_factory=lambda uid: mock.Mock(user_id=uid),
+                                         answerer=lambda q, d, log_extra=None: r)
         h = [x for x in self.lines() if x["event"] == "coach_http"]
         self.assertEqual((status, h[-1]["run_id"]), (200, r["run_id"]))
 
