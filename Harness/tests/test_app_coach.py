@@ -243,16 +243,21 @@ class UatMetadataTests(unittest.TestCase):
             seen.update(log_extra)
             return {"answer": "ok", "route": "small", "model": "qwen3:4b", "flags": [],
                     "latency": 0.1, "calls": [], "run_id": "test-run"}
-        uat = {"round": 2, "tester_number": 3, "task_id": "UAT-04"}
+        uat = {"round": 2, "tester_number": 3, "task_id": "UAT-04",
+               "chat_id": "bb28dd94-674d-4786-b987-463649bb11ed", "attempt": 2}
         with mock.patch.object(coach_server, "ollama_ready", return_value=(True, "")), \
              mock.patch.object(coach_server.agent.LOG, "write") as log:
             status, _ = coach_server.ask(4, "ค่าอาหาร", data_factory=lambda uid: mock.Mock(user_id=uid),
                                          answerer=answer, uat=uat, persona="Diana")
         self.assertEqual(status, 200)
-        self.assertEqual({k: seen[k] for k in ("round", "tester_number", "task_id", "persona")},
+        self.assertEqual({k: seen[k] for k in ("round", "tester_number", "task_id", "chat_id", "attempt", "persona")},
                          {**uat, "persona": "Diana"})
         self.assertEqual(log.call_args.kwargs["task_id"], "UAT-04")
         self.assertEqual(log.call_args.kwargs["run_id"], "test-run")
+        self.assertEqual(log.call_args.kwargs["chat_id"], uat["chat_id"])
+        self.assertEqual(log.call_args.kwargs["attempt"], 2)
+        self.assertEqual(log.call_args.kwargs["git_commit"], coach_server.GIT_COMMIT)
+        self.assertEqual(log.call_args.kwargs["config_name"], coach_server.CONFIG_NAME)
 
     def test_normal_run_logs_null_metadata(self):
         with mock.patch.object(coach_server, "ollama_ready", return_value=(False, "ollama_offline")), \
@@ -260,6 +265,8 @@ class UatMetadataTests(unittest.TestCase):
             coach_server.ask(1, "food?")
         self.assertIsNone(log.call_args.kwargs["round"])
         self.assertIsNone(log.call_args.kwargs["task_id"])
+        self.assertIsNone(log.call_args.kwargs["chat_id"])
+        self.assertIsNone(log.call_args.kwargs["attempt"])
 
 
 class ThaiLookupGuidanceTests(unittest.TestCase):

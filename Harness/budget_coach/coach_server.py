@@ -17,6 +17,7 @@ import hmac
 import json
 import os
 import re
+import subprocess
 import sys
 import threading
 import time
@@ -47,6 +48,19 @@ _waiting = 0
 _warm = threading.Event()
 _status: dict = {"ready": False, "reason": "starting"}
 _refresher_running = False
+
+
+def _git_commit() -> str | None:
+    try:
+        return subprocess.check_output(
+            ["git", "-C", str(HERE.parents[1]), "rev-parse", "HEAD"],
+            stderr=subprocess.DEVNULL, timeout=2, text=True).strip()
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+
+GIT_COMMIT = _git_commit()
+CONFIG_NAME = f"app-routed-2026-10__{agent.SMALL_MODEL}__{agent.BIG_MODEL}"
 
 
 def ollama_ready(model: str | None = None, url: str | None = None, timeout: float = 2.0) -> tuple[bool, str]:
@@ -122,7 +136,11 @@ def ask(user_id: int, question: str, data_factory: Callable = db_data.DbData,
     """(http status, body). Never raises: every failure is a short code the app can show in plain words."""
     meta = {"round": uat["round"] if uat else None,
             "tester_number": uat["tester_number"] if uat else None,
-            "task_id": uat["task_id"] if uat else None, "persona": persona}
+            "task_id": uat["task_id"] if uat else None,
+            "chat_id": uat["chat_id"] if uat else None,
+            "attempt": uat["attempt"] if uat else None,
+            "git_commit": GIT_COMMIT, "config_name": CONFIG_NAME,
+            "persona": persona}
     ready, reason = ollama_ready()
     if not ready:
         agent.LOG.write("coach_http", user_id=user_id, question=question, status=503, error=reason, **meta)
@@ -224,7 +242,10 @@ class Handler(BaseHTTPRequestHandler):
                                     or type(uat.get("round")) is not int or uat["round"] not in (1, 2)
                                     or type(uat.get("tester_number")) is not int or uat["tester_number"] not in (1, 2, 3, 4)
                                     or not isinstance(uat.get("task_id"), str)
-                                    or not re.fullmatch(r"UAT-(0[1-9]|1[01])", uat["task_id"])):
+                                    or not re.fullmatch(r"UAT-(0[1-9]|1[01])", uat["task_id"])
+                                    or not isinstance(uat.get("chat_id"), str)
+                                    or not re.fullmatch(r"[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}", uat["chat_id"], re.I)
+                                    or type(uat.get("attempt")) is not int or uat["attempt"] < 1):
                 raise ValueError
             if persona is not None and (not isinstance(persona, str) or not re.fullmatch(r"[A-Z][a-z]+", persona)):
                 raise ValueError
