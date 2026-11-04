@@ -443,9 +443,9 @@ def acceptance(runs: list[dict]) -> list[dict]:
     metrics.extend([rate("Correct refusal", 1, selected("Refusal")),
                     rate("Clarification", 1, selected("Ambiguous")),
                     rate("Thai consistency", 1, selected("Thai only"))])
-    write_calls = [t for r in runs for t in r["tools"] if t["name"] not in READ_ONLY_TOOLS]
-    metrics.append({"label": "Write tools", "target": "0", "measured": str(len(write_calls)) if runs else "—",
-                    "status": "pending" if not runs else "pass" if not write_calls else "fail"})
+    write_calls = [t for r in graded for t in r["tools"] if t["name"] not in READ_ONLY_TOOLS]
+    metrics.append({"label": "Write tools", "target": "0", "measured": str(len(write_calls)) if graded else "—",
+                    "status": "pending" if not graded else "pass" if not write_calls else "fail"})
     latency = [r["latency_s"] for r in graded if isinstance(r.get("latency_s"), (int, float))]
     share = sum(x <= 20 for x in latency) / len(latency) if latency else None
     metrics.append({"label": "Replies ≤ 20 s", "target": "95%", "measured": f"{share:.1%} ({sum(x <= 20 for x in latency)}/{len(latency)})" if latency else "—",
@@ -562,15 +562,15 @@ __DEMO_BANNER__
 <nav class="tabs" role="tablist" aria-label="Report sections"><button class="tab" role="tab" data-tab="loop" aria-selected="true">Harness loop</button><button class="tab" role="tab" data-tab="runs" aria-selected="false">UAT runs</button><button class="tab" role="tab" data-tab="grades" aria-selected="false">Grades</button></nav>
 <main>
 <section class="panel" id="panel-loop" role="tabpanel"><div class="card"><h2>How the coach answers</h2><p class="note">Actual code order: <b>classifier first</b>, then clarification and route selection. Language is detected inside the model loop; fixed clarifications and refusals skip the answer model.</p><div class="flow-scroll">__DIAGRAM__</div></div>
-<div class="card"><h2>Loop stats · selected date</h2><div id="loop-stats"></div></div>
+<div class="card"><h2>Recorded UAT loop stats · selected date</h2><div id="loop-stats"></div></div>
 <div class="card"><h2>Tool surface</h2><p class="muted">All listed tools are read-only. Task column names expected or allowed use, not every possible call.</p><div class="table-scroll"><table><thead><tr><th>Name</th><th>Arguments</th><th>Returns</th><th>Read-only?</th><th>UAT tasks</th></tr></thead><tbody>__TOOLS__</tbody></table></div></div>
 <div class="card"><h2>Decision rules in code</h2><ul class="rules"><li><b>Clarify</b><br>clarify.needs checks vague or ambiguous wording after classification. A vague off-topic label may still get buttons.</li><li><b>Decline</b><br>Investment and non-vague off-topic requests get fixed refusals. The user-scoped data tools cannot switch to another account.</li><li><b>Escalate</b><br>Small-model flags such as no_tool, tool_error, wrong_language, arg_mismatch, loop, or model_error can trigger Gemma before the deadline.</li><li><b>Retry</b><br>One language rewrite and one unsupported-number rewrite are allowed. Persistent Thai script failure uses a verified Thai tool fallback.</li></ul><p class="small">Sources: agent.py, router.py, clarify.py, language.py, validator.py, persona_agent.py, coach_server.py.</p></div></section>
 <section class="panel" id="panel-runs" role="tabpanel" hidden><div class="card"><div class="card-header"><h2>Run explorer</h2><span id="run-count" class="muted"></span></div><div class="filters"><label>Round<select id="filter-round"></select></label><label>Tester<select id="filter-tester"></select></label><label>Task<select id="filter-task"></select></label><label>Persona<select id="filter-persona"></select></label><label>Search question, reply, run ID<input id="filter-search" type="search" placeholder="Search…"></label><label class="check-label"><input id="filter-failing" type="checkbox"> Only failing</label></div></div><div id="run-list" class="run-grid"></div></section>
-<section class="panel" id="panel-grades" role="tabpanel" hidden><div class="card"><h2>Acceptance criteria</h2><p class="muted">Pending means no measurable run. “Cannot grade” stays visible and never counts as a pass.</p><div class="table-scroll"><table><thead><tr><th>Criterion</th><th>Target</th><th>Measured</th><th>Status</th></tr></thead><tbody id="acceptance"></tbody></table></div><p id="under-40" class="small"></p></div>
+<section class="panel" id="panel-grades" role="tabpanel" hidden><div class="card"><h2>Acceptance criteria</h2><p class="muted">Only runs with a UAT task ID count here. Pending means no measurable run. “Cannot grade” stays visible and never counts as a pass.</p><div class="table-scroll"><table><thead><tr><th>Criterion</th><th>Target</th><th>Measured</th><th>Status</th></tr></thead><tbody id="acceptance"></tbody></table></div><p id="under-40" class="small"></p></div>
 <div class="card"><h2>Round × attempt matrix</h2><p class="muted">Each badge is one run. Hover or focus for the failed check; A1 = own words, A2 = example question. Runs without round or attempt stay in the run explorer.</p><div class="table-scroll"><table class="matrix"><thead><tr><th>Task</th><th>Round 1 · A1</th><th>Round 1 · A2</th><th>Round 2 · A1</th><th>Round 2 · A2</th></tr></thead><tbody id="matrix"></tbody></table></div><div class="legend"><span>✅ passed every applicable check</span><span>❌ failed a check</span><span>◌ cannot grade</span></div></div>
 <div class="card"><h2>Phrasing vs capability</h2><p class="muted">Pairs use the same task, round, tester, and chat ID. A1 fail + A2 pass suggests phrasing; both fail suggests capability.</p><div class="table-scroll"><table><thead><tr><th>Task</th><th>Paired chats</th><th>Outcome</th></tr></thead><tbody id="phrasing"></tbody></table></div></div>
 <div class="card"><div class="card-header"><h2>Findings</h2><span id="findings-count" class="muted"></span></div><div id="findings" class="findings"></div></div></section>
-</main><footer class="small" style="margin-top:28px">__FOOTER_SOURCE__ Missing old metadata is shown as —. Fixed routed refusals may not emit a tool-call event.</footer></div>
+</main><footer class="small" style="margin-top:28px">__FOOTER_SOURCE__ Runs without a task ID appear as Free question and do not affect UAT measures. Missing old metadata is shown as —.</footer></div>
 <script id="report-data" type="application/json">__DATA__</script>
 <script>
 (()=>{'use strict';
@@ -582,7 +582,7 @@ const empty=text=>`<div class="card empty">${esc(text)}</div>`;
 document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b===btn)));document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!==`panel-${btn.dataset.tab}`)}));
 const theme=document.getElementById('theme-toggle');try{const saved=localStorage.getItem('uat-report-theme');if(saved)document.documentElement.dataset.theme=saved}catch{}
 theme.addEventListener('click',()=>{const current=document.documentElement.dataset.theme|| (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');const next=current==='dark'?'light':'dark';document.documentElement.dataset.theme=next;try{localStorage.setItem('uat-report-theme',next)}catch{}});
-function renderStats(){const s=data.stats,el=document.getElementById('loop-stats');if(!s.count){el.innerHTML=empty('No coach runs on this date yet. Use --watch during UAT.');return}
+function renderStats(){const s=data.stats,el=document.getElementById('loop-stats');if(!s.count){el.innerHTML=empty('No recorded UAT runs on this date yet. Practice questions remain in the run explorer.');return}
 const items=[['Runs',s.count],['Avg model calls',fmt(s.avg_model_calls,2)],['Validator retries',s.validator_retries??'—'],['Latency p50 / p95',`${fmt(s.latency_p50)}s / ${fmt(s.latency_p95)}s`],['Classifier p50 / p95',`${fmt(s.classifier_p50)}s / ${fmt(s.classifier_p95)}s`],['Replies ≤ 40 s',s.under_40==null?'—':`${(s.under_40*100).toFixed(1)}%`],['Most time spent',s.slowest_step??'—']];
 el.innerHTML=`<div class="metric-grid">${items.map(([name,value])=>`<div class="metric"><strong>${esc(value)}</strong><span>${esc(name)}</span></div>`).join('')}</div><div class="route-row">${Object.entries(s.routes).map(([route,count])=>`<span class="pill">${esc(route)} · ${count}/${s.count} (${(count/s.count*100).toFixed(1)}%)</span>`).join('')}</div><p class="small">Step totals: ${Object.entries(s.step_seconds).map(([name,seconds])=>`${esc(name)} ${fmt(seconds)}s`).join(' · ')}. “Other” includes routing, waiting and unlogged time; model calls exclude the classifier.</p>`}
 function optionList(id,values){const el=document.getElementById(id);el.innerHTML='<option value="">All</option>'+[...values].sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true})).map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')}
@@ -605,7 +605,8 @@ renderStats();renderRuns();renderGrades();
 def render_report(day: str, runs: list[dict], tasks: list[dict], watch: bool,
                   demo: bool = False) -> str:
     payload = {"runs": runs, "tasks": [{"id": t["id"], "uat": t["uat"], "persona": t["persona"]} for t in tasks],
-               "stats": loop_stats(runs), "acceptance": acceptance(runs), "phrasing": phrasing(runs, tasks)}
+               "stats": loop_stats([r for r in runs if r.get("task_id")]),
+               "acceptance": acceptance(runs), "phrasing": phrasing(runs, tasks)}
     data = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c").replace("&", "\\u0026")
     return (HTML_TEMPLATE.replace("__REFRESH__", '<meta http-equiv="refresh" content="15">' if watch else "")
             .replace("__DAY__", html.escape(day)).replace("__COUNT__", str(len(runs)))
@@ -637,7 +638,8 @@ def generate(day: str, watch: bool, log_path: Path = LOG_PATH, task_path: Path =
     finally:
         if os.path.exists(temp_name):
             os.unlink(temp_name)
-    return {"runs": runs, "stats": loop_stats(runs), "acceptance": acceptance(runs),
+    return {"runs": runs, "stats": loop_stats([r for r in runs if r.get("task_id")]),
+            "acceptance": acceptance(runs),
             "output_path": output_path}
 
 

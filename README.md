@@ -205,6 +205,8 @@ running. The second writes `Harness/reports/uat_report_demo.html` with two synth
 sample passes and failures. Demo mode reads the task set and ground truth, but never reads or writes
 the real coach log or real report. Both HTML files open offline and are gitignored. Demo mode checks
 the report interface and grader; it does not send questions through the app or models.
+For a real coach practice question, use **Practice** in the finance app at `/?uat=1`. Those questions
+stay visible as **Free question** in the real report but are excluded from UAT grades and statistics.
 
 ## Troubleshooting
 

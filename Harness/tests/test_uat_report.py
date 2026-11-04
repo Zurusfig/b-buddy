@@ -14,6 +14,37 @@ spec.loader.exec_module(report)
 
 
 class UatReportTests(unittest.TestCase):
+    def test_practice_run_is_visible_but_does_not_change_uat_measures(self):
+        events = [
+            {"ts": "2026-11-04T09:00:00", "event": "coach_tool_call", "run_id": "official-1",
+             "tool": "sum_by_category", "arguments": {"month": "2026-09", "category": "food"},
+             "result": "4728.0", "ok": True},
+            {"ts": "2026-11-04T09:00:01", "event": "coach_question", "run_id": "official-1",
+             "persona": "Henry", "task_id": "UAT-01", "question": "Food last month?",
+             "answer": "You spent 4,728 THB on food.", "route": "small", "intent": "trend",
+             "latency_s": 12.0, "classifier_s": 3.0},
+            {"ts": "2026-11-04T10:00:00", "event": "coach_tool_call", "run_id": "practice-1",
+             "tool": "unexpected_tool", "arguments": {}, "result": "{}", "ok": True},
+            {"ts": "2026-11-04T10:00:01", "event": "coach_question", "run_id": "practice-1",
+             "persona": "Henry", "user_id": 23, "task_id": None, "question": "Can I try this?",
+             "answer": "Yes", "route": "small", "latency_s": 100.0, "classifier_s": 10.0},
+        ]
+        with tempfile.TemporaryDirectory() as folder:
+            folder = Path(folder)
+            log_path = folder / "coach_calls.jsonl"
+            output_path = folder / "uat_report.html"
+            log_path.write_text("\n".join(json.dumps(e) for e in events), encoding="utf-8")
+            result = report.generate("2026-11-04", False, log_path=log_path,
+                                     output_path=output_path)
+            grades = {r["run_id"]: r["grade"] for r in result["runs"]}
+            self.assertEqual(grades, {"official-1": "pass", "practice-1": "free"})
+            self.assertEqual(result["stats"]["count"], 1)
+            self.assertEqual(result["stats"]["latency_p50"], 12.0)
+            measures = {m["label"]: m for m in result["acceptance"]}
+            self.assertEqual(measures["Write tools"]["status"], "pass")
+            self.assertEqual(measures["Replies ≤ 20 s"]["measured"], "100.0% (1/1)")
+            self.assertIn('"grade":"free"', output_path.read_text(encoding="utf-8"))
+
     def test_demo_rounds_are_isolated_from_real_log_and_report(self):
         with tempfile.TemporaryDirectory() as folder:
             folder = Path(folder)
