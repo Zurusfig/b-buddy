@@ -64,7 +64,9 @@ class DetectTests(unittest.TestCase):
 
     def test_reply_check_thresholds(self):
         self.assertFalse(language.reply_matches("th", "You spent a lot of money this month in total."))
-        self.assertTrue(language.reply_matches("th", "ใช้ไป 4261 บาท ที่ Grab และ 7-Eleven"))
+        self.assertFalse(language.reply_matches("th", "ใช้ไป 4261 บาท ที่ Grab และ 7-Eleven"),
+                         "mixed English merchant names trigger a Thai rewrite")
+        self.assertTrue(language.reply_matches("th", "เดือนนี้คุณใช้ค่าอาหารไป 4261 บาท"))
         self.assertTrue(language.reply_matches("en", "You spent 4261 on ก๋วยเตี๋ยวเรือ and food this month."))
         self.assertFalse(language.reply_matches("en", "เดือนนี้คุณใช้เงินมากกว่ารายได้ของคุณอยู่พอสมควร"))
         self.assertTrue(language.reply_matches("th", "4261"), "a bare number is not judged")
