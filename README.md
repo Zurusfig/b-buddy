@@ -139,12 +139,12 @@ gateway availability is separate from the offline tests.
 
 ## Finance app link (chat button in NgernTong)
 
-For a second MacBook running the class session, follow the [Mac UAT setup guide](docs/UAT_SETUP_MAC.md).
+For a second computer running the class session, follow the [macOS and Windows UAT setup guide](docs/UAT_SETUP.md).
 
 From the parent folder containing both repositories, start Ollama, then run `make -C b-buddy app-up`
 to launch the finance web app, API, and coach in one terminal. Stop them with Ctrl-C. The existing
-database and shared-secret setup below must be completed first. On this Mac, pass `PY=python3.11`
-if `python` is not on your PATH.
+database and shared-secret setup below must be completed first. On macOS, pass `PY=python3.11`
+if `python` is not on your PATH. On Windows, follow the PowerShell commands in the setup guide.
 
 The coach can answer inside the finance app (`finance-tracker`, branch `feat/coach-chat`). A small local
 server (`python dev.py serve`, `127.0.0.1:8765`) sits behind the app's backend: the browser asks the backend
