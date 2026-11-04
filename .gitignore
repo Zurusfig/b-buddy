@@ -47,3 +47,6 @@ Harness/budget_coach/coach_reader.generated.sql
 
 # questions students asked that no tip matched (may contain personal wording)
 Harness/data/tip_misses.jsonl
+
+# Local UAT report embeds private questions and tool results
+Harness/reports/uat_report.html
