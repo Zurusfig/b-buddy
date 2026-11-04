@@ -139,6 +139,11 @@ gateway availability is separate from the offline tests.
 
 ## Finance app link (chat button in NgernTong)
 
+From the parent folder containing both repositories, start Ollama, then run `make -C b-buddy app-up`
+to launch the finance web app, API, and coach in one terminal. Stop them with Ctrl-C. The existing
+database and shared-secret setup below must be completed first. On this Mac, pass `PY=python3.11`
+if `python` is not on your PATH.
+
 The coach can answer inside the finance app (`finance-tracker`, branch `feat/coach-chat`). A small local
 server (`python dev.py serve`, `127.0.0.1:8765`) sits behind the app's backend: the browser asks the backend
 (`POST /api/chat`), the backend checks the login and forwards `{userId, question}` with a shared secret, and the

@@ -5,7 +5,7 @@ PY ?= python
 Q  ?= Am I over budget this month?
 WHO ?= 1
 
-.PHONY: help setup setup-here check check-gateway test pull pull-all ask persona personas eval eval-persona eval-gateway clean serve coach-secret demo-seed demo-remove demo-status demo-reader-sql demo-up
+.PHONY: help setup setup-here check check-gateway test pull pull-all ask persona personas eval eval-persona eval-gateway clean serve coach-secret demo-seed demo-remove demo-status demo-reader-sql demo-up app-up app-finance app-coach
 
 help:
 	@$(PY) dev.py help
@@ -75,4 +75,15 @@ demo-reader-sql:
 # Seed (dry run unless YES=1) then start the coach server.
 demo-up:
 	@$(PY) dev.py demo-seed $(if $(YES),--yes,)
+	@$(PY) dev.py serve
+
+# From the parent workspace: make -C b-buddy app-up
+# Start Ollama separately; Ctrl-C here stops the app and coach processes.
+app-up:
+	@$(MAKE) -j2 app-finance app-coach
+
+app-finance:
+	@$(MAKE) -C ../finance-tracker dev
+
+app-coach:
 	@$(PY) dev.py serve
