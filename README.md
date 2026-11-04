@@ -139,6 +139,8 @@ gateway availability is separate from the offline tests.
 
 ## Finance app link (chat button in NgernTong)
 
+For a second MacBook running the class session, follow the [Mac UAT setup guide](docs/UAT_SETUP_MAC.md).
+
 From the parent folder containing both repositories, start Ollama, then run `make -C b-buddy app-up`
 to launch the finance web app, API, and coach in one terminal. Stop them with Ctrl-C. The existing
 database and shared-secret setup below must be completed first. On this Mac, pass `PY=python3.11`
