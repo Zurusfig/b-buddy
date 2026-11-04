@@ -118,6 +118,8 @@ class UatReportTests(unittest.TestCase):
                           if c["status"] == "fail"])
             page = output_path.read_text(encoding="utf-8")
             self.assertIn('http-equiv="refresh" content="15"', page)
+            self.assertIn("window.addEventListener('pagehide',saveView)", page)
+            self.assertIn("requestAnimationFrame(()=>scrollTo", page)
             self.assertIn('<svg xmlns="http://www.w3.org/2000/svg"', page)
             self.assertIn('id="report-data" type="application/json"', page)
             self.assertNotIn("<script src=", page)

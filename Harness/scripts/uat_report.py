@@ -579,6 +579,10 @@ const runs=data.runs,tasks=data.tasks,esc=x=>String(x??'—').replace(/[&<>"']/g
 const fmt=(x,d=1)=>typeof x==='number'?x.toFixed(d):'—';
 const badge=(status,label,title='')=>`<span class="status ${esc(status)}" title="${esc(title)}">${esc(label)}</span>`;
 const empty=text=>`<div class="card empty">${esc(text)}</div>`;
+const viewKey='uat-report-view:'+location.pathname;
+let savedView={};try{savedView=JSON.parse(sessionStorage.getItem(viewKey)||'{}')||{}}catch{}
+function saveView(){const filters={};document.querySelectorAll('.filters input,.filters select').forEach(el=>{filters[el.id]=el.type==='checkbox'?el.checked:el.value});const tab=document.querySelector('.tab[aria-selected="true"]')?.dataset.tab;try{sessionStorage.setItem(viewKey,JSON.stringify({tab,filters,x:scrollX,y:scrollY}))}catch{}}
+window.addEventListener('pagehide',saveView);
 document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b===btn)));document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!==`panel-${btn.dataset.tab}`)}));
 const theme=document.getElementById('theme-toggle');try{const saved=localStorage.getItem('uat-report-theme');if(saved)document.documentElement.dataset.theme=saved}catch{}
 theme.addEventListener('click',()=>{const current=document.documentElement.dataset.theme|| (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');const next=current==='dark'?'light':'dark';document.documentElement.dataset.theme=next;try{localStorage.setItem('uat-report-theme',next)}catch{}});
@@ -587,6 +591,7 @@ const items=[['Runs',s.count],['Avg model calls',fmt(s.avg_model_calls,2)],['Val
 el.innerHTML=`<div class="metric-grid">${items.map(([name,value])=>`<div class="metric"><strong>${esc(value)}</strong><span>${esc(name)}</span></div>`).join('')}</div><div class="route-row">${Object.entries(s.routes).map(([route,count])=>`<span class="pill">${esc(route)} · ${count}/${s.count} (${(count/s.count*100).toFixed(1)}%)</span>`).join('')}</div><p class="small">Step totals: ${Object.entries(s.step_seconds).map(([name,seconds])=>`${esc(name)} ${fmt(seconds)}s`).join(' · ')}. “Other” includes routing, waiting and unlogged time; model calls exclude the classifier.</p>`}
 function optionList(id,values){const el=document.getElementById(id);el.innerHTML='<option value="">All</option>'+[...values].sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true})).map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('')}
 optionList('filter-round',new Set(runs.map(r=>r.round).filter(x=>x!=null)));optionList('filter-tester',new Set(runs.map(r=>r.tester_number).filter(x=>x!=null)));optionList('filter-task',new Set(runs.map(r=>r.task_id).filter(Boolean)));optionList('filter-persona',new Set(runs.map(r=>r.persona).filter(Boolean)));
+for(const [id,value] of Object.entries(savedView.filters||{})){const el=document.getElementById(id);if(el&&el.closest('.filters')){if(el.type==='checkbox')el.checked=Boolean(value);else if(el.tagName!=='SELECT'||[...el.options].some(option=>option.value===value))el.value=value}}
 function renderRuns(){const round=document.getElementById('filter-round').value,tester=document.getElementById('filter-tester').value,task=document.getElementById('filter-task').value,persona=document.getElementById('filter-persona').value,search=document.getElementById('filter-search').value.toLocaleLowerCase(),failing=document.getElementById('filter-failing').checked;
 const shown=runs.filter(r=>(!round||String(r.round)===round)&&(!tester||String(r.tester_number)===tester)&&(!task||r.task_id===task)&&(!persona||r.persona===persona)&&(!failing||r.grade==='fail')&&(!search||[r.question,r.answer,r.run_id,r.task_id,r.persona].some(x=>String(x??'').toLocaleLowerCase().includes(search))));
 document.getElementById('run-count').textContent=`${shown.length} of ${runs.length} runs`;
@@ -598,6 +603,8 @@ document.getElementById('matrix').innerHTML=tasks.map(t=>`<tr><td><b>${esc(t.uat
 document.getElementById('phrasing').innerHTML=data.phrasing.map(p=>`<tr><td>${esc(p.task)}</td><td>${p.paired||'—'}</td><td>${p.paired?Object.entries(p.counts).map(([k,v])=>`${esc(k)}: ${v}`).join(' · '):'Insufficient paired attempts'}</td></tr>`).join('');
 const findings=runs.flatMap(r=>r.checks.filter(c=>c.status==='fail').map(c=>({run:r,check:c})));document.getElementById('findings-count').textContent=`${findings.length} failed checks`;document.getElementById('findings').innerHTML=findings.length?findings.map(f=>`<div class="finding"><strong>${esc(f.run.run_id)} · ${esc(f.run.task_id)} · ${esc(f.check.name)}</strong><br>${esc(f.check.reason||'Check failed')}</div>`).join(''):'<p class="muted">No failed checks on this date.</p>';}
 renderStats();renderRuns();renderGrades();
+const savedTab=[...document.querySelectorAll('.tab')].find(tab=>tab.dataset.tab===savedView.tab);if(savedTab)savedTab.click();
+if(Number.isFinite(savedView.y))requestAnimationFrame(()=>scrollTo(Number(savedView.x)||0,savedView.y));
 })();
 </script></body></html>"""
 
