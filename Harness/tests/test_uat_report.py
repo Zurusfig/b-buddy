@@ -14,6 +14,38 @@ spec.loader.exec_module(report)
 
 
 class UatReportTests(unittest.TestCase):
+    def test_demo_rounds_are_isolated_from_real_log_and_report(self):
+        with tempfile.TemporaryDirectory() as folder:
+            folder = Path(folder)
+            real_log = folder / "coach_calls.jsonl"
+            real_html = folder / "uat_report.html"
+            demo_html = folder / "uat_report_demo.html"
+            real_log.write_text('{"event":"coach_question","run_id":"real-run"}\n', encoding="utf-8")
+            real_html.write_text("real report stays here", encoding="utf-8")
+            log_before = real_log.read_bytes()
+            html_before = real_html.read_bytes()
+
+            result = report.generate("2026-11-04", False, log_path=real_log,
+                                     output_path=demo_html, demo=True)
+
+            self.assertEqual(real_log.read_bytes(), log_before)
+            self.assertEqual(real_html.read_bytes(), html_before)
+            with self.assertRaisesRegex(ValueError, "cannot overwrite"):
+                report.generate("2026-11-04", False, log_path=real_log,
+                                output_path=report.OUTPUT_PATH, demo=True)
+            self.assertEqual(len(result["runs"]), 8)
+            self.assertEqual({r["round"] for r in result["runs"]}, {1, 2})
+            grades = {(r["task_id"], r["attempt"]): r["grade"] for r in result["runs"]}
+            self.assertEqual(grades["UAT-04", 1], "fail")
+            self.assertEqual(grades["UAT-04", 2], "pass")
+            self.assertEqual(grades["UAT-05", 1], "fail")
+            self.assertEqual(grades["UAT-05", 2], "fail")
+            self.assertEqual(grades["UAT-08", 1], "pass")
+            page = demo_html.read_text(encoding="utf-8")
+            self.assertIn("DEMO DATA · Two synthetic rounds", page)
+            self.assertIn("Synthetic sample", page)
+            self.assertNotIn('http-equiv="refresh"', page)
+
     def test_three_fake_runs_and_offline_html(self):
         events = []
         cases = [

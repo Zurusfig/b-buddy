@@ -191,6 +191,21 @@ checker requires every configured model. See [the harness guide](Harness/README.
 map, demos and labs. `config.yaml` configures the harness demos only; the coach's models are set as
 described above.
 
+## UAT report
+
+From the `b-buddy/` root, generate the real report from the coach log or a separate practice report:
+
+```sh
+./.venv/bin/python Harness/scripts/uat_report.py --date 2026-11-04 --watch
+./.venv/bin/python Harness/scripts/uat_report.py --demo --date 2026-11-04
+```
+
+The first command writes `Harness/reports/uat_report.html` and updates it every 10 seconds while
+running. The second writes `Harness/reports/uat_report_demo.html` with two synthetic rounds and
+sample passes and failures. Demo mode reads the task set and ground truth, but never reads or writes
+the real coach log or real report. Both HTML files open offline and are gitignored. Demo mode checks
+the report interface and grader; it does not send questions through the app or models.
+
 ## Troubleshooting
 
 | Symptom | Fix |

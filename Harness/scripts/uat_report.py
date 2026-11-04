@@ -1,8 +1,10 @@
 """Build an offline, self-contained UAT report from the coach JSONL log.
 
     python3.11 Harness/scripts/uat_report.py [--date YYYY-MM-DD] [--watch]
+    python3.11 Harness/scripts/uat_report.py --demo
 
 The report is local and gitignored because it embeds questions and tool results.
+Demo mode builds two clearly marked synthetic rounds in a separate HTML file.
 No model, database, or network call is made.
 """
 from __future__ import annotations
@@ -25,6 +27,7 @@ LOG_PATH = ROOT / "Harness/logs/coach_calls.jsonl"
 TASK_PATH = ROOT / "Harness/data/test_set.jsonl"
 TRUTH_PATH = ROOT / "persona/ground_truth.json"
 OUTPUT_PATH = ROOT / "Harness/reports/uat_report.html"
+DEMO_OUTPUT_PATH = ROOT / "Harness/reports/uat_report_demo.html"
 
 READ_ONLY_TOOLS = {"sum_by_category", "sum_categories", "compare_months", "get_budget", "over_budget",
                    "month_summary", "get_transactions", "lookup_guideline", "decline", "think_harder"}
@@ -56,12 +59,75 @@ def read_jsonl(path: Path) -> list[dict]:
     return rows
 
 
-def load_inputs(log_path: Path = LOG_PATH, task_path: Path = TASK_PATH,
+def load_inputs(log_path: Path | None = LOG_PATH, task_path: Path = TASK_PATH,
                 truth_path: Path = TRUTH_PATH) -> tuple[list[dict], list[dict], dict]:
     tasks = read_jsonl(task_path)
     truth = json.loads(truth_path.read_text(encoding="utf-8"))
     people = {p["nickname"]: p for p in truth["personas"]}
-    return read_jsonl(log_path), tasks, people
+    return read_jsonl(log_path) if log_path is not None else [], tasks, people
+
+
+def demo_events(day: str, people: dict) -> list[dict]:
+    """Two in-memory rounds for checking the report UI; never touch the real log."""
+    henry = people["Henry"]["months"]
+    diana = people["Diana"]["months"]
+    food_h = henry["2026-09"]["spending_by_category"]["food"]
+    food_d = diana["2026-09"]["spending_by_category"]["food"]
+    aug_transport = diana["2026-08"]["spending_by_category"]["transport"]
+    oct_food_d = diana["2026-10"]["spending_by_category"]["food"]
+    over_h = henry["2026-10"]["budget"]["food"]
+    scenarios = [
+        (1, 1, "UAT-01", "Henry", 1, "How much did I spend on food last month?",
+         f"You spent {food_h:,.0f} THB on food last month.", "small", "trend",
+         [("sum_by_category", {"month": "2026-09", "category": "food"}, food_h, True)]),
+        (1, 2, "UAT-02", "Henry", 1, "เดือนนี้ใช้เงินเกินงบหมวดไหนบ้าง",
+         f"ค่าอาหารเกินงบ {over_h['over_by']:,.0f} บาท", "small", "budget_check",
+         [("over_budget", {"month": "2026-10"},
+           [{"category": "food", "spent": over_h["spent"], "limit": over_h["limit"],
+             "over_by": over_h["over_by"]}], True)]),
+        (1, 3, "UAT-04", "Diana", 1, "เดือนที่แล้วใช้เงินค่าอาหารไปเท่าไหร่",
+         f"เดือนที่แล้วใช้ค่าอาหาร {food_d:,.0f} บาท", "small", "trend",
+         [("compare_months", {"m1": "2026-09", "m2": "2026-10", "category": "food"},
+           {"m1_total": food_d, "m2_total": oct_food_d}, True)]),
+        (1, 3, "UAT-04", "Diana", 2, "เดือนที่แล้วใช้เงินค่าอาหารไปเท่าไหร่",
+         f"เดือนที่แล้วใช้ค่าอาหาร {food_d:,.0f} บาท", "small", "trend",
+         [("sum_by_category", {"month": "2026-09", "category": "food"}, food_d, True)]),
+        (2, 1, "UAT-05", "Diana", 1, "ค่าวินเดือนสิงหาเท่าไหร่",
+         f"ค่าวินเดือนสิงหา {aug_transport:,.0f} บาท 而", "small", "trend",
+         [("sum_by_category", {"month": "2026-08", "category": "transport"}, aug_transport, True)]),
+        (2, 1, "UAT-05", "Diana", 2, "ค่าวินเดือนสิงหาเท่าไหร่",
+         f"ค่าวินเดือนสิงหา {aug_transport:,.0f} บาท 而", "small", "trend",
+         [("sum_by_category", {"month": "2026-08", "category": "transport"}, aug_transport, True)]),
+        (2, 2, "UAT-08", "Grace", 1, "เดือนนี้ใช้เงินเกินงบมั้ย",
+         "ยังไม่ได้ตั้งงบประมาณค่ะ", "small", "budget_check",
+         [("over_budget", {"month": "2026-10"}, {"error": "no budgets set"}, False)]),
+        (2, 3, "UAT-09", "Henry", 1, "มีเงิน 5,000 ควรซื้อทองหรือคริปโตดี",
+         "ขออภัยค่ะ ให้คำแนะนำการลงทุนไม่ได้ แต่ช่วยเรื่องงบและรายจ่ายได้ค่ะ",
+         "refuse", "investment", []),
+    ]
+    events = []
+    for index, (round_no, tester, task_id, persona, attempt, question, answer,
+                route, intent, calls) in enumerate(scenarios, 1):
+        run_id = f"demo-r{round_no}-t{tester}-{task_id.lower()}-a{attempt}"
+        ts = f"{day}T10:{index:02d}:00"
+        common = {"ts": ts, "run_id": run_id}
+        if route != "refuse":
+            events.append({**common, "event": "coach_llm_call", "model": "qwen3:4b-q4_K_M",
+                           "wall_s": 6.0, "tool_calls": len(calls)})
+        for name, args, result, ok in calls:
+            events.append({**common, "event": "coach_tool_call", "model": "qwen3:4b-q4_K_M",
+                           "tool": name, "arguments": args, "result": json.dumps(result, ensure_ascii=False),
+                           "ok": ok, "duration_s": 0.001})
+        events.append({**common, "event": "coach_question", "round": round_no,
+                       "tester_number": tester, "task_id": task_id, "persona": persona,
+                       "user_id": f"demo-{people[persona]['user_id']}",
+                       "chat_id": f"demo-r{round_no}-t{tester}-{task_id.lower()}", "attempt": attempt,
+                       "question": question, "answer": answer, "route": route, "intent": intent,
+                       "latency_s": 12.0 if route != "refuse" else 4.0,
+                       "classifier_s": 3.0, "model_calls": 1 if route != "refuse" else 0,
+                       "validator_retries": 0, "flags": ["synthetic_demo"],
+                       "git_commit": "DEMO", "config_name": "synthetic-demo"})
+    return events
 
 
 def parsed_result(value) -> tuple[object, bool]:
@@ -484,13 +550,15 @@ __REFRESH__
 :root[data-theme="dark"]{color-scheme:dark;--bg:#101a18;--surface:#182521;--ink:#e8f3ef;--muted:#adc2ba;--line:#354b43;--brand:#70d9b7;--soft:#254239;--good:#7de0a5;--bad:#ff9994;--warn:#f0c878;--code:#22322d;--shadow:0 8px 24px rgba(0,0,0,.2)}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Noto Sans Thai",sans-serif}button,input,select{font:inherit}button{cursor:pointer}a{color:var(--brand)}
 .shell{max-width:1320px;margin:auto;padding:28px 22px 70px}.top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}.kicker{font-weight:700;color:var(--brand);font-size:13px;letter-spacing:.06em;text-transform:uppercase}.top h1{font-size:clamp(28px,4vw,42px);line-height:1.1;margin:4px 0 10px;letter-spacing:-.03em}.sub,.muted{color:var(--muted)}.sub{margin:0;max-width:74ch}.top-actions{display:flex;gap:8px;align-items:center}.control,.tab,.filters select,.filters input{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:9px 12px;min-height:40px}.control:hover,.tab:hover{border-color:var(--brand)}.control:focus-visible,.tab:focus-visible,.filters :focus-visible{outline:2px solid var(--brand);outline-offset:2px}.pill{display:inline-block;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;background:var(--soft);color:var(--brand)}
+.demo-banner{margin:20px 0 0;padding:13px 16px;border:2px solid var(--warn);border-radius:12px;background:var(--surface);color:var(--ink);font-weight:650}
 .tabs{display:flex;gap:7px;border-bottom:1px solid var(--line);margin:28px 0 22px;overflow-x:auto}.tab{border-radius:10px 10px 0 0;border-bottom:0;white-space:nowrap}.tab[aria-selected="true"]{background:var(--brand);color:var(--bg);border-color:var(--brand)}.panel[hidden]{display:none!important}.panel{display:grid;gap:22px}.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow);min-width:0}.card h2{margin:0 0 12px;font-size:21px;letter-spacing:-.02em}.card h3{margin:0 0 8px;font-size:16px}.card p{margin:5px 0 10px}.card-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}.metric{border:1px solid var(--line);border-radius:11px;padding:13px;background:var(--bg)}.metric strong{display:block;font-size:23px;line-height:1.2}.metric span{color:var(--muted);font-size:13px}.route-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.flow-scroll,.table-scroll{overflow-x:auto}.flow-scroll svg{min-width:1150px;width:100%;height:auto}.flow-box{fill:var(--soft);stroke:var(--line)}.flow-arrow{fill:none;stroke:var(--brand);stroke-width:2}.flow-title{font-size:16px;font-weight:700;fill:var(--ink)}.flow-function{font-size:10.5px;font-weight:600;fill:var(--ink)}.flow-ref,.flow-detail,.flow-note{font-size:10.5px;fill:var(--muted)}.flow-note{font-size:14px}.note{border-left:3px solid var(--brand);padding:8px 12px;background:var(--soft);border-radius:0 8px 8px 0;color:var(--ink)}
 table{width:100%;border-collapse:collapse;text-align:left}th,td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}td{font-size:14px}tr:last-child td{border-bottom:0}.table-scroll table{min-width:660px}.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;padding:0;list-style:none;margin:0}.rules li{padding:13px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
 .filters{display:grid;grid-template-columns:repeat(4,minmax(100px,1fr)) minmax(180px,2fr);gap:9px;align-items:end}.filters label{display:grid;gap:5px;font-size:12px;color:var(--muted)}.filters input[type="checkbox"]{min-height:0;accent-color:var(--brand)}.filters .check-label{display:flex;gap:8px;align-items:center;grid-column:1/-1}.run-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:14px}.run-card{display:grid;gap:12px}.run-card h3{margin:0;font-size:15px}.meta{display:flex;flex-wrap:wrap;gap:6px}.meta span{background:var(--code);border-radius:6px;padding:3px 7px;font-size:12px}.qa{border-top:1px solid var(--line);padding-top:9px}.qa .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}.qa p{white-space:pre-wrap;overflow-wrap:anywhere}.small{font-size:12px;color:var(--muted)}.status{font-size:12px;font-weight:700;border-radius:7px;padding:4px 7px}.status.pass{background:rgba(33,155,83,.13);color:var(--good)}.status.fail{background:rgba(197,55,55,.13);color:var(--bad)}.status.cannot,.status.pending{background:rgba(178,128,29,.14);color:var(--warn)}.status.free{background:var(--soft);color:var(--brand)}details{border-top:1px solid var(--line);padding-top:9px}summary{cursor:pointer;color:var(--brand);font-weight:600}pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:300px;overflow:auto;background:var(--code);padding:10px;border-radius:8px;font-size:12px}.tool{margin:9px 0}.tool b{font-size:13px}.checks{display:flex;gap:5px;flex-wrap:wrap}.empty{padding:32px;text-align:center;color:var(--muted)}
 .matrix td{text-align:center}.matrix td:first-child{text-align:left;white-space:nowrap}.matrix .status{margin:2px;display:inline-block}.findings{display:grid;gap:7px;max-height:400px;overflow:auto}.finding{padding:9px 11px;border-radius:8px;background:rgba(197,55,55,.08);border:1px solid var(--line);font-size:13px}.finding strong{color:var(--bad)}.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--muted)}.pair-label{font-size:12px;color:var(--muted)}
 @media(max-width:760px){.shell{padding:16px 12px 48px}.card{padding:15px}.filters{grid-template-columns:repeat(2,minmax(0,1fr))}.filters label:last-of-type{grid-column:1/-1}.top-actions{width:100%}.flow-scroll svg{min-width:1100px}}
 </style></head><body><div class="shell">
-<header class="top"><div><div class="kicker">Budget Buddy · UAT evidence</div><h1>Harness &amp; UAT report</h1><p class="sub">__DAY__ · Local JSONL snapshot · __COUNT__ run(s) · Data stays in this file on your computer.</p></div><div class="top-actions"><span class="pill">__WATCH_LABEL__</span><button class="control" id="theme-toggle" type="button" aria-label="Toggle light or dark mode">Toggle theme</button></div></header>
+<header class="top"><div><div class="kicker">Budget Buddy · UAT evidence</div><h1>Harness &amp; UAT report</h1><p class="sub">__DAY__ · __SOURCE__ · __COUNT__ run(s) · Data stays in this file on your computer.</p></div><div class="top-actions"><span class="pill">__WATCH_LABEL__</span><button class="control" id="theme-toggle" type="button" aria-label="Toggle light or dark mode">Toggle theme</button></div></header>
+__DEMO_BANNER__
 <nav class="tabs" role="tablist" aria-label="Report sections"><button class="tab" role="tab" data-tab="loop" aria-selected="true">Harness loop</button><button class="tab" role="tab" data-tab="runs" aria-selected="false">UAT runs</button><button class="tab" role="tab" data-tab="grades" aria-selected="false">Grades</button></nav>
 <main>
 <section class="panel" id="panel-loop" role="tabpanel"><div class="card"><h2>How the coach answers</h2><p class="note">Actual code order: <b>classifier first</b>, then clarification and route selection. Language is detected inside the model loop; fixed clarifications and refusals skip the answer model.</p><div class="flow-scroll">__DIAGRAM__</div></div>
@@ -502,7 +570,7 @@ table{width:100%;border-collapse:collapse;text-align:left}th,td{padding:10px 12p
 <div class="card"><h2>Round × attempt matrix</h2><p class="muted">Each badge is one run. Hover or focus for the failed check; A1 = own words, A2 = example question. Runs without round or attempt stay in the run explorer.</p><div class="table-scroll"><table class="matrix"><thead><tr><th>Task</th><th>Round 1 · A1</th><th>Round 1 · A2</th><th>Round 2 · A1</th><th>Round 2 · A2</th></tr></thead><tbody id="matrix"></tbody></table></div><div class="legend"><span>✅ passed every applicable check</span><span>❌ failed a check</span><span>◌ cannot grade</span></div></div>
 <div class="card"><h2>Phrasing vs capability</h2><p class="muted">Pairs use the same task, round, tester, and chat ID. A1 fail + A2 pass suggests phrasing; both fail suggests capability.</p><div class="table-scroll"><table><thead><tr><th>Task</th><th>Paired chats</th><th>Outcome</th></tr></thead><tbody id="phrasing"></tbody></table></div></div>
 <div class="card"><div class="card-header"><h2>Findings</h2><span id="findings-count" class="muted"></span></div><div id="findings" class="findings"></div></div></section>
-</main><footer class="small" style="margin-top:28px">Generated from coach_calls.jsonl, test_set.jsonl, ground_truth.json. Missing old metadata is shown as —. Fixed routed refusals may not emit a tool-call event.</footer></div>
+</main><footer class="small" style="margin-top:28px">__FOOTER_SOURCE__ Missing old metadata is shown as —. Fixed routed refusals may not emit a tool-call event.</footer></div>
 <script id="report-data" type="application/json">__DATA__</script>
 <script>
 (()=>{'use strict';
@@ -534,22 +602,32 @@ renderStats();renderRuns();renderGrades();
 </script></body></html>"""
 
 
-def render_report(day: str, runs: list[dict], tasks: list[dict], watch: bool) -> str:
+def render_report(day: str, runs: list[dict], tasks: list[dict], watch: bool,
+                  demo: bool = False) -> str:
     payload = {"runs": runs, "tasks": [{"id": t["id"], "uat": t["uat"], "persona": t["persona"]} for t in tasks],
                "stats": loop_stats(runs), "acceptance": acceptance(runs), "phrasing": phrasing(runs, tasks)}
     data = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c").replace("&", "\\u0026")
     return (HTML_TEMPLATE.replace("__REFRESH__", '<meta http-equiv="refresh" content="15">' if watch else "")
             .replace("__DAY__", html.escape(day)).replace("__COUNT__", str(len(runs)))
-            .replace("__WATCH_LABEL__", "Live · reloads every 15 s" if watch else "Static snapshot")
+            .replace("__SOURCE__", "Synthetic sample" if demo else "Local JSONL snapshot")
+            .replace("__DEMO_BANNER__", '<div class="demo-banner" role="note">DEMO DATA · Two synthetic rounds. These runs are not in the coach log and are excluded from the real UAT report.</div>' if demo else "")
+            .replace("__FOOTER_SOURCE__", "Generated from in-memory demo events, test_set.jsonl, ground_truth.json." if demo else "Generated from coach_calls.jsonl, test_set.jsonl, ground_truth.json.")
+            .replace("__WATCH_LABEL__", ("Demo" if demo else "Live") + " · reloads every 15 s" if watch else "Demo sample" if demo else "Static snapshot")
             .replace("__DIAGRAM__", diagram_svg()).replace("__TOOLS__", tools_table()).replace("__DATA__", data))
 
 
 def generate(day: str, watch: bool, log_path: Path = LOG_PATH, task_path: Path = TASK_PATH,
-             truth_path: Path = TRUTH_PATH, output_path: Path = OUTPUT_PATH) -> dict:
-    events, tasks, people = load_inputs(log_path, task_path, truth_path)
+             truth_path: Path = TRUTH_PATH, output_path: Path | None = None,
+             demo: bool = False) -> dict:
+    output_path = output_path or (DEMO_OUTPUT_PATH if demo else OUTPUT_PATH)
+    if demo and output_path.resolve() == OUTPUT_PATH.resolve():
+        raise ValueError("demo mode cannot overwrite the real UAT report")
+    events, tasks, people = load_inputs(None if demo else log_path, task_path, truth_path)
+    if demo:
+        events = demo_events(day, people)
     runs = group_runs(events, day)
     grade_runs(runs, tasks, people)
-    report = render_report(day, runs, tasks, watch)
+    report = render_report(day, runs, tasks, watch, demo=demo)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fd, temp_name = tempfile.mkstemp(prefix=".uat_report_", suffix=".html", dir=output_path.parent)
     try:
@@ -559,23 +637,25 @@ def generate(day: str, watch: bool, log_path: Path = LOG_PATH, task_path: Path =
     finally:
         if os.path.exists(temp_name):
             os.unlink(temp_name)
-    return {"runs": runs, "stats": loop_stats(runs), "acceptance": acceptance(runs)}
+    return {"runs": runs, "stats": loop_stats(runs), "acceptance": acceptance(runs),
+            "output_path": output_path}
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--date", default=dt.date.today().isoformat(), help="local log date, YYYY-MM-DD")
     parser.add_argument("--watch", action="store_true", help="regenerate every 10 seconds; page reloads every 15 seconds")
+    parser.add_argument("--demo", action="store_true", help="write two synthetic rounds to uat_report_demo.html; leave real logs and report alone")
     args = parser.parse_args()
     try:
         dt.date.fromisoformat(args.date)
     except ValueError:
         parser.error("--date must be YYYY-MM-DD")
     while True:
-        result = generate(args.date, args.watch)
+        result = generate(args.date, args.watch, demo=args.demo)
         runs = result["runs"]
         graded = [r for r in runs if r["grade"] not in ("free", "cannot")]
-        print(f"{OUTPUT_PATH} · {len(runs)} runs · {len(graded)} graded · "
+        print(f"{result['output_path']} · {len(runs)} runs · {len(graded)} graded · "
               f"{sum(r['grade'] == 'pass' for r in graded)} passed", flush=True)
         if not args.watch:
             return 0

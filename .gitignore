@@ -50,3 +50,4 @@ Harness/data/tip_misses.jsonl
 
 # Local UAT report embeds private questions and tool results
 Harness/reports/uat_report.html
+Harness/reports/uat_report_demo.html
