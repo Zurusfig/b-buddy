@@ -93,7 +93,7 @@ Start Ollama first. On macOS, from `b-buddy` run:
 
 ```sh
 cd ..
-make -C b-buddy PY=python3.11 app-up
+make -C b-buddy PY=python3.11 uat-up
 ```
 
 On Windows, use three PowerShell windows instead of `make`. Run these from the parent `budget-buddy-uat` folder, one command per window:
@@ -113,7 +113,7 @@ cd b-buddy
 py -3.11 dev.py serve
 ```
 
-Keep the server windows open. They serve the web app on `:3000`, finance API on `:3001`, and coach on `127.0.0.1:8765`. Stop them with Ctrl-C. In another terminal, check with `curl` on macOS or `curl.exe` on Windows:
+Keep the server windows open. They serve the web app on `:3000`, finance API on `:3001`, and coach on `127.0.0.1:8765`. The macOS `uat-up` command also starts the report watcher. Stop them with Ctrl-C. In another terminal, check with `curl` on macOS or `curl.exe` on Windows:
 
 ```sh
 curl http://localhost:3001/health
@@ -138,15 +138,13 @@ For the official session, select **Recorded UAT**, set Round (1 or 2), Tester (1
 
 ## 7. Watch the local report
 
-In a separate terminal, from `b-buddy`, run the command for your system:
-
-```sh
-./.venv/bin/python Harness/scripts/uat_report.py --date 2026-11-04 --watch
-```
+On Windows, in a separate PowerShell window from `b-buddy`, run:
 
 ```powershell
 .\.venv\Scripts\python.exe Harness\scripts\uat_report.py --date 2026-11-04 --watch
 ```
+
+On macOS, `uat-up` already starts this watcher. To run only the report later, use `python3.11 Harness/scripts/uat_report.py --date 2026-11-04 --watch` from `b-buddy`.
 
 Open `Harness/reports/uat_report.html` in Chrome. The script regenerates it every 10 seconds; the page reloads every 15 seconds. The **UAT runs** tab shows all questions and tool results, including Practice questions. The **Grades** tab measures only questions with a task ID. The report is a local HTML file and is gitignored because it embeds questions and tool results. `Harness/logs/coach_calls.jsonl` is the underlying local log; keep it private and do not delete it during UAT.
 

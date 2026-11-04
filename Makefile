@@ -5,7 +5,9 @@ PY ?= python
 Q  ?= Am I over budget this month?
 WHO ?= 1
 
-.PHONY: help setup setup-here check check-gateway test pull pull-all ask persona personas eval eval-persona eval-gateway clean serve coach-secret demo-seed demo-remove demo-status demo-reader-sql demo-up app-up app-finance app-coach
+.PHONY: help setup setup-here check check-gateway test pull pull-all ask persona personas eval eval-persona eval-gateway clean serve coach-secret demo-seed demo-remove demo-status demo-reader-sql demo-up app-up app-finance app-coach uat-up uat-report
+
+UAT_DATE ?= 2026-11-04
 
 help:
 	@$(PY) dev.py help
@@ -87,3 +89,10 @@ app-finance:
 
 app-coach:
 	@$(PY) dev.py serve
+
+# One terminal for the integrated app and the live UAT report. Ctrl-C stops all watchers.
+uat-up:
+	@$(MAKE) -j2 app-up uat-report
+
+uat-report:
+	@$(PY) Harness/scripts/uat_report.py --date $(UAT_DATE) --watch
