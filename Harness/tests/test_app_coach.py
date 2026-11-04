@@ -176,6 +176,30 @@ class DemoPasswordResetTests(unittest.TestCase):
             demo_db.reset_uat_passwords(conn, path)
         self.assertEqual(path.read_text(), "existing passwords")
 
+    def test_shared_password_changes_exactly_ten_accounts_without_touching_data(self):
+        emails = demo_db.DEMO_EMAILS
+        rows = [(n + 20, email) for n, email in enumerate(emails)]
+        conn = mock.Mock()
+        conn.execute.side_effect = [mock.Mock(fetchall=lambda: rows)] + [mock.Mock(rowcount=1) for _ in rows]
+        demo_db.set_shared_demo_password(conn, "test-shared-password", hasher=lambda pw: "hash:" + pw)
+        self.assertEqual(len(conn.execute.call_args_list), 11)
+        self.assertEqual(conn.execute.call_args.args[0],
+                         'UPDATE "User" SET "passwordHash" = %s WHERE id = %s AND email = %s')
+        self.assertEqual({call.args[1][2] for call in conn.execute.call_args_list[1:]}, set(emails))
+        self.assertTrue(all(call.args[1][0] == "hash:test-shared-password"
+                            for call in conn.execute.call_args_list[1:]))
+        self.assertEqual(len(emails), 10)
+
+    def test_shared_password_refuses_missing_accounts_and_short_password(self):
+        conn = mock.Mock()
+        with self.assertRaises(ValueError):
+            demo_db.set_shared_demo_password(conn, "short", hasher=str)
+        conn.execute.assert_not_called()
+        conn.execute.return_value.fetchall.return_value = [(23, demo_db.DEMO_EMAILS[0])]
+        with self.assertRaisesRegex(RuntimeError, "all ten demo accounts"):
+            demo_db.set_shared_demo_password(conn, "test-shared-password", hasher=str)
+        self.assertEqual(conn.execute.call_count, 1)
+
 
 def csv_fetch(user_id):
     """A fake database serving the view rows for one persona, built from the CSVs the way the views would."""

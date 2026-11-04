@@ -7,6 +7,7 @@
     python dev.py demo-reader-sql        # writes coach_reader.generated.sql (read-only coach role)
     python dev.py demo-reset-passwords   # preview password reset for Henry, Diana, Grace
     python dev.py demo-reset-passwords --yes  # rotate those three only; preserve all data
+    python dev.py demo-shared-password --yes  # prompt privately for one password for all 10 personas
 
 Every demo user has an email ending in @demo.budgetbuddy.test, and that is the only thing removal
 looks at: no real account can match it, and no row is touched unless it belongs to such a user.
@@ -19,6 +20,7 @@ Each seeding run draws new random passwords, prints them once, and saves them to
 from __future__ import annotations
 
 import csv
+import getpass
 import os
 import re
 import secrets
@@ -33,6 +35,8 @@ READER_TEMPLATE = HERE / "coach_reader.sql"
 READER_OUT = HERE / "coach_reader.generated.sql"
 DEMO_DOMAIN = "demo.budgetbuddy.test"
 UAT_EMAILS = tuple(f"{name}@{DEMO_DOMAIN}" for name in ("henry", "diana", "grace"))
+DEMO_EMAILS = tuple(f"{name}@{DEMO_DOMAIN}" for name in
+                    ("alice", "bob", "charlie", "diana", "eve", "frank", "grace", "henry", "ivy", "jack"))
 THAI_OFFSET = "+07:00"
 
 ACCOUNT_TYPE = {"cash": "wallet", "ewallet": "wallet", "bank": "bank", "credit": "credit_card"}
@@ -157,6 +161,28 @@ def reset_uat_passwords(conn, path: Path = CREDENTIALS, password_factory=None, h
         out.write("Budget Buddy UAT demo logins (passwords rotated for these three only)\n\n")
         for email in UAT_EMAILS:
             out.write(f"{email}    {passwords[email]}\n")
+
+
+def validate_shared_password(password: str) -> None:
+    if not 8 <= len(password.encode("utf-8")) <= 72 or password != password.strip():
+        raise ValueError("password must be 8–72 bytes with no leading or trailing spaces")
+
+
+def set_shared_demo_password(conn, password: str, hasher=None) -> None:
+    """Set one entered password for exactly the ten synthetic persona accounts, in one transaction."""
+    validate_shared_password(password)
+    placeholders = ", ".join(["%s"] * len(DEMO_EMAILS))
+    rows = conn.execute(f'SELECT id, email FROM "User" WHERE email IN ({placeholders})', DEMO_EMAILS).fetchall()
+    if {email for _, email in rows} != set(DEMO_EMAILS) or len(rows) != len(DEMO_EMAILS):
+        raise RuntimeError("all ten demo accounts must exist before changing passwords")
+    if hasher is None:
+        import bcrypt
+        hasher = lambda value: bcrypt.hashpw(value.encode(), bcrypt.gensalt(10)).decode()
+    for uid, email in rows:
+        result = conn.execute('UPDATE "User" SET "passwordHash" = %s WHERE id = %s AND email = %s',
+                              (hasher(password), uid, email))
+        if result.rowcount != 1:
+            raise RuntimeError(f"password change did not update exactly one row for {email}")
 
 
 def seed(conn, plan: list[dict], passwords: dict[str, str], hasher) -> dict[str, int]:
@@ -318,7 +344,7 @@ def check_reader() -> int:
 
 
 def main(argv: list[str]) -> int:
-    if not argv or argv[0] not in ("seed", "remove", "reader-sql", "status", "check-reader", "reader-url", "reset-passwords"):
+    if not argv or argv[0] not in ("seed", "remove", "reader-sql", "status", "check-reader", "reader-url", "reset-passwords", "shared-password"):
         print(__doc__)
         return 2
     cmd, apply = argv[0], "--yes" in argv
@@ -351,6 +377,32 @@ def main(argv: list[str]) -> int:
         finally:
             conn.close()
         print(f"Passwords saved to {CREDENTIALS} (owner-only permissions). No persona data was changed.")
+        return 0
+    if cmd == "shared-password":
+        print("Shared password targets: " + ", ".join(DEMO_EMAILS))
+        if not apply:
+            print("Dry run: no passwords changed. Add --yes to enter a shared password privately.")
+            return 0
+        password = getpass.getpass("New shared demo password (8–72 bytes): ")
+        confirm = getpass.getpass("Repeat password: ")
+        if password != confirm:
+            print("Passwords did not match; no accounts changed.")
+            return 1
+        try:
+            validate_shared_password(password)
+        except ValueError as e:
+            print(f"{e}; no accounts changed.")
+            return 1
+        conn = _connect()
+        try:
+            with conn:
+                set_shared_demo_password(conn, password)
+        except Exception as e:
+            print(f"Password change failed ({type(e).__name__}); no password was printed.")
+            return 1
+        finally:
+            conn.close()
+        print("All ten demo passwords changed. The existing demo-credentials.txt, if present, now has old passwords.")
         return 0
     if cmd == "seed":
         plan = build_plan()

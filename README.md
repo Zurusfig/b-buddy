@@ -162,6 +162,9 @@ One-time setup (nothing is written to the database until you run the `--yes` ste
    If that ignored credentials file is lost after seeding, run `python dev.py demo-reset-passwords` to preview,
    then `python dev.py demo-reset-passwords --yes` to rotate only Henry, Diana, and Grace. Their new passwords
    are saved to `demo-credentials.txt` with owner-only permissions; transactions and budgets are untouched.
+   For one easy-to-share password across all ten demo personas, preview with `python dev.py demo-shared-password`,
+   then run `python dev.py demo-shared-password --yes`. Enter the same password twice at the hidden prompts.
+   This changes only the ten demo accounts; the existing `demo-credentials.txt`, if present, will then be stale.
 4. In the app: `frontend/.env.local` gets `NEXT_PUBLIC_COACH_ENABLED=true`; restart `make dev`.
 5. `python dev.py serve` (or `make demo-up`). The chat button turns from "offline" to ready by itself.
 
