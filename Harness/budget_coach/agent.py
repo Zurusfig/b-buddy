@@ -39,7 +39,11 @@ import requests
 
 import advice
 import categories
+import breakdown
 import clarify
+import gaps
+import interpret
+import lookup_reply
 import language
 import router
 import tools
@@ -260,6 +264,8 @@ class Context:
     classifier_hint: str = ""
     categories: tuple | None = None  # this data's own category names (see categories.py)
     advice_facts: Callable | None = None  # () -> facts the advice picker uses (see advice.py)
+    months: tuple = ()      # months this student has data for, so code can read "last month" or "July" (interpret.py)
+    reference: str = ""     # the month "this month" means
 
 
 DEFAULT_CONTEXT = Context(SYSTEM, TOOLS, run_tool, PERSONA_NUMBERS, frozenset(DATA_TOOLS))
@@ -293,7 +299,7 @@ def _chat_ollama(model, messages, think, tool_defs):
     r = requests.post(OLLAMA_URL + "/api/chat", timeout=TIMEOUT_S, json={
         "model": model, "stream": False, "think": think, "keep_alive": "10m",
         "messages": _to_ollama(messages), "tools": tool_defs,
-        "options": {"temperature": 0, "num_ctx": 8192, "num_predict": MAX_TOKENS["on" if think else "off"]}})
+        "options": {"temperature": 0, "num_ctx": router.NUM_CTX, "num_predict": MAX_TOKENS["on" if think else "off"]}})
     if r.status_code >= 400:
         raise LLMError(_http_code(r.status_code, True))
     d = r.json()
@@ -349,7 +355,7 @@ def _log_tool(model, think, name, args, res, duration_s):
 
 
 def run(question: str, model: str, think: bool, key: str | None = None, raw: bool = True,
-        ctx: Context = DEFAULT_CONTEXT, system_extra: str = "", check_args: bool = True) -> dict:
+        ctx: Context = DEFAULT_CONTEXT, system_extra: str = "", check_args: bool = True, doubt_check: bool = False) -> dict:
     """One full tool loop with thinking fixed on or off. Returns answer, calls and trigger flags.
 
     raw=False hides get_transactions, so the model only ever sees computed totals.
@@ -363,6 +369,8 @@ def run(question: str, model: str, think: bool, key: str | None = None, raw: boo
     calls, flags, answer, model_calls, tokens = [], set(), "", 0, 0
     validator_retries = 0
     error = None
+    options: list = []
+    doubt = None
     lang = language.question_lang(question)  # decided by code, not by the model
     lang_retries = 0
     t0 = time.perf_counter()
@@ -443,10 +451,31 @@ def run(question: str, model: str, think: bool, key: str | None = None, raw: boo
                         res = ctx.run_tool(name, args, raw)
                     except Exception as e:  # bad args are fed back to the model, and flagged
                         res = {"error": f"{type(e).__name__}: {e}"}
-                        flags.add("tool_error")
+                        if isinstance(e, gaps.DataGap):  # "no data for April" is an answer, not a failure
+                            res["gap"] = e.info()
+                        else:
+                            flags.add("tool_error")
                 _log_tool(model, think, name, args, res, time.perf_counter() - t_tool)
                 calls.append({"name": name, "args": args, "result": res})
                 results.append(res)
+            gap = gaps.resolve(results, lang)
+            if gap:  # every result is a known gap (no data, no budget, a category that cannot be looked up): code answers
+                flags.add("known_gap")
+                answer, options = gap["answer"], gap["options"]
+                break
+            if len(todo) == 1 and todo[0][0] == "spending_by_category" and breakdown.is_breakdown(results[0]):
+                flags.add("code_reply")  # a list of amounts: code writes it with fixed labels, no second model call
+                answer = breakdown.render(results[0], lang)
+                break
+            if doubt_check:  # the lookup does not match the question: stop now, no second model call is spent on it
+                doubt = interpret.doubt(question, calls, ctx.months, ctx.reference, ctx.categories)
+                if doubt:
+                    flags.add("doubt")
+                    break
+                if lookup_reply.applies(calls):  # one figure that matches the question: code writes it, the model cannot
+                    flags.add("code_reply")
+                    answer = lookup_reply.render(calls[0], lang)
+                    break
             if native:
                 messages.append({"role": "assistant", "content": msg.get("content") or "",
                                  "tool_calls": native})
@@ -470,7 +499,7 @@ def run(question: str, model: str, think: bool, key: str | None = None, raw: boo
         error = "internal"
         answer = f"[error] internal: {ERROR_TEXT['internal']}"
         LOG.write("coach_error", model=model, code="internal", exc=type(e).__name__)
-    if not answer.strip() and not error and "think_harder" not in flags:
+    if not answer.strip() and not error and "think_harder" not in flags and not doubt:
         answer = validator.fallback_answer(calls, lang)  # ran out of calls or time: show what the tools found
     if not error and not any(c["name"] in ctx.data_tools | {"decline"} for c in calls) and "think_harder" not in flags:
         flags.add("no_tool")
@@ -478,7 +507,7 @@ def run(question: str, model: str, think: bool, key: str | None = None, raw: boo
         flags.add("arg_mismatch")  # the tool call does not match the categories the question named
     return {"answer": answer, "calls": calls, "flags": sorted(flags), "model_calls": model_calls,
             "tokens": tokens, "latency": time.perf_counter() - t0, "think": think, "model": model,
-            "validator_retries": validator_retries, "error": error}
+            "validator_retries": validator_retries, "error": error, "options": options, "doubt": doubt}
 
 
 def escalate(off: dict, triggers=AUTO_TRIGGERS) -> list[str]:
@@ -523,6 +552,8 @@ def _answer_routed(question: str, key: str | None, ctx: Context, log_extra: dict
     base = {"mode": "routed", "intent": intent, "classifier_s": cls["latency"],
             "classifier_error": cls["error"], "escalated_by": []}
     need = clarify.needs(question)
+    if not need and intent in ("trend", "budget_check"):  # no amount asked, no budget, limit or category named: the word list is only the first net
+        need = clarify.unsure(question)
     # A vague phrase ("help", a greeting) that the 4B router calls off_topic gets buttons, not a refusal.
     # An investment question is always refused, and an off_topic question with something to look up still is.
     refuse = intent == "investment" or (intent == "off_topic" and not (need and need["reason"] == "vague"))
@@ -542,26 +573,61 @@ def _answer_routed(question: str, key: str | None, ctx: Context, log_extra: dict
         except Exception:  # the picker still works from the question alone
             facts = {}
         gid, matched = advice.pick_match(question, facts)
-        note = (f"\n\nFor this question use guideline {gid}: call lookup_guideline with guideline_id {gid}, then "
-                "give the advice in 2-3 short sentences using the student's own numbers from the tools. "
-                "Do not write links or source names: the source is added for you.")
-        r = {**run(question, BIG_MODEL, True, key, raw=False, ctx=ctx, system_extra=note, check_args=False), "route": "advice->large"}
+        if matched:
+            note = (f"\n\nFor this question use guideline {gid}: call lookup_guideline with guideline_id {gid}, then "
+                    "give the advice in 2-3 short sentences using the student's own numbers from the tools. "
+                    "Do not write links or source names: the source is added for you.")
+        else:  # no keyword matched: the large model picks from the catalog, and code checks the id
+            note = ("\n\nChoose the guideline that best fits this question from this list, and call lookup_guideline "
+                    f"with its id:\n{advice.menu()}\nIf none fits, use {gid}. Then give the advice in 2-3 short "
+                    "sentences using the student's own numbers from the tools. "
+                    "Do not write links or source names: the source is added for you.")
+        # Thinking off first: the tip is already chosen by code, so the model only phrases it (6 s instead of 16-25 s).
+        # A reply that trips a check (wrong numbers, wrong language, a loop) is redone once with thinking on.
+        r = {**run(question, BIG_MODEL, False, key, raw=False, ctx=ctx, system_extra=note, check_args=False),
+             "route": "advice->large"}
+        why = [t for t in escalate(r) if t != "model_error"]  # a down gateway would fail the same way again
+        if why and r["latency"] < DEADLINE_S:
+            deep = run(question, BIG_MODEL, True, key, raw=False, ctx=ctx, system_extra=note, check_args=False)
+            r = {**deep, "route": "advice->large", "latency": r["latency"] + deep["latency"],
+                 "tokens": r["tokens"] + deep["tokens"], "model_calls": r["model_calls"] + deep["model_calls"]}
+            base["escalated_by"] = why
         fetched = [c["args"].get("guideline_id") for c in r["calls"] if c["name"] == "lookup_guideline"]
+        asked_for_tip = not matched
+        if asked_for_tip:  # the model's pick counts only if it is a real catalog id other than the fallback
+            chosen = next((f for f in fetched if f in advice.CATALOG and f != gid), None)
+            if chosen:
+                gid, matched = chosen, True
+                r["flags"] = list(r["flags"]) + ["tip_chosen_by_model"]
         if "validator_fallback" not in r["flags"]:  # a raw-results fallback is shown as it is
             r["answer"], extra = advice.attach_source(r["answer"], gid, lang, fetched, matched)
             r["flags"] = list(r["flags"]) + extra
         r["source"] = advice.source_info(gid)
         base["cited_guideline"] = gid
-        if not matched:
+        if asked_for_tip:  # the keywords missed this question either way: queue it so a person can add a keyword
             advice.log_miss(question, gid, lang)
     else:  # trend, budget_check, or no classification: small model first
-        r = {**run(question, SMALL_MODEL, False, key, ctx=ctx), "route": "small"}
-        why = escalate(r)
-        if why and r["latency"] < DEADLINE_S:  # a small run that already used its time is not rerun on the large model
-            big = run(question, BIG_MODEL, True, key, raw=False, ctx=ctx)
-            r = {**big, "route": "small->large", "latency": r["latency"] + big["latency"],
-                 "tokens": r["tokens"] + big["tokens"], "model_calls": r["model_calls"] + big["model_calls"]}
-            base["escalated_by"] = why
+        r = {**run(question, SMALL_MODEL, False, key, ctx=ctx, doubt_check=True), "route": "small"}
+        # Does the answer match what was asked (category, month, a list)? If not, ask back instead of guessing:
+        # a wrong reading never reaches the student, and a second model call is not spent on it.
+        reason = None if r.get("error") else (r.get("doubt") or ("category" if "arg_mismatch" in r["flags"] else None))
+        if reason:
+            ask = interpret.reading(question, ctx.months, ctx.reference, language.question_lang(question))
+            r = {**r, "answer": ask["ask"], "options": ask["options"], "calls": [], "flags": ["clarify", "doubt"],
+                 "route": "clarify"}
+            base["clarify"] = f"doubt:{reason}"
+        else:
+            why = escalate(r)
+            if why and r["latency"] < DEADLINE_S:  # a small run that already used its time is not rerun on the large model
+                big = run(question, BIG_MODEL, True, key, raw=False, ctx=ctx)
+                r = {**big, "route": "small->large", "latency": r["latency"] + big["latency"],
+                     "tokens": r["tokens"] + big["tokens"], "model_calls": r["model_calls"] + big["model_calls"]}
+                base["escalated_by"] = why
+    skip = {"code_reply", "known_gap", "validator_fallback", "loop", "wrong_language", "model_error", "clarify"}
+    if r["route"] in ("small", "small->large") and not skip & set(r["flags"]) and r["answer"].strip() and not r.get("error"):
+        note = interpret.line(r["calls"], language.question_lang(question))  # what was looked up, from the tool calls
+        if note:
+            r = {**r, "answer": r["answer"] + "\n\n" + note}
     out = {**r, **base, "latency": r["latency"] + cls["latency"]}
     if out["latency"] > SLOW_S:
         out["flags"] = list(out["flags"]) + ["slow"]

@@ -16,6 +16,9 @@ import requests
 
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
 CLASSIFIER_MODEL = os.environ.get("COACH_SMALL_MODEL", "qwen3:4b-q4_K_M")
+# Must equal the answer calls' num_ctx (agent._chat_ollama): Ollama reloads the model whenever it changes,
+# which cost about 3 s per switch and two switches per question (UAT: classifier 8.3 s on average).
+NUM_CTX = 8192
 INTENTS = ("trend", "budget_check", "advice", "investment", "off_topic")
 SCHEMA = {"type": "object", "properties": {"intent": {"type": "string", "enum": list(INTENTS)}},
           "required": ["intent"]}
@@ -26,7 +29,8 @@ budget_check: a limit, being over or under budget, whether this month is fine, "
 advice: how to save, cut back, build habits, emergency fund size, savings targets, plans or tips for the
 student's own budget. Saving money is advice, not investment.
 investment: only buying or choosing financial products: stocks, crypto, funds, gold, savings insurance,
-lottery, where to invest.
+lottery, where to invest. Buying something to use (laptop, phone, trip) and how to pay or save for it is advice,
+not investment.
 off_topic: clearly unrelated to the student's own money (weather, coding, trivia, chit-chat).
 The student's spending categories are food (delivery apps, Grab Food, 7-Eleven, ชาบู, ข้าว), transport
 (BTS, MRT, motorbike taxi/วิน, Grab rides), shopping (Shopee, Lazada, Uniqlo), subscriptions (Netflix,
@@ -42,7 +46,7 @@ def classify(question: str, model: str = CLASSIFIER_MODEL, timeout: float = 60, 
     try:
         r = requests.post(OLLAMA_URL + "/api/chat", timeout=timeout, json={
             "model": model, "stream": False, "think": False, "format": SCHEMA, "keep_alive": "10m",
-            "options": {"temperature": 0, "num_predict": 48, "num_ctx": 2048},
+            "options": {"temperature": 0, "num_predict": 48, "num_ctx": NUM_CTX},
             "messages": [{"role": "system", "content": PROMPT + (("\n" + hint) if hint else "")},
                          {"role": "user", "content": question}]})
         r.raise_for_status()

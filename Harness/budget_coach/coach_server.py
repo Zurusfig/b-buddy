@@ -117,12 +117,15 @@ def _trim(value):
 def shape(r: dict) -> dict:
     """The reply the app shows: answer text, who answered, and a receipt of what the code computed."""
     receipt = [{"tool": c["name"], "args": c.get("args") or {}, "result": _trim(c.get("result"))}
-               for c in r["calls"] if c["name"] not in HIDDEN_CALLS and "result" in c]
+               for c in r["calls"] if c["name"] not in HIDDEN_CALLS and "result" in c
+                and not (isinstance(c["result"], dict) and "error" in c["result"])]  # a failed lookup is not a figure
     tip = r.get("source") or next((c["result"] for c in r["calls"]
                                    if c["name"] == "lookup_guideline" and isinstance(c.get("result"), dict)), None)
     model = r.get("model")
     return {"answer": r["answer"], "route": r["route"], "intent": r.get("intent"),
-            "answeredBy": "none" if model is None else ("local" if agent.is_local(model) else "server"),
+            # "none" also covers replies code wrote itself (a breakdown, a no-data note): the model only chose the tool
+            "answeredBy": "none" if model is None or {"code_reply", "known_gap"} & set(r["flags"])
+                          else ("local" if agent.is_local(model) else "server"),
             "flags": r["flags"], "escalatedBy": r.get("escalated_by", []),
             "latencyS": round(r["latency"], 2),
             "options": r.get("options") or [],

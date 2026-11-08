@@ -7,6 +7,8 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
+import gaps
+
 HERE = Path(__file__).resolve().parent
 CATEGORIES = ("food", "transport", "shopping", "subscriptions", "education", "entertainment",
               "other")
@@ -30,7 +32,7 @@ def _check(month: str | None = None, category: str | None = None) -> None:
     if category is not None and category not in CATEGORIES:
         raise ValueError(f"unknown category {category!r}; expected one of {CATEGORIES}")
     if month is not None and month not in _months():
-        raise ValueError(f"no data for month {month!r}; available: {_months()}")
+        raise gaps.DataGap("no_data", f"no data for month {month!r}; available: {_months()}", month=month, available=_months())
 
 
 MAX_ROWS = 500

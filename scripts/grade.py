@@ -110,7 +110,7 @@ def grade(task: dict, result: dict, people: dict) -> list[str]:
             errors.append("missing valid tip citation")
         elif not any(c.get("args", {}).get("guideline_id") in cited for c in matching("lookup_guideline")):
             errors.append("cited tip was not looked up")
-    if want.get("numbers_in_tool_output") and validator.unsupported_numbers(answer, calls, question=""):
+    if want.get("numbers_in_tool_output") and validator.unsupported_numbers(answer, calls, question=task["input"]):
         errors.append("reply has numbers absent from tool output")
     return errors
 

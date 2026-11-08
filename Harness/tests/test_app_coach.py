@@ -382,6 +382,19 @@ class ServerTests(unittest.TestCase):
         self.assertEqual([c["tool"] for c in body["receipt"]], ["sum_by_category"])
         self.assertEqual(body["latencyS"], 1.23)
 
+    def test_the_receipt_lists_only_figures_that_were_found(self):
+        fake = {"answer": "x", "route": "small", "intent": "trend", "model": "qwen3:4b", "flags": ["known_gap"],
+                "escalated_by": [], "latency": 1.0,
+                "calls": [{"name": "month_summary", "args": {"month": "2026-04"},
+                           "result": {"error": "DataGap: no data", "gap": {"kind": "no_data"}}}]}
+        self.assertEqual(coach_server.shape(fake)["receipt"], [])
+
+    def test_a_reply_written_by_code_is_not_credited_to_a_model(self):
+        for flag in ("code_reply", "known_gap"):
+            fake = {"answer": "x", "route": "small", "intent": "trend", "model": "qwen3:4b", "flags": [flag],
+                    "escalated_by": [], "latency": 1.0, "calls": []}
+            self.assertEqual(coach_server.shape(fake)["answeredBy"], "none", flag)
+
     def test_error_text_from_the_gateway_is_never_returned(self):
         fake = {"answer": "[error] HTTP 401 {'key': 'abc-secret-hash'}", "route": "advice", "model": None,
                 "flags": [], "latency": 0.1, "calls": []}

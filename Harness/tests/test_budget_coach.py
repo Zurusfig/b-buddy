@@ -288,7 +288,8 @@ class RoutingTests(AgentTestCase):
 
     @staticmethod
     def result(**kw):
-        return {"answer": "ok", "calls": [{"name": "get_budget", "args": {}, "result": 1}], "flags": [],
+        return {"answer": "ok", "calls": [{"name": "sum_by_category", "args": {"month": "2026-09", "category": "food"}, "result": 1}],
+                "flags": [],
                 "model_calls": 1, "tokens": 1, "latency": 1.0, "think": False, "model": "m",
                 "validator_retries": 0, **kw}
 
@@ -304,10 +305,16 @@ class RoutingTests(AgentTestCase):
         self.assertEqual(r["route"], "small")
 
     def test_advice_uses_the_large_model_without_raw_tool(self):
-        r, run = self.route("advice", [self.result(think=True)])
-        self.assertEqual(run.call_args.args[1:3], (agent.BIG_MODEL, True))
+        r, run = self.route("advice", [self.result()])  # thinking off first: the tip is chosen by code (UAT speed)
+        self.assertEqual(run.call_args.args[1:3], (agent.BIG_MODEL, False))
         self.assertIs(run.call_args.kwargs["raw"], False)
         self.assertEqual(r["route"], "advice->large")
+
+    def test_advice_that_trips_a_check_is_redone_with_thinking_on(self):
+        r, run = self.route("advice", [self.result(flags=["validator_fallback"], latency=6.0), self.result(think=True, latency=20.0)])
+        self.assertEqual([c.args[2] for c in run.call_args_list], [False, True])
+        self.assertEqual(r["escalated_by"], ["validator_fallback"])
+        self.assertAlmostEqual(r["latency"], 6.0 + 20.0 + 0.5)
 
     def test_small_model_trigger_escalates_to_large_and_adds_latency(self):
         small = self.result(flags=["no_tool"], latency=1.0)

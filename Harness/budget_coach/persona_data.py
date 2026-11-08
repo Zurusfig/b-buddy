@@ -21,6 +21,8 @@ import csv
 from functools import lru_cache
 from pathlib import Path
 
+import gaps
+
 PERSONA_DIR = Path(__file__).resolve().parents[2] / "persona" / "csv"
 MAX_ROWS = 500
 EXPENSE_CATEGORIES = ("food", "transport", "shopping", "entertainment", "bills", "education",
@@ -88,9 +90,11 @@ class PersonaData:
 
     def _check(self, month: str | None = None, category: str | None = None) -> None:
         if category is not None and category not in self.expense_categories:
-            raise ValueError(f"unknown category {category!r}; expected one of {self.expense_categories}")
+            raise gaps.DataGap("unknown_category", f"unknown category {category!r}; expected one of {self.expense_categories}",
+                               category=category)
         if month is not None and month not in self.months():
-            raise ValueError(f"no data for month {month!r}; available: {self.months()}")
+            raise gaps.DataGap("no_data", f"no data for month {month!r}; available: {self.months()}",
+                               month=month, available=self.months())
 
     def _month_rows(self, month: str):
         return [r for r in self.rows if r["date"].startswith(month)]
@@ -99,6 +103,9 @@ class PersonaData:
     def sum_by_category(self, month: str, category: str) -> float:
         """Net spend in one category for one month: expenses minus refunds."""
         self._check(month, category)
+        return self._net(month, category)
+
+    def _net(self, month: str, category: str) -> float:
         total = 0.0
         for r in self._month_rows(month):
             if r["category"] != category:
@@ -118,6 +125,15 @@ class PersonaData:
         return {"month": month, "categories": names, "by_category": by_category,
                 "total": round(sum(by_category.values()), 2)}
 
+    def spending_by_category(self, month: str) -> dict:
+        """Net spend in every expense category for one month, and their total, in a single call."""
+        self._check(month)
+        # Every expense category the student has, including ones they made themselves: the app shows each category by
+        # its stored name, and a breakdown that skipped a custom one would not add up to the month's spending.
+        custom = [c for c, t in self.category_type.items() if t == "expense" and c not in EXPENSE_CATEGORIES]
+        by_category = {c: self._net(month, c) for c in (*self.expense_categories, *sorted(custom))}
+        return {"month": month, "by_category": by_category, "total": round(sum(by_category.values()), 2)}
+
     def compare_months(self, m1: str, m2: str, category: str) -> dict:
         """Spend in `category` for m1 vs m2. diff = m2 - m1; pct_change relative to m1."""
         a, b = self.sum_by_category(m1, category), self.sum_by_category(m2, category)
@@ -128,14 +144,14 @@ class PersonaData:
         """Monthly limit for one category; an error if this user never set one."""
         self._check(category=category)
         if category not in self.budgets:
-            raise ValueError(f"no budget is set for {category!r}")
+            raise gaps.DataGap("no_budget", f"no budget is set for {category!r}", category=category)
         return self.budgets[category]
 
     def over_budget(self, month: str) -> list[dict]:
         """Categories whose spend exceeded their limit in `month` (empty list if none)."""
         self._check(month)
         if not self.budgets:
-            raise ValueError("this user has not set any budgets")
+            raise gaps.DataGap("no_budget", "this user has not set any budgets")
         out = []
         for cat, limit in self.budgets.items():
             spent = self.sum_by_category(month, cat)

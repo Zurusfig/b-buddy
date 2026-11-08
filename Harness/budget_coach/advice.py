@@ -31,7 +31,8 @@ KEYWORDS = (
     ("G01", r"split|50/30/20|ratio|แบ่ง(?:เงิน)?เดือน|สัดส่วน"),
     ("G04", r"save something|how .*save|เก็บเงินก่อน|ออมก่อน|ออมเงิน|เก็บเงิน"),
     ("G09", r"saving goal|goal|เป้าหมาย"),
-    ("G06", r"running out|before the end|หมดก่อน|ไม่พอใช้|หมดเร็ว"),
+    ("G06", r"running out|run out|runs out|before the end|last (?:until|till|through)|(?:until|till|by) (?:the )?end of "
+           r"(?:the |this )?month|หมดก่อน|ไม่พอใช้|หมดเร็ว|ให้พอ(?:ใช้)?(?:ถึง|จน)|ถึงสิ้นเดือน|จนสิ้นเดือน|ก่อนสิ้นเดือน"),
 )
 DEFAULT_GID = "G04"
 
@@ -58,6 +59,11 @@ def pick_match(question: str, facts: dict | None = None) -> tuple[str, bool]:
     if (f.get("net") or 0) < 0:
         return "G01", False
     return DEFAULT_GID, False
+
+
+def menu() -> str:
+    """One line per tip (id and title), for the large model to choose from when no keyword matched."""
+    return "\n".join(f"{gid}: {g['title']}" for gid, g in CATALOG.items())
 
 
 def pick(question: str, facts: dict | None = None) -> str:

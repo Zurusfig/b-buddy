@@ -19,7 +19,7 @@ import agent
 import persona_data
 from persona_data import PersonaData
 
-TOOL_NAMES = ("sum_by_category", "sum_categories", "compare_months", "get_budget", "over_budget", "month_summary",
+TOOL_NAMES = ("sum_by_category", "sum_categories", "spending_by_category", "compare_months", "get_budget", "over_budget", "month_summary",
               "get_transactions")
 DATA_TOOLS = frozenset(TOOL_NAMES) | {"lookup_guideline"}
 CLASSIFIER_HINT = ("This student's categories also include bills (rent, phone, internet, utilities) and "
@@ -48,6 +48,8 @@ Rules:
 - Spending in one category for one month, including "last month" or a named month: use sum_by_category.
   Use compare_months only when the user explicitly asks for a comparison or change between two months.
   Two or more categories added together ("food plus transport"): sum_categories.
+  "What did I spend on", "where did my money go", a breakdown or list of categories (also casual Thai such as
+  "ใช้เงินไปกับอะไรบ้าง", "แยกหมวด"): spending_by_category once for that month. Never call sum_by_category once per category.
   A short phrase such as "ค่าวิน" or "Netflix" is a spending question about that category
   (transport, subscriptions): look it up for the named month, do not summarise or compare other months.
   Total spent, income, or money left over: month_summary. Limits / "am I over?": get_budget or over_budget.
@@ -69,6 +71,8 @@ def _tool_defs(data: PersonaData) -> list[dict]:
         fn("sum_categories", "Total spend across two or more categories in one month, with each category's amount.",
            {"month": month, "categories": {"type": "array", "items": category, "minItems": 1}},
            ["month", "categories"]),
+        fn("spending_by_category", "Spend in every category for one month plus the total, in one call. Use for \"what did I spend on\", a breakdown, or where the money went.",
+           {"month": month}, ["month"]),
         fn("compare_months", "Only for an explicit comparison of two months: spend in a category for m1 vs m2 (diff = m2 - m1).",
            {"m1": month, "m2": month, "category": category}, ["m1", "m2", "category"]),
         fn("get_budget", "Monthly spending limit for one category.", {"category": category}, ["category"]),
@@ -106,7 +110,8 @@ def context_for(data) -> agent.Context:
     years = tuple(sorted({int(m[:4]) for m in data.months()}))
     return agent.Context(system=_system(data), tools=_tool_defs(data), run_tool=run_tool, numbers=years,
                          data_tools=DATA_TOOLS, classifier_hint=CLASSIFIER_HINT,
-                         advice_facts=advice_facts, categories=tuple(data.expense_categories))
+                         advice_facts=advice_facts, categories=tuple(data.expense_categories),
+                         months=tuple(data.months()), reference=data.reference_month())
 
 
 def build_context(user: str | int, root=persona_data.PERSONA_DIR) -> tuple[agent.Context, PersonaData]:
