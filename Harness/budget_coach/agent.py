@@ -335,6 +335,10 @@ def _chat_once(key, model, messages, think, tool_defs):
         body = {"model": model, "temperature": 0, "max_tokens": MAX_TOKENS["on" if think else "off"],
                 "messages": messages, "tools": tool_defs,
                 "chat_template_kwargs": {"enable_thinking": think}, **EXTRA.get(model, {})}
+        # The exact messages that leave this computer, so the "totals only" claim can be checked from the log
+        # (Harness/scripts/privacy_report.py). Tool definitions are fixed text and are listed by name only.
+        LOG.write("coach_gateway_request", model=model, think=think, messages=messages,
+                  tools=[t["function"]["name"] for t in tool_defs])
         r = requests.post(GATEWAY_URL + "/chat/completions", json=body, timeout=TIMEOUT_S,
                           headers={**HEADERS, "Authorization": "Bearer " + (key or load_key())})
         if r.status_code >= 400:
@@ -415,17 +419,26 @@ def run(question: str, model: str, think: bool, key: str | None = None, raw: boo
                               else validator.fallback_answer(calls, lang))
                     break
                 bad = validator.unsupported_numbers(answer, calls, question, ctx.numbers)
-                if bad:
-                    LOG.write("coach_validator", model=model, rejected=sorted(bad), retry=validator_retries)
-                if bad and validator_retries < VALIDATOR_RETRIES:
+                invest = validator.investment_terms(answer, calls)  # design check 3: no investment talk
+                if bad or invest:
+                    LOG.write("coach_validator", model=model, rejected=sorted(bad), investment=invest,
+                              retry=validator_retries)
+                if (bad or invest) and validator_retries < VALIDATOR_RETRIES:
                     validator_retries += 1
+                    problems = []
+                    if bad:
+                        problems.append("These numbers are not in any tool result: " + ", ".join(f"{n:g}" for n in bad)
+                                        + ". Use only numbers the tools returned, or call a tool to get them.")
+                    if invest:
+                        problems.append("The reply mentions investing (" + ", ".join(invest) + "). Do not mention "
+                                        "investments or financial products; give budgeting help only.")
                     messages.append({"role": "assistant", "content": answer})
-                    messages.append({"role": "user", "content": (
-                        "These numbers are not in any tool result: " + ", ".join(f"{n:g}" for n in bad)
-                        + ". Rewrite the reply using only numbers the tools returned, or call a tool to get them.")})
+                    messages.append({"role": "user", "content": " ".join(problems) + " Rewrite the reply."})
                     continue
-                if bad:
+                if bad or invest:
                     flags.add("validator_fallback")
+                    if invest:
+                        flags.add("investment_language")
                     answer = validator.fallback_answer(calls, lang)
                 break
             names = {n for n, _, _ in todo}

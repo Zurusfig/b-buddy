@@ -68,6 +68,45 @@ def unsupported_numbers(answer: str, calls: list[dict], question: str = "",
     return sorted(n for n in numbers_in(answer) if not any(_close(n, a) for a in ok))
 
 
+# Investment language (design doc, validator check 3). A reply to an in-scope question must not drift into
+# products to buy or invest in. Thai has no word boundaries, so Thai terms are matched as plain substrings.
+INVESTMENT = re.compile(
+    r"\b(?:stocks?|shares? (?:of|in)|equit(?:y|ies)|crypto(?:currenc(?:y|ies))?|bitcoin|btc|ethereum|"
+    r"mutual funds?|index funds?|money[- ]market funds?|etfs?|bonds?|gold|invest(?:s|ed|ing|ment|ments|or)?|"
+    r"portfolio|dividends?|forex|savings insurance|lotter(?:y|ies)|rmf|ssf|thaiesg)\b"
+    r"|หุ้น|คริปโต|บิตคอยน์|บิทคอยน์|กองทุน|ทองคำ|ลงทุน|พันธบัตร|หุ้นกู้|ปันผล|ประกันออมทรัพย์|ประกันชีวิตแบบออม|"
+    r"ลอตเตอรี่|ล็อตเตอรี่|หวย|สลากกินแบ่ง",
+    re.I)
+# Saving phrases that contain an investment word but are budgeting, not investing.
+INVESTMENT_OK = re.compile(r"\b(?:emergency|rainy[- ]day|sinking)\s+funds?\b", re.I)
+
+
+def _strings(value, out: list[str]) -> None:
+    if isinstance(value, str):
+        out.append(value)
+    elif isinstance(value, dict):
+        for k, v in value.items():
+            out.append(str(k))
+            _strings(v, out)
+    elif isinstance(value, (list, tuple)):
+        for v in value:
+            _strings(v, out)
+
+
+def investment_terms(answer: str, calls: list[dict] = ()) -> list[str]:
+    """Investment words in `answer` (lower-cased, sorted). [] means the reply passes.
+
+    A word that also appears in a tool result is the user's own data (a category or a purchase named
+    "insurance" or "gold"), not advice, so it is allowed. Budgeting phrases such as "emergency fund" are allowed.
+    """
+    text = INVESTMENT_OK.sub(" ", answer or "")
+    data: list[str] = []
+    for c in calls:
+        _strings(c.get("result"), data)
+    blob = INVESTMENT_OK.sub(" ", " ".join(data)).lower()
+    return sorted({m.group(0).lower() for m in INVESTMENT.finditer(text) if m.group(0).lower() not in blob})
+
+
 FALLBACK_HEADER = {
     "en": "I could not verify a written answer, so here are the raw results.",
     "th": "ตรวจสอบคำตอบไม่ผ่าน จึงแสดงผลดิบจากเครื่องมือแทนค่ะ",
