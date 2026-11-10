@@ -142,5 +142,57 @@ class WrongLanguageTests(unittest.TestCase):
         self.assertIn("wrong_language", agent.AUTO_TRIGGERS)
 
 
+class ThaiAdviceGlossTests(unittest.TestCase):
+    """Real Gemma replies to "ช่วยแนะนำวิธีลดค่าอาหารหน่อย" that were rejected, and cost about 45 s of retries."""
+    TIP = [{"name": "lookup_guideline", "args": {"guideline_id": "G06"}, "result": {
+        "id": "G06", "title": "Weekly spending allowance (envelope method)",
+        "source": "Dave Ramsey, The Total Money Makeover (envelope system)"}},
+        {"name": "sum_by_category", "args": {"month": "2026-10", "category": "food"}, "result": 4093.0}]
+
+    def allowed(self):
+        return language.tool_text(self.TIP)
+
+    def test_an_english_gloss_in_brackets_is_fine_in_a_thai_reply(self):
+        reply = ("แนะนำให้ลองใช้วิธีแบ่งงบรายสัปดาห์ (envelope method) โดยนำค่าอาหารของเดือนนี้ที่ใช้ไป 4,093.0 บาท "
+                 "มาแบ่งเป็นงบรายสัปดาห์ และเมื่อเงินในสัปดาห์นั้นหมดให้หยุดใช้ครับ [G06]")
+        self.assertTrue(language.reply_matches("th", reply))
+
+    def test_a_cited_source_in_nested_brackets_is_fine(self):
+        reply = ("เดือนนี้คุณใช้ค่าอาหารไป 4093.0 บาท แนะนำให้ลองแบ่งงบค่าอาหารเป็นรายสัปดาห์ครับ "
+                 "(Dave Ramsey, The Total Money Makeover (envelope system) [G06])")
+        self.assertTrue(language.reply_matches("th", reply))
+
+    def test_names_from_the_tool_results_may_be_quoted_outside_brackets(self):
+        reply = "ลองใช้ envelope method ตามแนวทางของ Dave Ramsey โดยแบ่งค่า food เป็นรายสัปดาห์ครับ"
+        self.assertFalse(language.reply_matches("th", reply), "without the tool results these are loose English")
+        self.assertTrue(language.reply_matches("th", reply, self.allowed()))
+
+    def test_field_names_are_not_allowed_words(self):
+        self.assertNotIn("over_by", language.tool_text([{"name": "over_budget", "args": {}, "result": [
+            {"category": "food", "spent": 1.0, "over_by": 1.0}]}]))
+
+    def test_english_drift_and_chinese_are_still_rejected(self):
+        self.assertFalse(language.reply_matches("th", "คุณใช้ค่าอาหารไป 4,093 บาท compared to last month",
+                                                self.allowed()))
+        self.assertFalse(language.reply_matches("th", "คุณใช้ค่าอาหารไป 4,093 บาท 而在本月 (envelope method)",
+                                                self.allowed()))
+
+    def test_the_run_loop_accepts_the_bracketed_reply_without_a_retry(self):
+        reply = "แนะนำให้แบ่งงบค่าอาหาร 4,093.0 บาท เป็นรายสัปดาห์ (envelope method) ครับ [G06]"
+        chat = mock.Mock(side_effect=[
+            {"choices": [{"message": {"role": "assistant", "content": "", "tool_calls": [
+                {"id": "c", "type": "function", "function": {"name": "sum_by_category",
+                                                             "arguments": '{"month": "2026-07", "category": "food"}'}}]},
+                "finish_reason": "tool_calls"}], "usage": {"completion_tokens": 1}},
+            {"choices": [{"message": {"role": "assistant", "content": reply}, "finish_reason": "stop"}],
+             "usage": {"completion_tokens": 1}}])
+        with mock.patch.object(agent, "_chat", chat), mock.patch.object(agent, "LOG"), \
+                mock.patch.object(agent.validator, "unsupported_numbers", return_value=[]):
+            r = agent.run("ช่วยแนะนำวิธีลดค่าอาหารหน่อย", agent.BIG_MODEL, False, "k")
+        self.assertEqual(chat.call_count, 2)
+        self.assertNotIn("wrong_language", r["flags"])
+        self.assertEqual(r["answer"], reply)
+
+
 if __name__ == "__main__":
     unittest.main()

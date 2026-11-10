@@ -408,7 +408,7 @@ def run(question: str, model: str, think: bool, key: str | None = None, raw: boo
                 if choice.get("finish_reason") == "length":
                     flags.add("loop")
                 answer = SPECIAL.sub("", content).strip().replace("。", ".")  # a stray CJK full stop
-                if not language.reply_matches(lang, answer):
+                if not language.reply_matches(lang, answer, language.tool_text(calls)):
                     if lang_retries < LANGUAGE_RETRIES:
                         lang_retries += 1
                         messages.append({"role": "assistant", "content": answer})

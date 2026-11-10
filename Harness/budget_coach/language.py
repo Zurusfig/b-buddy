@@ -45,8 +45,45 @@ def thai_share(text: str) -> float:
     return thai / (thai + latin) if thai + latin else 0.0
 
 
-def reply_matches(lang: str, reply: str) -> bool:
-    if lang == "th" and (HAN.search(reply) or len(LATIN_WORD.findall(reply)) > 1):
+BRACKETED = re.compile(r"\([^()]*\)|\[[^\[\]]*\]")
+
+
+def _loose_latin_words(reply: str, allowed_text: str = "") -> list[str]:
+    """English words in a Thai reply that are not a bracketed gloss or a name the tools supplied.
+
+    "(envelope method)", "[G06]" and a cited book title in brackets are fine in a Thai reply, and so are words
+    that came from the tool results (a category such as "food", a tip's source). A phrase such as
+    "compared to last month" in the running text is not.
+    """
+    text, prev = reply, None
+    while text != prev:  # brackets can nest: "(Dave Ramsey, The Total Money Makeover (envelope system) [G06])"
+        prev, text = text, BRACKETED.sub(" ", text)
+    allowed = {w.lower() for w in LATIN_WORD.findall(allowed_text or "")}
+    return [w for w in LATIN_WORD.findall(text) if w.lower() not in allowed]
+
+
+def tool_text(calls: list[dict]) -> str:
+    """The string values in the tool results (not field names), for reply_matches' allowed_text."""
+    out: list[str] = []
+
+    def walk(v):
+        if isinstance(v, str):
+            out.append(v)
+        elif isinstance(v, dict):
+            for x in v.values():
+                walk(x)
+        elif isinstance(v, (list, tuple)):
+            for x in v:
+                walk(x)
+    for c in calls:
+        walk(c.get("result"))
+        walk(list((c.get("args") or {}).values()))  # the category the tool was asked for, e.g. "food"
+    return " ".join(out)
+
+
+def reply_matches(lang: str, reply: str, allowed_text: str = "") -> bool:
+    """`allowed_text`: text from the tool results; English words that appear in it may be quoted in a Thai reply."""
+    if lang == "th" and (HAN.search(reply) or len(_loose_latin_words(reply, allowed_text)) > 1):
         return False
     letters = len(THAI.findall(reply)) + len(LATIN.findall(reply))
     if letters < MIN_LETTERS:
