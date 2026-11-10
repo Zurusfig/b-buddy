@@ -61,6 +61,46 @@ def pick_match(question: str, facts: dict | None = None) -> tuple[str, bool]:
     return DEFAULT_GID, False
 
 
+# Tips that state a rule in percentages or multiples. Code works out the amounts for this student and adds them to the
+# tip, because otherwise the large model computes "50% of 10,000" or "3 x 18,842" itself, the validator rejects numbers
+# no tool returned, and the reply is rewritten without the amounts (about 3 s more, and a vaguer answer).
+#   id: (what the rule applies to, the fact that supplies it, [(result key, factor)])
+AMOUNT_TIPS = {
+    "G01": ("income", "income", (("needs_50", 0.5), ("wants_30", 0.3), ("savings_20", 0.2))),
+    "G02": ("monthly_spending", "spending", (("three_months", 3), ("six_months", 6))),
+}
+AMOUNTS_NOTE = (" If the guideline result has amounts_for_this_student, state those amounts exactly as given, with the "
+                "base figure and month they are based on. Do not look up other months or work out amounts yourself.")
+MIN_AMOUNT = 1000  # a smaller number in the question is not a monthly income or spending figure
+
+
+def with_split(result: dict, question: str, advice_facts=None) -> dict:
+    """The tip, plus its amounts for this student when it is a percentage or multiple rule (G01 50/30/20, G02 3-6x).
+
+    The base is the largest amount the question states ("I get 8,000 baht a month"), else the figure recorded for the
+    reference month (income for G01, total spending for G02).
+    """
+    rule = AMOUNT_TIPS.get(result.get("id")) if isinstance(result, dict) else None
+    if not rule:
+        return result
+    base_name, fact, factors = rule
+    import validator  # local import: validator does not depend on advice
+    stated = [n for n in validator.numbers_in(question or "") if n >= MIN_AMOUNT]
+    base, basis = (max(stated), "amount in the question") if stated else (None, "")
+    if base is None and advice_facts:
+        try:
+            facts = advice_facts() or {}
+        except Exception:
+            facts = {}
+        base, month = facts.get(fact), facts.get("month")
+        basis = f"{fact} recorded in {month}" if month else f"{fact} recorded this month"
+    if not base or base <= 0:
+        return result
+    amounts = {base_name: round(float(base), 2), "based_on": basis}
+    amounts.update({key: round(base * factor, 2) for key, factor in factors})
+    return {**result, "amounts_for_this_student": amounts}
+
+
 def menu() -> str:
     """One line per tip (id and title), for the large model to choose from when no keyword matched."""
     return "\n".join(f"{gid}: {g['title']}" for gid, g in CATALOG.items())

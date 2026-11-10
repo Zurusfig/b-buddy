@@ -431,10 +431,12 @@ class UnderstoodAndDoubtTests(unittest.TestCase):
         self.assertTrue(r["options"])
 
     def test_a_normal_answer_ends_with_the_looked_up_line(self):
-        r, _ = self.ask("give me a summary of last month",
-                        [tool_reply("month_summary", {"month": "2026-09"}), self.text("Here is the summary for last month.")])
+        # (month_summary used to be the example; code now writes that reply, so a comparison stands in)
+        r, _ = self.ask("Did I spend more on food in September than in August?",
+                        [tool_reply("compare_months", {"m1": "2026-08", "m2": "2026-09", "category": "food"}),
+                         self.text("You spent a little more on food in September.")])
         self.assertEqual(r["route"], "small")
-        self.assertTrue(r["answer"].endswith("\n\nLooked up: Summary, September 2026"), r["answer"])
+        self.assertTrue(r["answer"].endswith("\n\nLooked up: Food, August 2026 / September 2026"), r["answer"])
 
     def test_the_line_is_not_added_to_replies_code_wrote_or_to_advice(self):
         r, _ = self.ask("How much did I spend in April?", [tool_reply("month_summary", {"month": "2026-04"})])

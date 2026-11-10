@@ -462,6 +462,8 @@ def run(question: str, model: str, think: bool, key: str | None = None, raw: boo
                 else:
                     try:
                         res = ctx.run_tool(name, args, raw)
+                        if name == "lookup_guideline":  # a percentage tip comes with its amounts, worked out by code
+                            res = advice.with_split(res, question, ctx.advice_facts)
                     except Exception as e:  # bad args are fed back to the model, and flagged
                         res = {"error": f"{type(e).__name__}: {e}"}
                         if isinstance(e, gaps.DataGap):  # "no data for April" is an answer, not a failure
@@ -487,7 +489,7 @@ def run(question: str, model: str, think: bool, key: str | None = None, raw: boo
                     break
                 if lookup_reply.applies(calls):  # one figure that matches the question: code writes it, the model cannot
                     flags.add("code_reply")
-                    answer = lookup_reply.render(calls[0], lang)
+                    answer = lookup_reply.render(calls[0], lang, question)
                     break
             if native:
                 messages.append({"role": "assistant", "content": msg.get("content") or "",
@@ -570,7 +572,13 @@ def _answer_routed(question: str, key: str | None, ctx: Context, log_extra: dict
     # A vague phrase ("help", a greeting) that the 4B router calls off_topic gets buttons, not a refusal.
     # An investment question is always refused, and an off_topic question with something to look up still is.
     refuse = intent == "investment" or (intent == "off_topic" and not (need and need["reason"] == "vague"))
-    if refuse:
+    ahead = None if refuse or intent == "advice" else interpret.future(
+        question, ctx.months, ctx.reference, language.question_lang(question))
+    if ahead:  # "how much will I spend next month?": no data can answer it, so code says so (was ~20 s on the large model)
+        r = {"answer": ahead["answer"], "options": ahead["options"], "calls": [], "flags": ["code_reply", "future_month"],
+             "model_calls": 0, "tokens": 0, "latency": 0.0, "think": False, "model": None,
+             "validator_retries": 0, "route": "code"}
+    elif refuse:
         r = {"answer": decline_message(intent, language.question_lang(question)), "calls": [{"name": "decline", "args": {"kind": intent}}],
              "flags": ["declined", "routed_refusal"], "model_calls": 0, "tokens": 0, "latency": 0.0,
              "think": False, "model": None, "validator_retries": 0, "route": "refuse"}
@@ -595,6 +603,7 @@ def _answer_routed(question: str, key: str | None, ctx: Context, log_extra: dict
                     f"with its id:\n{advice.menu()}\nIf none fits, use {gid}. Then give the advice in 2-3 short "
                     "sentences using the student's own numbers from the tools. "
                     "Do not write links or source names: the source is added for you.")
+        note += advice.AMOUNTS_NOTE  # use the amounts code worked out, with the month they are based on
         # Thinking off first: the tip is already chosen by code, so the model only phrases it (6 s instead of 16-25 s).
         # A reply that trips a check (wrong numbers, wrong language, a loop) is redone once with thinking on.
         r = {**run(question, BIG_MODEL, False, key, raw=False, ctx=ctx, system_extra=note, check_args=False),

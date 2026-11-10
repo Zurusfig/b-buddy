@@ -113,6 +113,36 @@ def line(calls: list, lang: str) -> str:
     return PREFIX[lang] + "; ".join(parts[:3]) if parts else ""
 
 
+NEXT = re.compile(r"next month|coming month|upcoming month|เดือนหน้า|เดือนถัดไป|เดือนต่อไป", re.I)
+SPEND_WORDS = re.compile(r"spend|spent|cost|over|ใช้|จ่าย|เกิน|หมด", re.I)
+FUTURE = {
+    "en": "I can only show spending that has already happened, so I can't tell you about {month} yet. "
+          "Your data runs from {first} to {last}.",
+    "th": "ดูได้เฉพาะรายจ่ายที่เกิดขึ้นแล้ว จึงยังบอกยอดของ{month} ไม่ได้ ข้อมูลของคุณมีตั้งแต่{first} ถึง{last}",
+}
+THIS_MONTH_BUTTON = {"en": {"label": "This month so far", "question": "What did I spend on this month?"},
+                     "th": {"label": "เดือนนี้ที่ผ่านมา", "question": "เดือนนี้ใช้เงินไปกับอะไรบ้าง"}}
+
+
+def future(question: str, months: tuple, reference: str, lang: str) -> dict | None:
+    """{"answer", "options"} for a spending question about next month, which no data can answer; else None.
+
+    The 4B model used to hand these to the large model with thinking on (about 20 s) only to say the same thing.
+    A question about the budget limit itself ("my budget next month") is not caught: limits are monthly and known.
+    """
+    q = question or ""
+    if not (reference and months and NEXT.search(q)):
+        return None
+    if categories.asks_budget(q) and not SPEND_WORDS.search(q):
+        return None
+    year, month = int(reference[:4]), int(reference[5:7])
+    nxt = f"{year + (month == 12)}-{month % 12 + 1:02d}"
+    lang = lang if lang in FUTURE else "en"
+    text = FUTURE[lang].format(month=_month_text(nxt, lang), first=_month_text(months[0], lang),
+                               last=_month_text(months[-1], lang))
+    return {"answer": text, "options": [dict(THIS_MONTH_BUTTON[lang])]}
+
+
 ASK = {"en": "I'm not sure I understood. Which one do you mean?", "th": "ไม่แน่ใจว่าเข้าใจถูกไหม หมายถึงข้อไหน"}
 
 

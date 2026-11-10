@@ -105,7 +105,10 @@ def context_for(data) -> agent.Context:
             has_budget = True
         except ValueError:
             over, has_budget = [], False
-        return {"over_budget": over, "has_budget": has_budget, "net": data.month_summary(month)["net_cashflow"]}
+        summary = data.month_summary(month)
+        return {"over_budget": over, "has_budget": has_budget, "net": summary["net_cashflow"],
+                "income": summary["income_total"], "spending": summary["spending_total"],
+                "month": month}
 
     years = tuple(sorted({int(m[:4]) for m in data.months()}))
     return agent.Context(system=_system(data), tools=_tool_defs(data), run_tool=run_tool, numbers=years,
