@@ -368,7 +368,10 @@ def run(question: str, model: str, think: bool, key: str | None = None, raw: boo
     """
     tool_defs = [t for t in ctx.tools if raw or t["function"]["name"] not in RAW_TOOLS]
     tool_defs = tool_defs if think else tool_defs + [THINK_HARDER]
-    messages = [{"role": "system", "content": ctx.system + ("" if think else THINK_HARDER_NOTE) + system_extra},
+    # The reply language is stated, not left to "the user's language": Gemma answered English advice questions in Thai,
+    # and each one cost a rewrite (about 3.5 s).
+    messages = [{"role": "system", "content": ctx.system + ("" if think else THINK_HARDER_NOTE) + system_extra
+                 + language.REPLY_IN[language.question_lang(question)]},
                 {"role": "user", "content": question}]
     calls, flags, answer, model_calls, tokens = [], set(), "", 0, 0
     validator_retries = 0
@@ -463,7 +466,7 @@ def run(question: str, model: str, think: bool, key: str | None = None, raw: boo
                     try:
                         res = ctx.run_tool(name, args, raw)
                         if name == "lookup_guideline":  # a percentage tip comes with its amounts, worked out by code
-                            res = advice.with_split(res, question, ctx.advice_facts)
+                            res = advice.with_split(advice.in_language(res, lang), question, ctx.advice_facts)
                     except Exception as e:  # bad args are fed back to the model, and flagged
                         res = {"error": f"{type(e).__name__}: {e}"}
                         if isinstance(e, gaps.DataGap):  # "no data for April" is an answer, not a failure

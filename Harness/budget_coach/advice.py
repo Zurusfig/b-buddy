@@ -61,6 +61,23 @@ def pick_match(question: str, facts: dict | None = None) -> tuple[str, bool]:
     return DEFAULT_GID, False
 
 
+INTERNAL_FIELDS = ("tip_th", "checked_by_hand")
+
+
+def in_language(result: dict, lang: str) -> dict:
+    """The tip as the model should see it: its text in the question's language only.
+
+    With both "tip" and "tip_th" in the result, the large model answered English questions in Thai about the 50/30/20
+    tip, and the language check then forced a rewrite (about 4 s more per question). "checked_by_hand" is review
+    bookkeeping, not advice.
+    """
+    if not isinstance(result, dict) or "tip" not in result:
+        return result
+    out = {k: v for k, v in result.items() if k not in INTERNAL_FIELDS}
+    out["tip"] = tip_text(result, lang)
+    return out
+
+
 # Tips that state a rule in percentages or multiples. Code works out the amounts for this student and adds them to the
 # tip, because otherwise the large model computes "50% of 10,000" or "3 x 18,842" itself, the validator rejects numbers
 # no tool returned, and the reply is rewritten without the amounts (about 3 s more, and a vaguer answer).

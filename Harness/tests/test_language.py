@@ -194,5 +194,21 @@ class ThaiAdviceGlossTests(unittest.TestCase):
         self.assertEqual(r["answer"], reply)
 
 
+class ReplyLanguageInstructionTests(unittest.TestCase):
+    """Gemma answered English advice questions in Thai when told only "reply in the user's language"."""
+
+    def system_prompt(self, question):
+        chat = mock.Mock(return_value={"choices": [{"message": {"role": "assistant", "content": "ok"},
+                                                    "finish_reason": "stop"}], "usage": {"completion_tokens": 1}})
+        with mock.patch.object(agent, "_chat", chat), mock.patch.object(agent, "LOG"):
+            agent.run(question, agent.BIG_MODEL, False, "k")
+        return chat.call_args.args[2][0]["content"]
+
+    def test_the_system_prompt_names_the_reply_language(self):
+        self.assertIn("This question is in English", self.system_prompt("What's a simple rule for splitting my income?"))
+        self.assertIn("ภาษาไทย", self.system_prompt("ควรแบ่งเงินเดือนยังไงดี"))
+        self.assertNotIn("This question is in Thai", self.system_prompt("How much on food?"))
+
+
 if __name__ == "__main__":
     unittest.main()

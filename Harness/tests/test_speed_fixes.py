@@ -146,6 +146,29 @@ class EmergencyFundTests(unittest.TestCase):  # B, same fix for G02 (3-6x monthl
         self.assertEqual(validator.unsupported_numbers(reply, calls), [])
 
 
+class TipLanguageTests(unittest.TestCase):  # an English question got a Thai reply, then a language rewrite
+    G01 = {"id": "G01", "title": "50/30/20 rule", "tip": "Split 50/30/20.", "tip_th": "แบ่ง 50/30/20",
+           "source": "All Your Worth", "checked_by_hand": "2026-11-02"}
+
+    def test_the_model_sees_one_language(self):
+        en, th = advice.in_language(self.G01, "en"), advice.in_language(self.G01, "th")
+        self.assertEqual((en["tip"], th["tip"]), ("Split 50/30/20.", "แบ่ง 50/30/20"))
+        for r in (en, th):
+            self.assertNotIn("tip_th", r)
+            self.assertNotIn("checked_by_hand", r)
+            self.assertEqual(r["source"], "All Your Worth")
+        self.assertEqual(self.G01["tip_th"], "แบ่ง 50/30/20", "the catalog entry itself is not changed")
+
+    def test_the_run_loop_passes_only_the_english_tip_for_an_english_question(self):
+        chat = mock.Mock(side_effect=[tool_reply("lookup_guideline", {"guideline_id": "G01"}),
+                                      {"choices": [{"message": {"role": "assistant", "content": "Try 50/30/20 [G01]."},
+                                                    "finish_reason": "stop"}], "usage": {"completion_tokens": 1}}])
+        with mock.patch.object(agent, "_chat", chat), mock.patch.object(agent, "LOG"):
+            r = agent.run("simple rule for splitting my income", agent.BIG_MODEL, False, "k", raw=False)
+        self.assertNotIn("tip_th", r["calls"][0]["result"])
+        self.assertNotRegex(json.dumps(chat.call_args_list[1].args[2][-1], ensure_ascii=False), "[\u0e00-\u0e7f]")
+
+
 class FutureMonthTests(unittest.TestCase):  # C
     def test_next_month_spending_is_answered_by_code(self):
         en = interpret.future("How much will I spend next month?", MONTHS, "2026-10", "en")

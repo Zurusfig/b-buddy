@@ -236,7 +236,10 @@ class RunLoopTests(AgentTestCase):
                     agent.run(question, "m", False)
                 rec = self.logged("coach_tool_call")[-1]
                 self.assertGreater(len(rec["result"]), 300)
-                self.assertEqual(json.loads(rec["result"]), agent.run_tool(name, args))
+                expected = agent.run_tool(name, args)
+                if name == "lookup_guideline":  # the model gets the tip in the question's language; the log has exactly that
+                    expected = agent.advice.in_language(expected, "en")
+                self.assertEqual(json.loads(rec["result"]), expected)
 
     def test_decline_is_logged_as_a_tool_call(self):
         chat = ScriptedChat(tool_reply("decline", {"kind": "investment"}))

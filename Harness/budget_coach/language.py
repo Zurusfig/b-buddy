@@ -26,6 +26,11 @@ TH_CATEGORY = {"food": "อาหาร", "transport": "เดินทาง", 
                "entertainment": "บันเทิง", "bills": "บิล", "education": "การศึกษา",
                "health": "สุขภาพ", "other": "อื่นๆ", "subscriptions": "สมาชิก"}
 
+REPLY_IN = {  # added to every system prompt; the question's language is decided by code
+    "en": "\n- This question is in English: write the whole reply in English.",
+    "th": "\n- This question is in Thai: write the whole reply in Thai (ภาษาไทย).",
+}
+
 RETRY_INSTRUCTION = {
     "th": "Your reply must be in Thai (ภาษาไทย), the language of the question. Rewrite it in Thai, "
           "keeping exactly the same numbers.",
