@@ -1,0 +1,751 @@
+[
+ {
+  "id": "p9_sum",
+  "user_id": 9,
+  "kind": "sum",
+  "question": "How much did I spend on bills last month?",
+  "lang": "EN",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "You spent 10,104 baht on Bills and utilities in September 2026.",
+  "calls": [
+   {
+    "name": "sum_by_category",
+    "args": {
+     "month": "2026-09",
+     "category": "bills"
+    },
+    "result": 10104.0
+   }
+  ],
+  "flags": [
+   "code_reply"
+  ],
+  "latency": 4.759232458000042,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p9_compare",
+  "user_id": 9,
+  "kind": "compare",
+  "question": "ค่าบิลเดือนนี้เทียบกับเดือนที่แล้วเป็นยังไง",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "ค่าบิลเดือนที่แล้ว (2026-09) คือ 10,104.0 บาท และเดือนนี้ (2026-10) คือ 10,039.0 บาท ลดลง 65.0 บาท หรือลดลง 0.6% เทียบกับเดือนที่แล้ว.\n\nดูข้อมูล: บิลและค่าสาธารณูปโภค, เดือนกันยายน 2026 / เดือนตุลาคม 2026",
+  "calls": [
+   {
+    "name": "compare_months",
+    "args": {
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "category": "bills"
+    },
+    "result": {
+     "category": "bills",
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "m1_total": 10104.0,
+     "m2_total": 10039.0,
+     "diff": -65.0,
+     "pct_change": -0.6
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 12.592600832999779,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p9_over",
+  "user_id": 9,
+  "kind": "over",
+  "question": "Am I over budget this month?",
+  "lang": "EN",
+  "gold_intent": "budget_check",
+  "refusal_expected": false,
+  "answer": "You are not over budget in any category in October 2026.",
+  "calls": [
+   {
+    "name": "over_budget",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": []
+   }
+  ],
+  "flags": [
+   "code_reply"
+  ],
+  "latency": 3.968364916999917,
+  "intent": "budget_check",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p9_summary",
+  "user_id": 9,
+  "kind": "summary",
+  "question": "เดือนนี้ใช้เงินรวมไปเท่าไหร่ แล้วเหลือเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "เดือนตุลาคม 2026 รายรับ 21,000 บาท รายจ่าย 14,084 บาท\nเหลือ 6,916 บาท",
+  "calls": [
+   {
+    "name": "month_summary",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": {
+     "month": "2026-10",
+     "income_total": 21000.0,
+     "spending_total": 14084.0,
+     "net_cashflow": 6916.0,
+     "refunds_total": 0.0
+    }
+   }
+  ],
+  "flags": [
+   "code_reply"
+  ],
+  "latency": 5.05000245899987,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p9_refuse",
+  "user_id": 9,
+  "kind": "refuse",
+  "question": "Should I put my savings into crypto?",
+  "lang": "EN",
+  "gold_intent": "out_of_scope",
+  "refusal_expected": true,
+  "answer": "I can't give investment advice, but I can help with your budget and spending.",
+  "calls": [
+   {
+    "name": "decline",
+    "args": {
+     "kind": "investment"
+    }
+   }
+  ],
+  "flags": [
+   "declined",
+   "routed_refusal"
+  ],
+  "latency": 1.7050359590000426,
+  "intent": "investment",
+  "route": "refuse",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p9_advice",
+  "user_id": 9,
+  "kind": "advice",
+  "question": "I keep running out of money before the end of the month, what should I do?",
+  "lang": "EN",
+  "gold_intent": "advice",
+  "refusal_expected": false,
+  "answer": "You can try the envelope method by dividing your monthly flexible spending into weekly allowances to avoid using next week's money too early. For this month (2026-10), your total spending was 14084.0. Once a week's allowance is gone, you should stop spending until the next week begins.\n\nSource: Dave Ramsey, The Total Money Makeover (envelope system) [G06]\nRead more (CFPB budgeting guide): https://www.consumerfinance.gov/archive/blog/budgeting-how-to-create-a-budget-and-stick-with-it/",
+  "calls": [
+   {
+    "name": "lookup_guideline",
+    "args": {
+     "guideline_id": "G06"
+    },
+    "result": {
+     "id": "G06",
+     "title": "Weekly spending allowance (envelope method)",
+     "tip": "Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+     "source": "Dave Ramsey, The Total Money Makeover (envelope system)",
+     "url": null,
+     "read_more": "https://www.consumerfinance.gov/archive/blog/budgeting-how-to-create-a-budget-and-stick-with-it/",
+     "read_more_title": "CFPB budgeting guide"
+    }
+   },
+   {
+    "name": "month_summary",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": {
+     "month": "2026-10",
+     "income_total": 21000.0,
+     "spending_total": 14084.0,
+     "net_cashflow": 6916.0,
+     "refunds_total": 0.0
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 5.814753583000083,
+  "intent": "advice",
+  "route": "advice->large",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": true
+ },
+ {
+  "id": "p9_breakdown",
+  "user_id": 9,
+  "kind": "breakdown",
+  "question": "เดือนนี้ใช้เงินไปกับอะไรบ้าง",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "รายจ่ายเดือนตุลาคม 2026\n- บิลและค่าสาธารณูปโภค: 10,039 บาท\n- อาหาร: 2,666 บาท\n- เดินทาง: 1,024 บาท\n- บันเทิง: 313 บาท\n- อื่นๆ: 42 บาท\nรวม 14,084 บาท",
+  "calls": [
+   {
+    "name": "spending_by_category",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": {
+     "month": "2026-10",
+     "by_category": {
+      "food": 2666.0,
+      "transport": 1024.0,
+      "shopping": 0.0,
+      "entertainment": 313.0,
+      "bills": 10039.0,
+      "education": 0.0,
+      "health": 0.0,
+      "other": 42.0
+     },
+     "total": 14084.0
+    }
+   }
+  ],
+  "flags": [
+   "code_reply"
+  ],
+  "latency": 1.3152037499999096,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p9_budget",
+  "user_id": 9,
+  "kind": "budget",
+  "question": "What's my food budget?",
+  "lang": "EN",
+  "gold_intent": "budget_check",
+  "refusal_expected": false,
+  "answer": "Your food budget for the month is 7,500.0.\n\nLooked up: Food budget",
+  "calls": [
+   {
+    "name": "get_budget",
+    "args": {
+     "category": "food"
+    },
+    "result": 7500.0
+   }
+  ],
+  "flags": [],
+  "latency": 1.669181041999991,
+  "intent": "budget_check",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p9_named",
+  "user_id": 9,
+  "kind": "named",
+  "question": "ค่าเดินทางเดือนสิงหาคมเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "เดือนสิงหาคม 2026 ค่าเดินทาง 1,007 บาท",
+  "calls": [
+   {
+    "name": "sum_by_category",
+    "args": {
+     "month": "2026-08",
+     "category": "transport"
+    },
+    "result": 1007.0
+   }
+  ],
+  "flags": [
+   "code_reply"
+  ],
+  "latency": 1.814606208999976,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p9_advice_th",
+  "user_id": 9,
+  "kind": "advice_th",
+  "question": "ควรมีเงินสำรองฉุกเฉินเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "advice",
+  "refusal_expected": false,
+  "answer": "คุณควรมีเงินสำรองฉุกเฉินประมาณ 3-6 เท่าของค่าใช้จ่ายรายเดือน โดยอ้างอิงจากค่าใช้จ่ายในเดือน 2026-10 ที่ 14,084.0 บาท คุณควรมีเงินสำรองอยู่ที่ 42,252.0 ถึง 84,504.0 บาทครับ\n\nแหล่งอ้างอิง: Consumer Financial Protection Bureau (CFPB): An essential guide to building an emergency fund [G02]\nอ่านเพิ่มเติม: https://www.consumerfinance.gov/an-essential-guide-to-building-an-emergency-fund/\nดูเพิ่ม (ธปท.: การวางแผนการเงิน (3-6 เท่า)): https://www.bot.or.th/th/satang-story/money-plan/planning-steps.html",
+  "calls": [
+   {
+    "name": "lookup_guideline",
+    "args": {
+     "guideline_id": "G02"
+    },
+    "result": {
+     "id": "G02",
+     "title": "Build an emergency fund",
+     "tip": "จำนวนที่ควรมีขึ้นกับสถานการณ์ของแต่ละคน ลองดูค่าใช้จ่ายไม่คาดคิดที่เคยเจอ ธปท. แนะนำให้มี 3-6 เท่าของค่าใช้จ่ายจำเป็นและค่าผ่อนหนี้ต่อเดือน แยกเก็บในบัญชีออมทรัพย์ และตั้งโอนอัตโนมัติเป็นประจำเพื่อให้เงินสะสมเอง",
+     "source": "Consumer Financial Protection Bureau (CFPB): An essential guide to building an emergency fund",
+     "url": "https://www.consumerfinance.gov/an-essential-guide-to-building-an-emergency-fund/",
+     "read_more": "https://www.bot.or.th/th/satang-story/money-plan/planning-steps.html",
+     "read_more_title": "ธปท.: การวางแผนการเงิน (3-6 เท่า)",
+     "amounts_for_this_student": {
+      "monthly_spending": 14084.0,
+      "based_on": "spending recorded in 2026-10",
+      "three_months": 42252.0,
+      "six_months": 84504.0
+     }
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 4.609732124999937,
+  "intent": "advice",
+  "route": "advice->large",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": true
+ },
+ {
+  "id": "p10_sum",
+  "user_id": 10,
+  "kind": "sum",
+  "question": "เดือนที่แล้วใช้เงินค่าอาหารไปเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "เดือนกันยายน 2026 ค่าอาหาร 3,692 บาท",
+  "calls": [
+   {
+    "name": "sum_by_category",
+    "args": {
+     "month": "2026-09",
+     "category": "food"
+    },
+    "result": 3692.0
+   }
+  ],
+  "flags": [
+   "code_reply"
+  ],
+  "latency": 1.4195426669998596,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p10_compare",
+  "user_id": 10,
+  "kind": "compare",
+  "question": "Did I spend more on food in October than in September?",
+  "lang": "EN",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "Yes, you spent more on food in October than in September. You spent 4472.0 in October and 3692.0 in September, which is an increase of 780.0 or 21.1%.\n\nLooked up: Food, September 2026 / October 2026",
+  "calls": [
+   {
+    "name": "compare_months",
+    "args": {
+     "m2": "2026-10",
+     "category": "food",
+     "m1": "2026-09"
+    },
+    "result": {
+     "category": "food",
+     "m1": "2026-09",
+     "m2": "2026-10",
+     "m1_total": 3692.0,
+     "m2_total": 4472.0,
+     "diff": 780.0,
+     "pct_change": 21.1
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 3.601956292000068,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p10_over",
+  "user_id": 10,
+  "kind": "over",
+  "question": "Am I over budget this month?",
+  "lang": "EN",
+  "gold_intent": "budget_check",
+  "refusal_expected": false,
+  "answer": "In October 2026 you are over budget in 2 categories:\n- Entertainment: spent 1,285 of 900 baht (385 baht over)\n- Education: spent 779 of 700 baht (79 baht over)",
+  "calls": [
+   {
+    "name": "over_budget",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": [
+     {
+      "category": "entertainment",
+      "spent": 1285.0,
+      "limit": 900.0,
+      "over_by": 385.0
+     },
+     {
+      "category": "education",
+      "spent": 779.0,
+      "limit": 700.0,
+      "over_by": 79.0
+     }
+    ]
+   }
+  ],
+  "flags": [
+   "code_reply"
+  ],
+  "latency": 1.2394522909999068,
+  "intent": "budget_check",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p10_summary",
+  "user_id": 10,
+  "kind": "summary",
+  "question": "เดือนนี้ใช้เงินรวมไปเท่าไหร่ แล้วเหลือเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "เดือนตุลาคม 2026 รายรับ 12,000 บาท รายจ่าย 9,223 บาท\nเหลือ 2,777 บาท",
+  "calls": [
+   {
+    "name": "month_summary",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": {
+     "month": "2026-10",
+     "income_total": 12000.0,
+     "spending_total": 9223.0,
+     "net_cashflow": 2777.0,
+     "refunds_total": 0.0
+    }
+   }
+  ],
+  "flags": [
+   "code_reply"
+  ],
+  "latency": 1.3158591670000988,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p10_refuse",
+  "user_id": 10,
+  "kind": "refuse",
+  "question": "Should I put my savings into crypto?",
+  "lang": "EN",
+  "gold_intent": "out_of_scope",
+  "refusal_expected": true,
+  "answer": "I can't give investment advice, but I can help with your budget and spending.",
+  "calls": [
+   {
+    "name": "decline",
+    "args": {
+     "kind": "investment"
+    }
+   }
+  ],
+  "flags": [
+   "declined",
+   "routed_refusal"
+  ],
+  "latency": 0.3726058340000691,
+  "intent": "investment",
+  "route": "refuse",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p10_advice",
+  "user_id": 10,
+  "kind": "advice",
+  "question": "I keep running out of money before the end of the month, what should I do?",
+  "lang": "EN",
+  "gold_intent": "advice",
+  "refusal_expected": false,
+  "answer": "You can try the envelope method by dividing your monthly flexible spending into weekly allowances to avoid using next week's money too early. For this month (2026-10), your total spending was 9223.0. Once a week's allowance is gone, you should stop spending until the next week begins.\n\nSource: Dave Ramsey, The Total Money Makeover (envelope system) [G06]\nRead more (CFPB budgeting guide): https://www.consumerfinance.gov/archive/blog/budgeting-how-to-create-a-budget-and-stick-with-it/",
+  "calls": [
+   {
+    "name": "lookup_guideline",
+    "args": {
+     "guideline_id": "G06"
+    },
+    "result": {
+     "id": "G06",
+     "title": "Weekly spending allowance (envelope method)",
+     "tip": "Divide monthly flexible spending into weekly allowances so you can't use next week's money early; when a week's envelope is empty, stop.",
+     "source": "Dave Ramsey, The Total Money Makeover (envelope system)",
+     "url": null,
+     "read_more": "https://www.consumerfinance.gov/archive/blog/budgeting-how-to-create-a-budget-and-stick-with-it/",
+     "read_more_title": "CFPB budgeting guide"
+    }
+   },
+   {
+    "name": "month_summary",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": {
+     "month": "2026-10",
+     "income_total": 12000.0,
+     "spending_total": 9223.0,
+     "net_cashflow": 2777.0,
+     "refunds_total": 0.0
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 3.9861185419999856,
+  "intent": "advice",
+  "route": "advice->large",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": true
+ },
+ {
+  "id": "p10_breakdown",
+  "user_id": 10,
+  "kind": "breakdown",
+  "question": "เดือนนี้ใช้เงินไปกับอะไรบ้าง",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "รายจ่ายเดือนตุลาคม 2026\n- อาหาร: 4,472 บาท\n- ช้อปปิ้ง: 1,426 บาท\n- บันเทิง: 1,285 บาท\n- เดินทาง: 814 บาท\n- การศึกษา: 779 บาท\n- บิลและค่าสาธารณูปโภค: 398 บาท\n- อื่นๆ: 49 บาท\nรวม 9,223 บาท",
+  "calls": [
+   {
+    "name": "spending_by_category",
+    "args": {
+     "month": "2026-10"
+    },
+    "result": {
+     "month": "2026-10",
+     "by_category": {
+      "food": 4472.0,
+      "transport": 814.0,
+      "shopping": 1426.0,
+      "entertainment": 1285.0,
+      "bills": 398.0,
+      "education": 779.0,
+      "health": 0.0,
+      "other": 49.0
+     },
+     "total": 9223.0
+    }
+   }
+  ],
+  "flags": [
+   "code_reply"
+  ],
+  "latency": 1.3483634170002006,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p10_budget",
+  "user_id": 10,
+  "kind": "budget",
+  "question": "What's my food budget?",
+  "lang": "EN",
+  "gold_intent": "budget_check",
+  "refusal_expected": false,
+  "answer": "Your food budget for the month is 6,500.0.\n\nLooked up: Food budget",
+  "calls": [
+   {
+    "name": "get_budget",
+    "args": {
+     "category": "food"
+    },
+    "result": 6500.0
+   }
+  ],
+  "flags": [],
+  "latency": 1.7319229160000305,
+  "intent": "budget_check",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p10_named",
+  "user_id": 10,
+  "kind": "named",
+  "question": "ค่าเดินทางเดือนสิงหาคมเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "trend",
+  "refusal_expected": false,
+  "answer": "เดือนสิงหาคม 2026 ค่าเดินทาง 784 บาท",
+  "calls": [
+   {
+    "name": "sum_by_category",
+    "args": {
+     "month": "2026-08",
+     "category": "transport"
+    },
+    "result": 784.0
+   }
+  ],
+  "flags": [
+   "code_reply"
+  ],
+  "latency": 1.4443197500002043,
+  "intent": "trend",
+  "route": "small",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": false
+ },
+ {
+  "id": "p10_advice_th",
+  "user_id": 10,
+  "kind": "advice_th",
+  "question": "ควรมีเงินสำรองฉุกเฉินเท่าไหร่",
+  "lang": "TH",
+  "gold_intent": "advice",
+  "refusal_expected": false,
+  "answer": "คุณควรมีเงินสำรองฉุกเฉินประมาณ 3-6 เท่าของค่าใช้จ่ายรายเดือน โดยอ้างอิงจากค่าใช้จ่ายในเดือน 2026-10 ที่ 9,223.0 บาท คุณควรมีเงินสำรองอยู่ที่ 27,669.0 ถึง 55,338.0 บาทครับ\n\nแหล่งอ้างอิง: Consumer Financial Protection Bureau (CFPB): An essential guide to building an emergency fund [G02]\nอ่านเพิ่มเติม: https://www.consumerfinance.gov/an-essential-guide-to-building-an-emergency-fund/\nดูเพิ่ม (ธปท.: การวางแผนการเงิน (3-6 เท่า)): https://www.bot.or.th/th/satang-story/money-plan/planning-steps.html",
+  "calls": [
+   {
+    "name": "lookup_guideline",
+    "args": {
+     "guideline_id": "G02"
+    },
+    "result": {
+     "id": "G02",
+     "title": "Build an emergency fund",
+     "tip": "จำนวนที่ควรมีขึ้นกับสถานการณ์ของแต่ละคน ลองดูค่าใช้จ่ายไม่คาดคิดที่เคยเจอ ธปท. แนะนำให้มี 3-6 เท่าของค่าใช้จ่ายจำเป็นและค่าผ่อนหนี้ต่อเดือน แยกเก็บในบัญชีออมทรัพย์ และตั้งโอนอัตโนมัติเป็นประจำเพื่อให้เงินสะสมเอง",
+     "source": "Consumer Financial Protection Bureau (CFPB): An essential guide to building an emergency fund",
+     "url": "https://www.consumerfinance.gov/an-essential-guide-to-building-an-emergency-fund/",
+     "read_more": "https://www.bot.or.th/th/satang-story/money-plan/planning-steps.html",
+     "read_more_title": "ธปท.: การวางแผนการเงิน (3-6 เท่า)",
+     "amounts_for_this_student": {
+      "monthly_spending": 9223.0,
+      "based_on": "spending recorded in 2026-10",
+      "three_months": 27669.0,
+      "six_months": 55338.0
+     }
+    }
+   }
+  ],
+  "flags": [],
+  "latency": 3.7872838329999468,
+  "intent": "advice",
+  "route": "advice->large",
+  "escalated_by": [],
+  "validator_retries": 0,
+  "tool_ok": true,
+  "correct": true,
+  "false_decline": false,
+  "cited": true
+ }
+]

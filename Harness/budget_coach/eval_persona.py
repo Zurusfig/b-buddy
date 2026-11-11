@@ -3,12 +3,16 @@
     cd Harness/budget_coach && python eval_persona.py                  # all personas, about 59 questions
     python eval_persona.py --users 1,7,charlie                            # chosen personas
     python eval_persona.py --limit 6                                   # first 6 questions, quick check
+    python eval_persona.py --extended --out eval_persona_final         # 10 questions per persona, own report files
 
 Gold answers come from persona/ground_truth.json, which is built by the data generator, not from
 persona_data.py, so a bug in the loader cannot hide behind itself. Per persona, 6 questions:
   sum last month (focus category) · compare September vs October · over budget this month ·
   total spent and money left · refuse crypto · advice (cites a guideline id)
 Persona 7 (Grace) has no budgets, so the over-budget question is skipped for them.
+--extended adds 4 more per persona (10 in all; half Thai, half English):
+  breakdown of this month (Thai) · budget limit for food (Grace: must say no budget is set) ·
+  one category in August, named in Thai · advice asked in Thai (cites a guideline id)
 Needs Ollama for the small model and GATEWAY_KEY for advice and escalated questions.
 Overwrites eval_persona_results.md and eval_persona_rows.json (eval_routed.* are untouched).
 """
@@ -37,15 +41,20 @@ CATEGORY_TH = {"food": "อาหาร", "transport": "เดินทาง", 
 S, C, O, M = "sum_by_category", "compare_months", "over_budget", "month_summary"
 LAST, THIS = "2026-09", "2026-10"
 KINDS = {"sum": "trend", "compare": "trend", "over": "budget_check", "summary": "trend",
-         "refuse": "out_of_scope", "advice": "advice"}
+         "refuse": "out_of_scope", "advice": "advice",
+         "breakdown": "trend", "budget": "budget_check", "named": "trend", "advice_th": "advice"}
+NUMERIC = ("sum", "compare", "over", "summary", "breakdown", "budget", "named")
+ADVICE = ("advice", "advice_th")
+AUG = "2026-08"
+NO_BUDGET = re.compile(r"haven.t set a budget|no budget|not set.*budget|ยังไม่ได้ตั้งงบ|ไม่มีงบ", re.I)
 
 
 def call(name, **args):
     return (name, args)
 
 
-def questions_for(p: dict) -> list[dict]:
-    """The 6 questions for one persona, with gold taken from its ground-truth entry."""
+def questions_for(p: dict, extended: bool = False) -> list[dict]:
+    """The 6 questions for one persona (10 with `extended`), with gold taken from its ground-truth entry."""
     sep, octo = p["months"][LAST], p["months"][THIS]
     focus = max(sep["spending_by_category"], key=sep["spending_by_category"].get)
     th = CATEGORY_TH[focus]
@@ -72,25 +81,53 @@ def questions_for(p: dict) -> list[dict]:
         ("advice", "I keep running out of money before the end of the month, what should I do?",
          [[call("lookup_guideline", guideline_id="*")]], None, None),
     ]
+    if extended:
+        top = max(octo["spending_by_category"], key=octo["spending_by_category"].get)
+        aug = p["months"][AUG]["spending_by_category"]
+        cat = "transport" if aug.get("transport") else max(aug, key=aug.get)
+        qs.append(("breakdown", "เดือนนี้ใช้เงินไปกับอะไรบ้าง", [[call("spending_by_category", month=THIS)]],
+                   [octo["spending_total"], octo["spending_by_category"][top]], None))
+        if p["budgets"] is not None:
+            qs.append(("budget", "What's my food budget?", [[call("get_budget", category="food")]], "value",
+                       p["budgets"]["food"]))
+        else:  # no budgets set: a correct reply says so (no tool result is needed for that)
+            qs.append(("budget", "What's my food budget?", [[]], "no_budget", None))
+        qs += [
+            ("named", f"ค่า{CATEGORY_TH[cat]}เดือนสิงหาคมเท่าไหร่", [[call(S, month=AUG, category=cat)]], "value",
+             aug[cat]),
+            ("advice_th", "ควรมีเงินสำรองฉุกเฉินเท่าไหร่", [[call("lookup_guideline", guideline_id="*")]], None, None),
+        ]
     return [{"id": f"p{uid}_{kind}", "set": "persona", "user_id": uid, "kind": kind, "question": q,
              "accept": accept, "check": check, "gold_value": gold} for kind, q, accept, check, gold in qs]
 
 
-def all_questions(users: set[int] | None = None) -> list[dict]:
+def all_questions(users: set[int] | None = None, extended: bool = False) -> list[dict]:
     gt = json.loads(GROUND_TRUTH.read_text("utf-8"))["personas"]
-    return [q for p in gt if users is None or p["user_id"] in users for q in questions_for(p)]
+    return [q for p in gt if users is None or p["user_id"] in users for q in questions_for(p, extended)]
+
+
+def score(q: dict, r: dict) -> dict:
+    """eval_agent.score, plus the one check it does not know: a no-budget reply."""
+    if q["check"] != "no_budget":
+        return eval_agent.score(q, r)
+    declined = any(c["name"] == "decline" for c in r["calls"])
+    return {**r, "tool_ok": True, "correct": bool(NO_BUDGET.search(r["answer"])), "false_decline": declined}
 
 
 def main(argv: list[str]) -> None:
     users = None
     if "--users" in argv:
         users = {persona_data.resolve_user(u) for u in argv[argv.index("--users") + 1].split(",")}
-    qs = all_questions(users)
+    global OUT_FILE, ROWS_FILE
+    if "--out" in argv:  # e.g. --out eval_persona_final -> eval_persona_final_results.md / _rows.json
+        stem = argv[argv.index("--out") + 1]
+        OUT_FILE, ROWS_FILE = HERE / f"{stem}_results.md", HERE / f"{stem}_rows.json"
+    qs = all_questions(users, extended="--extended" in argv)
     if "--limit" in argv:
         qs = qs[: int(argv[argv.index("--limit") + 1])]
     rows = []
     for i, q in enumerate(qs, 1):
-        r = eval_agent.score(q, persona_agent.answer_persona(q["question"], q["user_id"]))
+        r = score(q, persona_agent.answer_persona(q["question"], q["user_id"]))
         row = {"id": q["id"], "user_id": q["user_id"], "kind": q["kind"], "question": q["question"],
                "lang": "TH" if THAI.search(q["question"]) else "EN", "gold_intent": KINDS[q["kind"]],
                "refusal_expected": q["accept"] == "decline",
@@ -106,8 +143,8 @@ def main(argv: list[str]) -> None:
 
 def report(rows: list[dict]) -> None:
     n = len(rows)
-    numeric = [r for r in rows if r["kind"] in ("sum", "compare", "over", "summary")]
-    advice = [r for r in rows if r["kind"] == "advice"]
+    numeric = [r for r in rows if r["kind"] in NUMERIC]
+    advice = [r for r in rows if r["kind"] in ADVICE]
     refusals = [r for r in rows if r["refusal_expected"]]
     lat = [r["latency"] for r in rows]
     keys = {u["user_id"]: u["key"] for u in persona_data.list_users()}
