@@ -41,9 +41,9 @@ MAX_VAGUE_CHARS = 30
 # total spent, or the limits they set. Naming a budget, a limit or a category is a yardstick, so that goes straight through.
 JUDGMENT = re.compile(r"hurt|too much|\bok(?:ay)?\b|\bfine\b|\bbad\b|เยอะไป|เยอะเกิน|เยอะไหม|เยอะมั้ย|โอเคไหม|โอเคมั้ย|เจ็บ", re.I)
 YARDSTICK = re.compile(r"budget|limit|overspen|\bover\b|งบ|เกิน|วงเงิน|หมวด|categor", re.I)
-# Asking for an amount, a list or a comparison is a clear question, whatever the wording around it.
+# Asking for an amount, a list, a comparison or the student's income is a clear question, whatever the wording around it.
 AMOUNT = re.compile(r"how (?:much|many)|\bamount\b|\btotal\b|what (?:did|do|have) i spen[dt]|where (?:did|does) my money|break ?down|"
-                    r"summary|compare|list|เท่าไหร่|เท่าไร|กี่บาท|อะไรบ้าง|ไรบ้าง|หายไปไหน|ไปไหนหมด|ไปกับอะไร|ยอด|สรุป|แยก|เทียบ|รวม", re.I)
+                    r"summary|compare|list|income|earn(?:ed|ing)?|salary|allowance|รายได้|เงินเดือน|ค่าขนม|เท่าไหร่|เท่าไร|กี่บาท|อะไรบ้าง|ไรบ้าง|หายไปไหน|ไปไหนหมด|ไปกับอะไร|ยอด|สรุป|แยก|เทียบ|รวม", re.I)
 MONTH_WORDS = [("january", 1), ("february", 2), ("march", 3), ("april", 4), ("may", 5), ("june", 6), ("july", 7),
                ("august", 8), ("september", 9), ("october", 10), ("november", 11), ("december", 12)]
 

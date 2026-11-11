@@ -147,5 +147,12 @@ class AppReplyTests(unittest.TestCase):
         self.assertEqual(coach_server.shape(r)["options"], [])
 
 
+
+class IncomeTests(unittest.TestCase):  # 500-question eval: "What was my income in August?" got buttons, not an answer
+    def test_income_questions_are_not_judgments(self):
+        for q in ("What was my income in August?", "How much did I earn last month?", "รายได้เดือนสิงหาคมเท่าไหร่"):
+            self.assertIsNone(clarify.unsure(q), q)
+
+
 if __name__ == "__main__":
     unittest.main()

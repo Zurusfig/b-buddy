@@ -23,7 +23,8 @@ TOOL_NAMES = ("sum_by_category", "sum_categories", "spending_by_category", "comp
               "get_transactions")
 DATA_TOOLS = frozenset(TOOL_NAMES) | {"lookup_guideline"}
 CLASSIFIER_HINT = ("This student's categories also include bills (rent, phone, internet, utilities) and "
-                   "health (gym, pharmacy, clinic). Money spent on these is trend.")
+                   "health (gym, pharmacy, clinic). Money spent on these is trend, and so is the student's own income "
+                   "(income, salary, allowance, money earned).")
 
 
 def _system(data: PersonaData) -> str:

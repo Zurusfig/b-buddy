@@ -279,6 +279,10 @@ class RouterWordingTests(unittest.TestCase):
         self.assertIn("not investment", router.PROMPT)
         self.assertIn("gold", router.PROMPT)  # real investment words are still listed
 
+    def test_income_questions_are_in_scope(self):  # 500-question eval: "What was my income in August?" was refused
+        self.assertIn("income", router.PROMPT)
+        self.assertIn("never off_topic", router.PROMPT)
+
 
 class AdviceThinkingTests(unittest.TestCase):
     Q = "how big should my emergency fund be?"
